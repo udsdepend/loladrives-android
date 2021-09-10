@@ -1,0 +1,42 @@
+h1	{text-align:left;
+	font-family: Geneva,sans-serif;
+  font-size: x-large;
+  color: rgb(68,188,212);
+	}
+  h2 {
+  text-align:left;
+	font-family: Geneva,sans-serif;
+  color: rgb(68,188,212);
+  }
+h3 {
+  padding-top: 1em;
+  color: rgb(68,188,212);
+}
+p {
+  text-align: justify;
+}
+tr.spaceUnder>th,td {
+  padding-bottom: 1em;
+}
+
+td {
+  text-align: left;
+  vertical-align: middle;
+  padding-bottom: 1em;
+}
+
+th {
+  padding-bottom: 1em;
+}
+
+.responsive {
+  max-width: 60%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  height: auto;
+}
+
+body {
+margin: 20px;
+}

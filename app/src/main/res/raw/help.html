@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+ <head>
+     <link rel="stylesheet" href="style.css">
+ </head>
+ <body bgcolor = "#ffffff" text = "#000000">
+<h1 id="LolaDrives – Help">LolaDrives – Help</h1>
+<p>Thank you for helping us with our endeavour to understand the exhaust systems of passenger cars! We want to make the behaviour of your car more transparent and perspicuous for both you and us. To this end, some aspects must be considered and a couple of frequently asked questions arise to use this app correctly.</p>
+
+<h2 id="Why is this app necessary?">Why is this app necessary?</h2>
+<p>The Diesel Scandal of 2015 revealed that many diesel cars of several car manufacturers deployed emission cleaning systems that complied to the official government regulations only under lab conditions. Measurements on the road revealed emissions that were multitudes higher than in the lab; in particular, above the threshold that is written in the regulation.</p>
+
+<p>Non-conforming behaviour is typically detected by first noticing some irregularities during normal usage, and then confirming the suspicion by scientific measurements. For example, too much fuel consumption can be noticed by too frequent visits at the gas station. Emissions leaving the exhaust pipe, however, cannot be observed, hence there is no <i>initial suspicion</i> that would give reason to do scientific measurements.</p>
+
+<p>This app serves two purposes:</p>
+<ol start="1"><li>It provides you with an affordable tool to "observe" emissions of your car to potentially express an <i>initial suspicion</i>, and
+</li><li>by donating your data to us, we are able to improve this tool and to do further analysis by combining emissions data of different cars.
+</li></ol>
+
+<p>We currently focus on nitric oxides (NO and NO2) only.</p>
+
+<h2 id="Who is behind this app?">Who is behind this app?</h2>
+<p>This app is developed by computer science researchers at Saarland University in Germany. We investigate the phenomenon of <i>software doping</i>, that is, intentionally hidden software components that are against the interests of the user or of society.</p>
+
+<h2 id="Which data is shared with the developers?">Which data is shared with the developers?</h2>
+<p>You can decide at any time, that you do not want to share data with us. In this case, indeed, no data is shared with us.</p>
+<p>If you opt into data donation, the following data may be shared with us:</p>
+<ul><li>Diagnostic data of your car (e.g., speed, several temperatures and sensor values),
+</li><li>the identification number of your vehicle (VIN),
+</li><li>the GPS data of your mobile device (only during RDE tests), and 
+</li><li>your IP address and port number when you upload data.
+</li></ul>
+
+<p>Your data is protected under EU's GDPR. Please see the privacy policy for all details.</p>
+
+<h2 id="What do I need to use this app?">What do I need to use this app?</h2>
+<p>You need a mobile Android device that can provide GPS data.</p>
+
+<p>To read the diagnostics data from your car, you need a Bluetooth OBD adapter. These adapters can be purchased at affordable prices.</p>
+
+<p>Your car must provide all necessary diagnostic data. The app checks compliance once it is connected to the Bluetooth OBD adapter. As a rule of thumb, cars that do not use diesel exhaust fluid (also known as DEF, AUS 32, Ad-Blue or urea), are not compatible as they do not have an onboard nitric oxygen sensor. If the car uses diesel exhaust fluid, chances are high that it is supported.</p>
+
+<h2 id="What are RDE tests?">What are RDE tests?</h2>
+<p>RDE is an abbreviation for <i>Real Driving Emissions</i>. It is defined in the EU and US regulations for emissions tests on the road. This allows more realistic testing than in the lab. The regulation defines precisely which driving behaviour constitutes an RDE test and the maximum amount of gases that may be emitted during the test.</p>
+
+<p>Unfortunately, it is not easy to follow the RDE conditions in practice. However, if you read the remainder of this section, and if you use the RDE guiding view of LolaDrives, there is a high chance that you will be able to perform a valid RDE test; LolaDrives shows the most important characteristics of your trip in an easy to grasp way.</p>
+
+<p><b>Warning: Do not use your phone when driving. Conducting RDE tests is a task for two persons: the driver and a navigator, who reads and interprets the data of Lola Drives.</b></p>
+
+<h3 id="Trip Conditions">Trip Conditions</h3>
+<p><i>Duration:</i> Every RDE drive must last between 90 and 120 minutes. </p>
+
+<p><i>Segments:</i> Tests consist of three segments: <i>Urban</i>, <i>Rural</i> and <i>Motorway</i>. Although the names may give the impression that the segments are determined by the type of road you are driving, the decisive criterion is the speed of the car:</p>
+<ul><li>Between 0 and 60 km/h is accounted to Urban,
+</li><li>between 61 and 90 km/h counts to Rural, and
+</li><li>between 91 and 145km/h represents the Motorway segment.
+</li></ul>
+
+<p><i>Distance:</i> In each segment, at least 16 km must be travelled. At the end of the trip, the Urban segment must constitute between 29% and 44% to the total trip distance, Rural and Motorway segment each must constitute between 23% to 43% to the total distance.</p>
+<p><i>Tipp: A consequence of the distance constraints is that the Urban segment takes the most time. In our experiments, we spent about half the time for the Urban segment.</i></p>
+<p>Before you begin with an RDE test, LolaDrives asks you about the expected trip length that you are targeting. Based on this information, the guiding view displays a bar for each segment with the lower and upper percentage for the expected total trip length.</p>
+<p><i>Tipp: It may happen regularly in the Rural segment that you get back into the Urban segment (e.g., when crossing villages or due to speed reductions), so try to target the lower limit of the Urban segment.</i></p>
+
+<p><i>Stop Time:</i> Stops can only happen in the Urban segment, because the segment is determined by the speed. Between 6% and 30% of the total time in the Urban segment must consist of stops. At least five of these stops must be at least 30 seconds long.</p>
+
+<p><i>Trip Dynamics</i>: The accelerations must not be too soft or too aggressive. It is difficult to describe the precise conditions here. If you drive reasonably, you will meet the driving dynamics conditions. The guiding view of LolaDrives gives you visual feedback for your driving dynamics: The blue bars are separated by a wall in the middle. Each half contains a small ball. You should keep both balls close to the wall in the middle. The left ball moves to the left if the driving behaviour is too soft, and the right ball moves to the right if the driving behaviour is too aggressive.</p>
+<p><i>Tipp: The trip dynamics indicators in the guiding view will become meaningful after a few kilometres of driving in the segment.</i></p>
+
+<p>These are the most important conditions that must be met. More conditions can be found in the table below, in the regulation and on several websites.</p>
+
+<table style="width:100%">
+  <tr>
+    <th>Ambient Temperature</th>
+    <td>0°C to 30°C</td>
+  </tr>
+  <tr>
+    <th>Maximum Speed</th>
+    <td>145km/h (160km/h for 3% of the time in <i>Motorway</i>)</td>
+  </tr>
+  <tr>
+    <th>Payload</th>
+    <td>&#8804; 90% of maximum vehicle weight</td>
+  </tr>
+  <tr>
+  <th>Altitude</th>
+    <td>0m to 700m</td>
+  </tr>
+  <tr>
+  <th>Stop percentage</th>
+    <td>6% to 30% of time in <i>Urban</i></td>
+  </tr>
+</table>
+
+
+
+<!--<p>Hello and welcome to the user guide of <strong>LolaDrives</strong>.</p>
+<p>In this help page, we give you general information about the <strong>RDE</strong> test procedure and how <strong>LolaDrives</strong> can help you to perform a <strong>RDE</strong> drive.</p>
+<h2>What is RDE ? </h2>
+<p>The <strong>RDE</strong> (<i>Real Driving Emissions</i>) test procedure is intended to provide more information about the actual emission behavior of vehicles in operation on the road.</p>
+  <p>For this purpose, a test drive is no longer carried out in the laboratory under the same, precisely defined conditions, but on the road.</p>
+  <p>To ensure that these tests remain representative and repeatable, while  covering a broad range of driving conditions
+typically encountered by European drivers, a <strong>RDE</strong> drive must meet a number of criteria set by the EU. <br> 
+These conditions refer both to the driving behavior, for example the driven speed, and to the environment of the drive, such as the ambient temperature.</p>
+<p>In the following we give an overview of the most important criteria that <strong>LolaDrives</strong>, of course, helps you to meet.</p>
+<h3 id="trip_requirements">Trip Specification</h3>
+<p>A <strong>RDE</strong> drive must last exactly 90 to 120 minutes. <br>
+A vehicle performing a <strong>RDE</strong> drive, is operating in three types of enviornments: <i>Urban</i>, <i>Rural</i> and <i>Motorway</i>. <br>
+These classifications are based purely on speed.</p>
+
+<p>In each of these three environments, at least 16 km of distance must be travelled, meaning that an <strong>RDE</strong> drive must be at least 48 km long.
+<br><br>
+A few more important criteria are listed in the following table:</p>
+
+<table style="width:100%">
+  <tr>
+  <th></th>
+    <th>Urban</th>
+    <th>Rural</th>
+    <th>Motorway</th>
+  </tr>
+  <tr>
+    <th>Average Speed<br>[km/h]</th>
+    <td>0 to 60</td>
+    <td>61 to 90</td>
+    <td>91 to 160</td>
+  </tr>
+  <tr>
+  <th>Percentage <br> of  <br> total distance</th>
+    <td>29 to 44</td>
+    <td>23 to 43</td>
+    <td>23 to 43</td>
+  </tr>
+</table>
+<p>In addition to this trip characterization, there are other defined boundary conditions including ambient conditions, stop times, maximum speed and altitude.</p>
+<p> Any drive falling outside a single boundary condition, can not be considered a valid <strong>RDE</strong> drive.</p>
+<p><b>Boundary Conditions</b></p>
+<table style="width:100%">
+  <tr>
+    <th>Ambient Temperature</th>
+    <td>0°C to 30°C</td>
+  </tr>
+  <tr>
+    <th>Maximum Speed</th>
+    <td>145km/h (160km/h for 3% of the time in <i>Motorway</i>)</td>
+  </tr>
+  <tr>
+    <th>Payload</th>
+    <td>&#8804; 90% of maximum vehicle weight</td>
+  </tr>
+  <tr>
+  <th>Altitude</th>
+    <td>0m to 700m</td>
+  </tr>
+  <tr>
+  <th>Stop percentage</th>
+    <td>6% to 30% of time in <i>Urban</i></td>
+  </tr>
+</table>
+
+
+
+<h2 id="app_usage">App usage</h2>
+<p>This is an example paragraph sdfsdf This is an example paragraph sdfsdfThis is an example paragraph sdfsdf
+  This is an example paragraph sdfsdf
+  This is an example paragraph sdfsdfThis is an example paragraph sdfsdf</p>
+  <p>This is an example paragraph sdfsdf This is an example paragraph sdfsdfThis is an example paragraph sdfsdf
+  This is an example paragraph sdfsdf
+  This is an example paragraph sdfsdfThis is an example paragraph sdfsdf</p>
+  <p>This is an example paragraph sdfsdf This is an example paragraph sdfsdfThis is an example paragraph sdfsdf
+  This is an example paragraph sdfsdf
+  This is an example paragraph sdfsdfThis is an example paragraph sdfsdf</p>
+-->
+ </body>
+</html>

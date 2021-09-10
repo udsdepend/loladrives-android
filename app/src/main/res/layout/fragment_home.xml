@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context=".Fragments.HomeFragment">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/select_device_refresh"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="161dp"
+        android:layout_marginLeft="161dp"
+        android:layout_marginTop="341dp"
+        android:layout_marginEnd="162dp"
+        android:layout_marginRight="162dp"
+        android:text="@string/refresh"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/listViewLower"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.94" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.13" />
+
+    <TextView
+        android:id="@+id/headerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome to LolaDrives"
+        android:textColor="@color/homeIconText"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:typeface="sans"
+        app:layout_constraintLeft_toLeftOf="@id/guideLineLeft"
+        app:layout_constraintRight_toRightOf="@id/guideLineRight"
+        app:layout_constraintTop_toTopOf="@id/guideLineHeader" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVerticalMid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <ImageView
+        android:id="@+id/rdeImageButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/ic_action_car"
+        app:layout_constraintBottom_toBottomOf="@id/guideLineButtonsLower1"
+        app:layout_constraintLeft_toLeftOf="@id/guideLineLeft"
+        app:layout_constraintRight_toRightOf="@id/guidelineVerticalMid"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonsUpper1"
+        app:tint="@color/homeIcon" />
+
+    <ImageView
+        android:id="@+id/monitoringImageButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:paddingTop="13dp"
+        android:paddingBottom="13dp"
+        android:src="@drawable/monitoring_icon"
+        app:layout_constraintBottom_toBottomOf="@id/guideLineButtonsLower1"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid"
+        app:layout_constraintRight_toRightOf="@id/guideLineRight"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonsUpper1"
+        app:tint="@color/homeIcon" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineButtonsUpper1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.22" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineButtonsLower1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.38" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineButtonTexts1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.37" />
+
+    <TextView
+        android:id="@+id/textViewRDE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RDE"
+        android:textColor="@color/homeIconText"
+        android:textSize="25sp"
+        android:typeface="sans"
+        app:layout_constraintLeft_toLeftOf="@id/guideLineLeft"
+        app:layout_constraintRight_toRightOf="@id/guidelineVerticalMid"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonTexts1" />
+
+    <TextView
+        android:id="@+id/textViewMonitoring"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Monitoring"
+        android:textColor="@color/homeIconText"
+        android:textSize="25sp"
+        android:typeface="sans"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid"
+        app:layout_constraintRight_toRightOf="@id/guideLineRight"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonTexts1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineButtonsUpper2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.45" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineButtonsLower2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.6" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineButtonTexts2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.59" />
+
+    <TextView
+        android:id="@+id/textView11"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/guideLineButtonsUpper1"
+        app:layout_constraintLeft_toLeftOf="@id/guideLineLeft"
+        app:layout_constraintRight_toRightOf="@id/guideLineRight" />
+
+    <ImageView
+        android:id="@+id/profilesImageButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="8dp"
+        android:src="@drawable/widget_icon"
+        app:layout_constraintBottom_toBottomOf="@id/guideLineButtonsLower2"
+        app:layout_constraintLeft_toLeftOf="@id/guideLineLeft"
+        app:layout_constraintRight_toRightOf="@id/guidelineVerticalMid"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonsUpper2"
+        app:tint="@color/homeIcon" />
+
+    <ImageView
+        android:id="@+id/historyImageButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/ic_action_trackhistory"
+        app:layout_constraintBottom_toBottomOf="@id/guideLineButtonsLower2"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid"
+        app:layout_constraintRight_toRightOf="@id/guideLineRight"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonsUpper2"
+        app:tint="@color/homeIcon" />
+
+    <TextView
+        android:id="@+id/textViewProfiles"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Profiles"
+        android:textColor="@color/homeIconText"
+        android:textSize="25sp"
+        android:typeface="sans"
+        app:layout_constraintLeft_toLeftOf="@id/guideLineLeft"
+        app:layout_constraintRight_toRightOf="@id/guidelineVerticalMid"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonTexts2" />
+
+    <TextView
+        android:id="@+id/textViewHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="History"
+        android:textColor="@color/homeIconText"
+        android:textSize="25sp"
+        android:typeface="sans"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid"
+        app:layout_constraintRight_toRightOf="@id/guideLineRight"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonTexts2" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineButtonsUpper3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.68" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineButtonsLower3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.83" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineButtonTexts3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.82" />
+
+    <ImageView
+        android:id="@+id/privacyImageButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="0dp"
+        android:paddingEnd="10dp"
+        android:src="@drawable/privacy_icon"
+        app:layout_constraintBottom_toBottomOf="@id/guideLineButtonsLower3"
+        app:layout_constraintLeft_toLeftOf="@id/guideLineLeft"
+        app:layout_constraintRight_toRightOf="@id/guidelineVerticalMid"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonsUpper3"
+        app:tint="@color/homeIcon" />
+
+    <ImageView
+        android:id="@+id/helpImageButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="10dp"
+        android:src="@drawable/help_icon"
+        app:layout_constraintBottom_toBottomOf="@id/guideLineButtonsLower3"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid"
+        app:layout_constraintRight_toRightOf="@id/guideLineRight"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonsUpper3"
+        app:layout_constraintVertical_bias="0.0"
+        app:tint="@color/homeIcon" />
+
+    <TextView
+        android:id="@+id/textViewSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Privacy"
+        android:textColor="@color/homeIconText"
+        android:textSize="25sp"
+        android:typeface="sans"
+        app:layout_constraintLeft_toLeftOf="@id/guideLineLeft"
+        app:layout_constraintRight_toRightOf="@id/guidelineVerticalMid"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonTexts3" />
+
+
+    <TextView
+        android:id="@+id/textViewHelp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Help"
+        android:textColor="@color/homeIconText"
+        android:textSize="25sp"
+        android:typeface="sans"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid"
+        app:layout_constraintRight_toRightOf="@id/guideLineRight"
+        app:layout_constraintTop_toTopOf="@id/guideLineButtonTexts3" />
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/redDot"
+        android:layout_width="75dp"
+        android:layout_height="46dp"
+        android:src="@drawable/blinksred"
+        app:layout_constraintBottom_toBottomOf="@id/guideLineRedDotH"
+        app:layout_constraintLeft_toLeftOf="@id/guideLineRedDotV" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineRedDotV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.07" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineRedDotH"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.25" />
+
+    <TextView
+        android:id="@+id/homeTotalRDETime"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:text="00:00:00"
+        android:textSize="22dp"
+
+        android:translationX="-15dp"
+        android:translationY="-8dp"
+        app:layout_constraintBottom_toTopOf="@id/guideLineRedDotH"
+        app:layout_constraintLeft_toRightOf="@id/redDot" />
+
+    <!--    <TextView-->
+    <!--        android:id="@+id/textViewButtonImpressum"-->
+    <!--        android:layout_width="80dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="Impressum"-->
+    <!--        android:gravity="center"-->
+    <!--        android:textColor="@color/homeIconText"-->
+    <!--        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/textViewButtonAck"-->
+    <!--        android:layout_marginBottom="10dp"-->
+    <!--        android:translationX="-40dp"/>-->
+    <!--    <TextView-->
+    <!--        android:id="@+id/textViewButtonAck"-->
+    <!--        android:layout_width="140dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="Acknowledgements"-->
+    <!--        android:translationX="-70dp"-->
+    <!--        android:gravity="center"-->
+    <!--        android:textColor="@color/homeIconText"-->
+    <!--        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        android:layout_marginBottom="15dp"/>-->
+
+<!--    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/cpecGrey"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />-->
+
+    <TextView
+        android:id="@+id/textViewButtonImpressum"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="15dp"
+        android:text="Impressum"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/homeFooterText"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewDot"/>
+
+    <TextView
+        android:id="@+id/textViewDot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="•"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/homeFooterText"
+        android:textSize="25dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textViewButtonImpressum"
+        app:layout_constraintStart_toEndOf="@+id/textViewButtonAck" />
+
+    <TextView
+        android:id="@+id/textViewButtonAck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="10dp"
+        android:text="Acknowledgements"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/homeFooterText"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textViewDot"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

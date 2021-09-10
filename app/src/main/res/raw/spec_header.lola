@@ -1,0 +1,13 @@
+//////////////////////////////////////////////////////////
+// Test Parameters                                      //
+//////////////////////////////////////////////////////////
+input v: Float64           // vehicle speed in [km/h]
+output vp : Float64 @1Hz :=  v.hold().defaults(to: 0.0) //vehcile speed periodic stream
+input altitude: Float64     // above see level in [m]
+output altitudep : Float64 @1Hz := altitude.hold().defaults(to: 0.0) //altitude periodic stream
+input temperature: Float64 // ambient temperature in [K]
+output temperaturep: Float64 @1Hz := temperature.hold().defaults(to: 280.0) //temperature periodic stream
+// we only do this exemplary for NOx and CO2
+input nox_ppm: Float64  // in [ppm]
+output nox_ppmp: Float64 @1Hz := nox_ppm.hold().defaults(to: 0.0) //nox periodic stream
+input mass_air_flow : Float64

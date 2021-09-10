@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    <color name="colorPrimary">#828689</color>-->
+<!--    <color name="colorPrimaryDark">#626665</color>-->
+    <color name="colorPrimary">#3C3C3C</color>
+    <color name="colorPrimaryDark">#3C3C3C</color>
+    <color name="colorAccent">#44BCD4</color>
+    <color name="whiteColor">#FFFFFF</color>
+    <color name="redColor">#F44336</color>
+    <color name="greenColor">#4CAF50</color>
+    <color name="lightGreen">#D0F6A3</color>
+    <color name="lightRed">#F6AAA3</color>
+    <color name="darkGrey">#5A5A5A</color>
+    <color name="lighGrey">#ACACAC</color>
+    <color name="orange">#FF9800</color>
+    <color name="lightOrange">#F8B859</color>
+    <color name="lightBlue">#0CBAEF</color>
+    <color name="otherBlue">#066879</color>
+    <color name="darkBlue">#4F96FF</color>
+    <color name="elmGreen">#6dc072</color>
+    <color name="elmRed">#c55a57</color>
+    <color name="cpecBlue">#44BCD4</color>
+    <color name="cpecGreen">#AAC811</color>
+    <color name="cpecGrey">#3C3C3C</color>
+    <color name="homeIcon">@color/cpecBlue</color>
+    <color name="homeIconText">#000000</color>
+    <color name="homeFooterText">@color/cpecBlue</color>
+    <color name="questionYellow">#FEC308</color>
+</resources>

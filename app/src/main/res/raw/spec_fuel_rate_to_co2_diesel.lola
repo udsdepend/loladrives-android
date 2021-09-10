@@ -1,0 +1,8 @@
+
+ output consumption : Float64 := (fuel_rate / 3600.0)                    //[l/h] * [h/s] = [l/s] * 1 [s] since 1Hz = [l]
+output weight : Float64 := consumption * 832.0                          //[l] * [g/l] = [g]  (Diesel Density)
+output carbon : Float64 := weight * 0.861                               //[g] * [] = [g]     (Diesel Carbon Content)
+output c_mol : Float64 := carbon * 1.0 / 12.011                         //[] * [g] * [mol/g] = [mol] (Oxidation and carbonGPM)
+output o_mol : Float64 :=  2.0 * c_mol                                  //[] * [mol] = [mol]
+output co2_g : Float64 := c_mol * 12.011 + o_mol * 15.999               //[mol] * [g/mol] = [g]
+output co2_ppm : Float64 :=  if exhaust_mass_flow > 0.0 then co2_g / (0.001517 * exhaust_mass_flow) else 0.0      //[g/s] * [s/kg] = [ppm]

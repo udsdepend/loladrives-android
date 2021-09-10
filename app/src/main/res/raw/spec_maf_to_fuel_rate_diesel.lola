@@ -1,0 +1,4 @@
+
+//Diesel
+output consumption_maf : Float64 := mass_air_flow / 14.5    // [g/s] * [] * [] = [g/s]
+output fuel_rate : Float64 := consumption_maf / 832.0 * 3600.0

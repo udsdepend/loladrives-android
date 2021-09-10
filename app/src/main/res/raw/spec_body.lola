@@ -1,0 +1,228 @@
+output co2_ppmp: Float64 @1Hz := co2_ppm.hold().defaults(to: 0.0) //co2 periodic stream
+output exhaust_mass_flowp: Float64 @1Hz := exhaust_mass_flow.hold().defaults(to: 0.0)  //exhaust mass flow periodic stream
+
+//////////////////////////////////////////////////////////
+// Auxiliary Streams                                    //
+//////////////////////////////////////////////////////////
+output is_stop: Bool     :=  vp < 1.0         // 6.8
+output is_urban: Bool    :=  vp <= 60.0       // 6.3
+output is_rural: Bool    := (60.0 <  vp) && ( vp <= 90.0)  // 6.4
+output is_motorway: Bool := 90.0 <  vp        // 6.5
+output Dd: Float64 @1Hz := 1.0 * vp / 3.6  // distance in [m] Dt
+// total duration
+output duration: Float64 @1Hz := duration.offset(by: -1).defaults(to: 0.0) + 1.0 //Dt
+// maximal suffix distance
+output d: Float64 @1Hz := Dd.aggregate(over: 2h, using: sum)  // in [m]
+// distance of the respective segments
+output d_u_h: Float64 @1Hz  := if is_urban then Dd else 0.0
+output d_u: Float64 @1Hz := d_u_h.aggregate(over: 2h, using: sum)
+output d_r_h: Float64 @1Hz   := if is_rural then Dd else 0.0
+output d_r: Float64 @1Hz := d_r_h.aggregate(over: 2h, using: sum)
+output d_m_h: Float64 @1Hz   := if is_motorway then Dd else 0.0
+output d_m: Float64 @1Hz := d_m_h.aggregate(over: 2h, using: sum)
+// maximal suffix duration
+output t: Float64 @1Hz     := t.offset(by: -1).defaults(to: 0.0) + 1.0 // in [s] //Dt
+// duration of the respective segments
+output t_u_h: Float64 @1Hz     := if is_urban then 1.0 else 0.0 //Dt
+output t_u: Float64 @1Hz   := t_u_h.aggregate(over: 2h, using: sum)
+output t_r_h: Float64 @1Hz     := if is_rural then 1.0 else 0.0 //Dt
+output t_r: Float64 @1Hz   := t_r_h.aggregate(over: 2h, using: sum)
+output t_m_h: Float64 @1Hz      := if is_motorway then 1.0 else 0.0 //Dt
+output t_m: Float64 @1Hz   := t_m_h.aggregate(over: 2h, using: sum)
+// urban specific auxiliary streams
+output u_avg_v_h: Float64 @1Hz := if is_urban then v.hold().defaults(to: 0.0) else 0.0
+output u_avg_v_h_h: Float64 @1Hz := if is_urban then 1.0 else 0.0
+output u_avg_v_h_h_a : Float64 @1Hz := u_avg_v_h_h.aggregate(over: 2h,using: sum)
+output u_avg_v : Float64 @1Hz := u_avg_v_h.aggregate(over: 2h,using: sum) / (if u_avg_v_h_h_a > 0.0 then u_avg_v_h_h_a else 1.0)
+output u_stop_t_h: Float64 @1Hz    := if is_stop then 1.0 else 0.0 //Dt
+output u_stop_t: Float64 @1Hz := u_stop_t_h.aggregate(over: 2h, using: sum)
+output u_stop_pc: Float64 @1Hz   := if t_u > 0.0 then u_stop_t / t_u else 0.0
+// count long stops
+output stop_period: Float64 :=
+  if is_stop then stop_period.offset(by: -1).defaults(to: 0.0) + 1.0 else  0.0 //Dt
+output indicate_long_stop: Int64 :=
+  if stop_period > 10.0 && stop_period.offset(by: -1).defaults(to: 0.0) <= 10.0 then  1 else 0
+output long_stops: Int64 @1Hz := indicate_long_stop.aggregate(over: 2h, using: sum)
+//rual specific auxiliary streams
+output r_avg_v_h: Float64 @1Hz := if is_rural then v.hold().defaults(to: 0.0) else 0.0
+output r_avg_v_h_h: Float64 @1Hz := if is_rural then 1.0 else 0.0
+output r_avg_v_h_h_a : Float64 @1Hz := r_avg_v_h_h.aggregate(over: 2h,using: sum)
+output r_avg_v : Float64 @1Hz := r_avg_v_h.aggregate(over: 2h,using: sum) / (if r_avg_v_h_h_a > 0.0 then r_avg_v_h_h_a else 1.0)
+// motorway specific auxiliary streams
+output m_avg_v_h: Float64 @1Hz := if is_motorway then v.hold().defaults(to: 0.0) else 0.0
+output m_avg_v_h_h: Float64 @1Hz := if is_motorway then 1.0 else 0.0
+output m_avg_v_h_h_a : Float64 @1Hz := m_avg_v_h_h.aggregate(over: 2h,using: sum)
+output m_avg_v : Float64 @1Hz := m_avg_v_h.aggregate(over: 2h,using: sum) / (if m_avg_v_h_h_a > 0.0 then m_avg_v_h_h_a else 1.0)
+output is_v_exceeded: Bool   :=  vp > 145.0
+output is_v_above_100: Bool  :=  vp  > 100.0
+output is_v_above_110: Bool  :=  vp  > 110.0
+output v_exceeded_t_h: Float64 @1Hz   := if is_v_exceeded then 1.0  else 0.0 //Dt
+output v_exceeded_t: Float64 @1Hz :=
+  v_exceeded_t_h.aggregate(over: 2h, using: sum)
+output v_exceeded_pc: Float64     :=
+  if t_m > 0.0 then v_exceeded_t / t_m else 0.0
+output v_above_100_t_h: Float64 @1Hz   := if is_v_above_100 then 1.0  else 0.0 //Dt
+output v_above_100_t: Float64 @1Hz := v_above_100_t_h.aggregate(over: 2h, using: sum)
+output v_max: Float64 @1Hz         := v.aggregate(over: 2h, using: max).defaults(to: 0.0)
+output reached_110: Bool @1Hz      := is_v_above_110.aggregate(over: 2h, using: exists)
+// first of altitude
+output first_altitude : Float64 := if first_altitude.offset(by: -1).defaults(to: -1.0) = -1.0 then altitudep else first_altitude.offset(by: -1).defaults(to: -1.0)
+//////////////////////////////////////////////////////////
+//      Real Driving Emissions (RDE) Specification      //
+//               EU Regulation 2017/1151                //
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+// ANNEX IIIA, Section 6, Trip Requirements             //
+//////////////////////////////////////////////////////////
+output satisfies_trip_requirements: Bool  := (
+  (90.0 * 60.0 <= t) && (t <= 120.0 * 60.0) &&  // 6.10
+  0.29 <= (if d > 0.0 then d_u / d else 0.0) &&
+  (if d > 0.0 then d_u / d else 0.0) <= 0.44 &&  // 6.6
+  0.23 <= (if d > 0.0 then  d_r / d else  0.0) &&
+  (if d > 0.0 then  d_r / d else  0.0) <= 0.43 &&  // 6.6
+  0.23 <= (if d > 0.0 then d_m / d else 0.0) &&
+  (if d > 0.0 then d_m / d else 0.0) <= 0.43 &&  // 6.6
+  15.0 <= u_avg_v &&  u_avg_v <= 40.0 &&  // 6.8
+  0.06 <= u_stop_pc && u_stop_pc <= 0.30 &&  // 6.8
+  v_max <= 160.0 &&  // 6.7
+  v_exceeded_pc <= 0.03 &&  // 6.7
+  v_above_100_t >= 5.0 * 60.0 && // 6.9
+  long_stops >= 5 &&  //6.8
+  d_u >= 16.0 * 1000.0 &&  // 6.12
+  d_r >= 16.0 * 1000.0 &&  // 6.12
+  d_m >= 16.0 * 1000.0 &&  // 6.12
+  ((first_altitude - altitudep) <= 100.0)  // 6.11
+)
+//////////////////////////////////////////////////////////
+// ANNEX IIIA, Section 5.2, Ambient Conditions          //
+//////////////////////////////////////////////////////////
+output is_ambient_normal: Bool := (
+  ( altitudep  <= 700.0) &&          // 5.2.2
+  (273.0 <= temperaturep) && (temperaturep  <= 303.0)  // 5.2.4
+)
+output is_ambient_extended: Bool := (
+  ( altitudep  <= 1300.0) && // 5.2.3
+  (
+    ((266.0 <= temperaturep) && (temperaturep  <= 308.9))
+  )  // 5.2.5
+)
+output is_ambient_exceeded: Bool :=
+  !is_ambient_normal && !is_ambient_extended
+//////////////////////////////////////////////////////////
+// ANNEX IIIA, Appendix 7a, Overall Trip Dynamics       //
+//////////////////////////////////////////////////////////
+// 3.1.2 (this assumes a sample frequency of 1 Hz)
+output a: Float64  := (vp - vp.offset(by: -1).defaults(to: 0.0)) / (2.0 * 3.6)
+output va: Float64 := ( vp  * a / 3.6)
+// 3.1.3
+output u_a_gt_01: Int64         := if a > 0.1 && is_urban then  1 else  0
+output count_u_a_gt: Int64 @1Hz := u_a_gt_01.aggregate(over: 2h, using: sum)
+output r_a_gt_01: Int64         := if a > 0.1 && is_rural then 1 else 0
+output count_r_a_gt: Int64 @1Hz := r_a_gt_01.aggregate(over: 2h, using: sum)
+output m_a_gt_01: Int64         := if a > 0.1 && is_motorway then 1 else 0
+output count_m_a_gt: Int64 @1Hz := m_a_gt_01.aggregate(over: 2h, using: sum)
+// 3.1.4 (without interpolation)
+output u_a_ge_01: Bool  := a >= 0.1 && is_urban
+output r_a_ge_01: Bool  := a >= 0.1 && is_rural
+output m_a_ge_01: Bool  := a >= 0.1 && is_motorway
+output Dt_x_va: Float64 := 1.0  * va //Dt
+//TODO: 200000.0 = neutral Element of percentile
+output u_va_pct_h : Float64 @1Hz := if u_a_ge_01 then va else 200000.0  //percentile95(va[-N:0 | u_a_ge_01])
+output u_va_pct: Float64 @1Hz := u_va_pct_h.aggregate(over_discrete: 7200, using: pctl95).defaults(to: 0.0)
+output r_va_pct_h : Float64 @1Hz := if r_a_ge_01 then va else 200000.0  //percentile95(va[-N:0 | r_a_ge_01])
+output r_va_pct: Float64 @1Hz := r_va_pct_h.aggregate(over_discrete: 7200, using: pctl95).defaults(to: 0.0)
+output m_va_pct_h : Float64 @1Hz := if m_a_ge_01 then va else 200000.0  //percentile95(va[-N:0 | m_a_ge_01])
+output m_va_pct: Float64 @1Hz := m_va_pct_h.aggregate(over_discrete: 7200, using: pctl95).defaults(to: 0.0)
+output u_rpa_h_dt: Float64 := if u_a_ge_01 then Dt_x_va else 0.0
+output u_rpa_h_dd: Float64 := if is_urban then Dd else 0.0
+output r_rpa_h_dt: Float64 := if r_a_ge_01 then Dt_x_va else 0.0
+output r_rpa_h_dd: Float64 := if is_rural then Dd else 0.0
+output m_rpa_h_dt: Float64 := if m_a_ge_01 then Dt_x_va else 0.0
+output m_rpa_h_dd: Float64 := if is_motorway then Dd else 0.0
+output u_rpa_h_dd_a : Float64 @1Hz := u_rpa_h_dd.aggregate(over: 2h, using: sum)
+output r_rpa_h_dd_a : Float64 @1Hz := r_rpa_h_dd.aggregate(over: 2h, using: sum)
+output m_rpa_h_dd_a : Float64 @1Hz := m_rpa_h_dd.aggregate(over: 2h, using: sum)
+output u_rpa: Float64 @1Hz := if u_rpa_h_dd_a > 0.0 then (
+  u_rpa_h_dt.aggregate(over: 2h, using: sum) /
+  u_rpa_h_dd_a
+) else 0.0
+output r_rpa: Float64 @1Hz := if r_rpa_h_dd_a > 0.0 then (
+  r_rpa_h_dt.aggregate(over: 2h, using: sum) /
+  r_rpa_h_dd_a
+) else 0.0
+output m_rpa: Float64 @1Hz := if (m_rpa_h_dd_a > 0.0) then (m_rpa_h_dt.aggregate(over: 2h, using: sum) /m_rpa_h_dd_a) else 0.0
+//TODO:
+output invalid_trip_dynamics: Bool @1Hz := (
+ // 3.1.3
+ (count_u_a_gt < 150) ||
+ (count_r_a_gt < 150) ||
+ (count_m_a_gt < 150) ||
+ //4.1.1
+ (
+     u_avg_v <= 74.6 &&
+     u_va_pct > (0.136 * u_avg_v + 14.44)
+ ) || (
+     u_avg_v > 74.6 &&
+     u_va_pct > (0.0742 * u_avg_v + 18.966)
+) ||
+(
+     r_avg_v <= 74.6 &&
+     r_va_pct > (0.136 * r_avg_v + 14.44)
+) || (
+     r_avg_v > 74.6 &&
+     r_va_pct > (0.0742 * r_avg_v + 18.966)
+)  ||
+(
+     m_avg_v <= 74.6 &&
+     m_va_pct > (0.136 * m_avg_v + 14.44)
+ ) || (
+     m_avg_v > 74.6 &&
+     m_va_pct > (0.0742 * m_avg_v + 18.966)
+) ||
+
+ //4.1.2
+ (u_avg_v <= 94.05 && u_rpa < (-0.0016 * u_avg_v + 0.1755)) ||
+ (u_avg_v >  94.05 && u_rpa < 0.025) ||
+ (r_avg_v <= 94.05 && r_rpa < (-0.0016 * r_avg_v + 0.1755)) ||
+ (r_avg_v >  94.05 && r_rpa < 0.025) ||
+ (m_avg_v <= 94.05 && m_rpa < (-0.0016 * m_avg_v + 0.1755)) ||
+ (m_avg_v >  94.05 && m_rpa < 0.025)
+)
+//////////////////////////////////////////////////////////
+// ANNEX IIIA, Appendix 4, Calculating Emissions        //
+//////////////////////////////////////////////////////////
+// we use diesel specific values here
+output nox_mass_flow: Float64  // in [g/s] for diesel
+  := exhaust_mass_flowp * 0.001586 * nox_ppmp
+output co2_mass_flow: Float64  // in [g/s] for diesel
+  := exhaust_mass_flowp * 0.001517 * co2_ppmp
+output total_co2_mass: Float64  // in [g]
+:= total_co2_mass.offset(by: -1).defaults(to: 0.0) + co2_mass_flow * 1.0 //Dt
+//////////////////////////////////////////////////////////
+// Determine trip validity and check emissions.         //
+//////////////////////////////////////////////////////////
+output is_valid_test: Bool := (
+  satisfies_trip_requirements &&
+  !is_ambient_exceeded &&
+  !invalid_trip_dynamics
+)
+output D_nox_mass: Float64 := nox_mass_flow * 1.0 //Dt
+output nox_mass_aggregated: Float64 @1Hz := D_nox_mass.aggregate(over: 2h, using: sum)
+output nox_per_kilometer: Float64 := (if d > 0.0 then nox_mass_aggregated / (d / 1000.0) else  0.0)
+output nox_exceeded: Bool := nox_per_kilometer > 0.168
+output emission_limits_exceeded: Bool := nox_exceeded
+//////////////////////////////////////////////////////////
+// Trigger iff the RDE regulation is violated.          //
+//////////////////////////////////////////////////////////
+trigger is_valid_test //&& emission_limits_exceeded
+/////////////////////////////////////////////////////////
+// Trigger iff the trip is not an RDE trip.            //
+/////////////////////////////////////////////////////////
+output not_rde_test: Bool := (
+    duration > 120.0 * 60.0 ||  // 6.10 trip too long
+    v_max > 160.0 ||  // max speed exceeded
+    is_ambient_exceeded  // ambient exceeded
+)
+// numerical helper streams for RDE-UI
+output is_valid_test_num: Float64 := if is_valid_test then 1.0 else 0.0
+output not_rde_test_num: Float64 := if not_rde_test then 1.0 else 0.0

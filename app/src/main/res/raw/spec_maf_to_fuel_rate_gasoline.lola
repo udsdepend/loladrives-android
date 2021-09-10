@@ -1,0 +1,4 @@
+
+//Gasoline
+output consumption_maf : Float64 := mass_air_flow / 14.64    // [g/s] * [] * [] = [g/s]
+output fuel_rate : Float64 := consumption_maf / 745.0 * 3600.0

@@ -1,0 +1,4 @@
+
+//Gasoline
+output fuel_mass_flow : Float64 := fuel_rate * 745.0 / 3600.0 / 1000.0          // [l/h] * [g/l] * [h/s] * [kg/g] = [kg/s]
+output exhaust_mass_flow : Float64 := mass_air_flow / 1000.0 + fuel_mass_flow

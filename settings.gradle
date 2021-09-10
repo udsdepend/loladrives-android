@@ -1,0 +1,3 @@
+rootProject.name='LolaDrives'
+include ':app'
+enableFeaturePreview('GRADLE_METADATA')

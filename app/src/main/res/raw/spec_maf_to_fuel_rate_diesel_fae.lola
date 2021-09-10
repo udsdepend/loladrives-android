@@ -1,0 +1,5 @@
+
+input fuel_air_equivalence : Float64
+//Diesel
+output consumption_maf : Float64 := if fuel_air_equivalence > 0.0 then mass_air_flow / (14.5 * fuel_air_equivalence) else mass_air_flow / 14.5   // [g/s] * [] * [] = [g/s]
+output fuel_rate : Float64 := consumption_maf / 832.0 * 3600.0                          // [g/s] * [l/g] * [s/h] = [l/h]

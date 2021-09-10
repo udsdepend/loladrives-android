@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="nav_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/home"
+            android:title="@string/home"
+            android:icon="@drawable/ic_action_name"/>
+        <item
+            android:id="@+id/rde"
+            android:title="@string/rde"
+            android:icon="@drawable/ic_action_rde_icon"/>
+        <item
+            android:id="@+id/tracking"
+            android:title="@string/tracking"
+            android:icon="@drawable/ic_action_car"/>
+        <item
+            android:id="@+id/profiles"
+            android:title="@string/profiles"
+            android:icon="@drawable/ic_action_profiles"/>
+        <item
+            android:id="@+id/history"
+            android:title="@string/history"
+            android:icon="@drawable/ic_action_trackhistory"/>
+
+        <item
+            android:id="@+id/privacy"
+            android:title="@string/settings"
+            android:icon="@drawable/ic_action_settings"/>
+
+    </group>
+
+    <item android:title="Developer">
+        <menu>
+            <item android:id="@+id/obdmanually"
+                android:title="OBD Manually"
+                android:icon="@drawable/ic_action_obd"/>
+        </menu>
+    </item>
+</menu>

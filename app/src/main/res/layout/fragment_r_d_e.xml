@@ -1,0 +1,828 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+
+    <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+        android:id="@+id/roundCornerProgressBarUrban"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toRightOf="@id/guideline8"
+        app:layout_constraintRight_toLeftOf="@id/guideline9"
+        app:layout_constraintTop_toTopOf="@id/guideline7"
+        app:rcBackgroundColor="@color/lighGrey"
+        app:rcProgressColor="@color/darkGrey" />
+
+    <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+        android:id="@+id/roundCornerProgressBarRural"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toRightOf="@id/guideline8"
+        app:layout_constraintRight_toLeftOf="@id/guideline9"
+        app:layout_constraintTop_toTopOf="@id/guideline10"
+        app:rcBackgroundColor="@color/lighGrey"
+        app:rcProgressColor="@color/darkGrey" />
+
+    <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+        android:id="@+id/roundCornerProgressBarMotorway"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toRightOf="@id/guideline8"
+        app:layout_constraintRight_toLeftOf="@id/guideline9"
+        app:layout_constraintTop_toTopOf="@id/guideline12"
+        app:rcBackgroundColor="@color/lighGrey"
+        app:rcProgressColor="@color/darkGrey" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.45" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.11192214" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.89" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.63" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.81" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.18" />
+<!--         -->
+
+
+    <TextView
+        android:id="@+id/textViewTotalTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:text="00:00:00"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@id/guideline13"
+        app:layout_constraintLeft_toRightOf="@id/guideline45"
+        app:layout_constraintRight_toLeftOf="@id/guideline14"
+        android:visibility="invisible"
+        android:focusable="true" />
+
+    <TextView
+        android:id="@+id/textViewTotalDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.00 km"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@id/guideline13"
+        app:layout_constraintLeft_toRightOf="@id/guideline14"
+        app:layout_constraintRight_toLeftOf="@id/guideline46"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Time"
+        app:layout_constraintLeft_toRightOf="@id/guideline45"
+        app:layout_constraintRight_toLeftOf="@id/guideline14"
+        app:layout_constraintTop_toBottomOf="@id/guideline13" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline37"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.65" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Distance"
+        app:layout_constraintLeft_toRightOf="@id/guideline14"
+        app:layout_constraintRight_toLeftOf="@id/guideline46"
+        app:layout_constraintTop_toBottomOf="@id/guideline13" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Urban"
+        app:layout_constraintBottom_toTopOf="@id/guideline7"
+        app:layout_constraintLeft_toRightOf="@id/guideline15" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Rural"
+        app:layout_constraintBottom_toTopOf="@id/guideline10"
+        app:layout_constraintLeft_toRightOf="@id/guideline15" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Motorway"
+        app:layout_constraintBottom_toTopOf="@id/guideline12"
+        app:layout_constraintLeft_toRightOf="@id/guideline15" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.14" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.86" />
+
+    <TextView
+        android:id="@+id/textViewUrbanDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 km"
+        app:layout_constraintLeft_toLeftOf="@id/guideline15"
+        app:layout_constraintTop_toTopOf="@id/guideline24" />
+
+    <TextView
+        android:id="@+id/textViewRuralDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 km"
+        app:layout_constraintLeft_toLeftOf="@id/guideline15"
+        app:layout_constraintTop_toTopOf="@id/guideline25" />
+
+    <TextView
+        android:id="@+id/textViewUrbanTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00:00"
+        app:layout_constraintRight_toRightOf="@id/guideline16"
+        app:layout_constraintTop_toTopOf="@id/guideline24" />
+
+    <TextView
+        android:id="@+id/textViewRuralTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00:00"
+        app:layout_constraintRight_toRightOf="@id/guideline16"
+        app:layout_constraintTop_toTopOf="@id/guideline25" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline24"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.48" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline25"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.66" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline23"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.84" />
+
+    <TextView
+        android:id="@+id/textViewMotorwayDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 km"
+        app:layout_constraintLeft_toLeftOf="@id/guideline15"
+        app:layout_constraintTop_toTopOf="@id/guideline23" />
+
+    <TextView
+        android:id="@+id/textViewMotorwayTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00:00"
+        app:layout_constraintRight_toRightOf="@id/guideline16"
+        app:layout_constraintTop_toTopOf="@id/guideline23" />
+
+    <ImageView
+        android:id="@+id/u_low"
+        android:layout_width="5dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/gl_u_low"
+        app:layout_constraintTop_toTopOf="@id/guideline7"
+        app:srcCompat="@drawable/interval_marker" />
+
+    <ImageView
+        android:id="@+id/u_high"
+        android:layout_width="3dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/gl_u_high"
+        app:layout_constraintTop_toTopOf="@id/guideline7"
+        app:srcCompat="@drawable/interval_marker" />
+
+    <ImageView
+        android:id="@+id/r_low"
+        android:layout_width="3dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/gl_rm_low"
+        app:layout_constraintTop_toTopOf="@id/guideline10"
+        app:srcCompat="@drawable/interval_marker" />
+
+    <ImageView
+        android:id="@+id/r_high"
+        android:layout_width="3dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/gl_rm_high"
+        app:layout_constraintTop_toTopOf="@id/guideline10"
+        app:srcCompat="@drawable/interval_marker" />
+
+    <ImageView
+        android:id="@+id/m_low"
+        android:layout_width="3dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/gl_rm_low"
+        app:layout_constraintTop_toTopOf="@id/guideline12"
+        app:srcCompat="@drawable/interval_marker" />
+
+    <ImageView
+        android:id="@+id/m_high"
+        android:layout_width="3dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/gl_rm_high"
+        app:layout_constraintTop_toTopOf="@id/guideline12"
+        app:srcCompat="@drawable/interval_marker" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl_u_low"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.32603407" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl_u_high"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3917275" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl_rm_low"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.27493918" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl_rm_high"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.4428224" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline26"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.30" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline27"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.42" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline30"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.52" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline32"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.7014501" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline33"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.88" />
+
+    <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+        android:id="@+id/roundCornerProgressBarUrbanDynamics"
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toRightOf="@id/guidelineDynamicsBarLow"
+        app:layout_constraintRight_toLeftOf="@id/guideline9"
+        app:layout_constraintTop_toTopOf="@id/guideline30"
+        app:rcBackgroundColor="@color/lightBlue"
+        app:rcProgress="0"
+        app:rcProgressColor="@color/darkGrey" />
+
+    <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+        android:id="@+id/roundCornerProgressBarRuralDynamics"
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toRightOf="@id/guidelineDynamicsBarLow"
+        app:layout_constraintRight_toLeftOf="@id/guideline9"
+        app:layout_constraintTop_toTopOf="@id/guideline32"
+        app:rcBackgroundColor="@color/lightBlue"
+        app:rcProgress="0"
+        app:rcProgressColor="@color/darkGrey" />
+
+    <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+        android:id="@+id/roundCornerProgressBarMotorwayDynamics"
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toRightOf="@id/guidelineDynamicsBarLow"
+        app:layout_constraintRight_toLeftOf="@id/guideline9"
+        app:layout_constraintTop_toTopOf="@id/guideline33"
+        app:rcBackgroundColor="@color/lightBlue"
+        app:rcProgress="0"
+        app:rcProgressColor="@color/darkGrey" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineDynamicsBarLow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.35766423" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dynamics"
+        app:layout_constraintLeft_toLeftOf="@id/guideline36"
+        app:layout_constraintTop_toTopOf="@id/guidelinedynurban" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelinedynurban"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5105" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dynamics"
+        app:layout_constraintLeft_toLeftOf="@id/guideline36"
+        app:layout_constraintTop_toTopOf="@id/guidelineRuralDynamics" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineRuralDynamics"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.6905" />
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dynamics"
+        app:layout_constraintLeft_toLeftOf="@id/guideline36"
+        app:layout_constraintTop_toTopOf="@id/guidelineMotorwayDynamics" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineMotorwayDynamics"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8705" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline36"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.126" />
+
+    <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+        android:id="@+id/roundCornerProgressBarNOX"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="25dp"
+        app:layout_constraintLeft_toRightOf="@id/guideline8"
+        app:layout_constraintRight_toLeftOf="@id/guideline9"
+        app:layout_constraintTop_toTopOf="@id/guideline26"
+        app:rcBackgroundColor="@color/lighGrey"
+        app:rcProgressColor="@color/greenColor" />
+
+
+    <TextView
+        android:id="@+id/textViewValidRDE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="15dp"
+        android:text="Valid RDE Trip : "
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@id/guideline26"
+        app:layout_constraintRight_toLeftOf="@id/guideline37" />
+
+    <ImageView
+        android:id="@+id/validityImageView"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@id/guideline26"
+        app:layout_constraintLeft_toLeftOf="@id/guideline37"
+        app:srcCompat="@drawable/yellow_question" />
+
+    <TextView
+        android:id="@+id/textViewNOX"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="NOₓ"
+        app:layout_constraintBottom_toTopOf="@id/roundCornerProgressBarNOX"
+        app:layout_constraintLeft_toRightOf="@id/guideline15" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline39"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.59" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline40"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.615" />
+
+    <ImageView
+        android:id="@+id/markerdynamicurbanmiddle"
+        android:layout_width="4dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/guideline40"
+        app:layout_constraintTop_toBottomOf="@id/guideline30"
+        app:srcCompat="@drawable/interval_marker_weiss" />
+
+    <ImageView
+        android:id="@+id/markerdynamicRuralmiddle"
+        android:layout_width="4dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/guideline40"
+        app:layout_constraintTop_toBottomOf="@id/guideline32"
+        app:srcCompat="@drawable/interval_marker_weiss" />
+
+    <ImageView
+        android:id="@+id/markerdynamicMotorwaymiddle"
+        android:layout_width="4dp"
+        android:layout_height="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/guideline40"
+        app:layout_constraintTop_toBottomOf="@id/guideline33"
+        app:srcCompat="@drawable/interval_marker_weiss" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineDynamicMarkerLowUrban"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.45" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineDynamicMarkerLowRural"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.45" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineDynamicMarkerLowMotorway"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.45" />
+
+    <ImageView
+        android:id="@+id/markerdynamicUrbanLow"
+        android:layout_width="4dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineDynamicMarkerLowUrban"
+        app:layout_constraintTop_toBottomOf="@id/guideline30"
+        app:srcCompat="@drawable/interval_marker_grau" />
+
+    <ImageView
+        android:id="@+id/markerdynamicRuralLow"
+        android:layout_width="4dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineDynamicMarkerLowRural"
+        app:layout_constraintTop_toBottomOf="@id/guideline32"
+        app:srcCompat="@drawable/interval_marker_grau" />
+
+    <ProgressBar
+        android:id="@+id/progressBarTime"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/guideline13"
+        app:layout_constraintLeft_toLeftOf="@id/guideLineProgressBarTime"
+        android:indeterminate="true"/>
+
+    <ProgressBar
+        android:id="@+id/progressBarDistance"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/guideline13"
+        app:layout_constraintLeft_toLeftOf="@id/guideLineProgressBarDistance"
+        android:indeterminate="true"/>
+
+    <ImageView
+        android:id="@+id/markerdynamicMotorwayLow"
+        android:layout_width="4dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineDynamicMarkerLowMotorway"
+        app:layout_constraintTop_toBottomOf="@id/guideline33"
+        app:srcCompat="@drawable/interval_marker_grau" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineDynamicMarkerHighUrban"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.79" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineDynamicMarkerHighRural"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.74" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineDynamicMarkerHighMotorway"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.79" />
+
+    <ImageView
+        android:id="@+id/markerdynamicUrbanHigh"
+        android:layout_width="4dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineDynamicMarkerHighUrban"
+        app:layout_constraintTop_toBottomOf="@id/guideline30"
+        app:srcCompat="@drawable/interval_marker_grau" />
+
+    <ImageView
+        android:id="@+id/markerdynamicRuralHigh"
+        android:layout_width="4dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineDynamicMarkerHighRural"
+        app:layout_constraintTop_toBottomOf="@id/guideline32"
+        app:srcCompat="@drawable/interval_marker_grau" />
+
+    <ImageView
+        android:id="@+id/markerdynamicMotorwayHigh"
+        android:layout_width="4dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineDynamicMarkerHighMotorway"
+        app:layout_constraintTop_toBottomOf="@id/guideline33"
+        app:srcCompat="@drawable/interval_marker_grau" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineNOXPermittedMarker168"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7655" />
+
+    <ImageView
+        android:id="@+id/markerNOXLimit168"
+        android:layout_width="4dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="25dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineNOXPermittedMarker168"
+        app:layout_constraintTop_toTopOf="@id/guideline26"
+        app:srcCompat="@drawable/interval_marker_dunkel_grau" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineNOXPermittedMarker120"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5788" />
+
+    <ImageView
+        android:id="@+id/markerNOXLimit120"
+        android:layout_width="4dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="25dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineNOXPermittedMarker120"
+        app:layout_constraintTop_toTopOf="@id/guideline26"
+        app:srcCompat="@drawable/interval_marker_dunkel_grau" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineNoxCurrent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.363" />
+
+    <TextView
+        android:id="@+id/textViewNOxCurrentValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 mg/km"
+        app:layout_constraintLeft_toLeftOf="@id/guideline15"
+        app:layout_constraintTop_toTopOf="@id/guidelineNoxCurrent" />
+
+    <ImageView
+        android:id="@+id/circleUrbanRPA"
+        android:layout_width="9dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineCircleUrbanLow"
+        app:layout_constraintTop_toBottomOf="@id/guideline30"
+        app:srcCompat="@drawable/dynamics_circle" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineCircleUrbanLow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5231144" />
+
+    <ImageView
+        android:id="@+id/circleUrbanPCT"
+        android:layout_width="9dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineCircleUrbanHigh"
+        app:layout_constraintTop_toBottomOf="@id/guideline30"
+        app:srcCompat="@drawable/dynamics_circle" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineCircleUrbanHigh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.75" />
+
+    <ImageView
+        android:id="@+id/circleRuralRPA"
+        android:layout_width="9dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineCircleRuralLow"
+        app:layout_constraintTop_toBottomOf="@id/guideline32"
+        app:srcCompat="@drawable/dynamics_circle" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineCircleRuralLow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.40" />
+
+    <ImageView
+        android:id="@+id/circleRuralPCT"
+        android:layout_width="9dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineCircleRuralHigh"
+        app:layout_constraintTop_toBottomOf="@id/guideline32"
+        app:srcCompat="@drawable/dynamics_circle" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineCircleRuralHigh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.68" />
+
+    <ImageView
+        android:id="@+id/circleMotorwayRPA"
+        android:layout_width="9dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineCircleMotorwayLow"
+        app:layout_constraintTop_toBottomOf="@id/guideline33"
+        app:srcCompat="@drawable/dynamics_circle" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineCircleMotorwayLow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.358" />
+
+    <ImageView
+        android:id="@+id/circleMotorwayPCT"
+        android:layout_width="9dp"
+        android:layout_height="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineCircleMotorwayHigh"
+        app:layout_constraintTop_toBottomOf="@id/guideline33"
+        app:srcCompat="@drawable/dynamics_circle" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineCircleMotorwayHigh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.623" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline45"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline46"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
+
+    <View
+        android:id="@+id/footerView"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/cpecGrey"
+        />
+
+    <Button
+        android:id="@+id/stopRDEButton"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/stopRDE"
+        android:textSize="16sp"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/footerView" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineProgressBarTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.22" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineProgressBarDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.67" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

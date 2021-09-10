@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".Fragments.ProfilesFragment.ProfileDetailFragment">
+
+    <TextView
+        android:id="@+id/profileNameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="80dp"
+        android:text="@string/profile_name"
+        app:layout_constraintRight_toLeftOf="@id/profileNameEditText" />
+    <EditText
+        android:id="@+id/profileNameEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        app:layout_constraintLeft_toRightOf="@id/profileNameTextView"
+        app:layout_constraintRight_toRightOf="parent"
+        android:maxLines="1"
+        android:lines="1"
+        android:singleLine="true"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="60dp"
+        android:imeOptions="actionDone"
+        android:autofillHints="Enter Name"
+        android:inputType="text"
+        tools:ignore="LabelFor" />
+    <TextView
+        android:id="@+id/selectCommandTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/select_the_commands_that_you_want_to_be_tracked_n_and_add_individual_frequencies_1_for_single_execution"
+        android:gravity="center"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf ="@id/profileNameTextView"
+        android:layout_marginTop="20dp"/>
+
+    <ListView
+        android:id="@+id/commandSelectListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/selectCommandTextView">
+    </ListView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
