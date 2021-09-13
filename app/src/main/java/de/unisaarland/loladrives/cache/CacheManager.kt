@@ -59,9 +59,15 @@ class CacheManager(private val externalDir: File?, val activity: MainActivity) {
                 if (it.isDirectory) {
                     it?.listFiles()?.forEach { pcdfFile ->
                         if (pcdfFile.name.contains("ppcdf")) {
-                            vinCache.analysisResultForFile(pcdfFile, true)
-                            supportedPIDsCache.analysisResultForFile(pcdfFile, true)
-                            noxCache.analysisResultForFile(pcdfFile, true)
+                            try {
+                                vinCache.analysisResultForFile(pcdfFile, true)
+                            } catch (e: Exception) {}
+                            try {
+                                supportedPIDsCache.analysisResultForFile(pcdfFile, true)
+                            } catch (e: Exception) {}
+                            try {
+                                noxCache.analysisResultForFile(pcdfFile, true)
+                            } catch (e: Exception) {}
                         }
                     }
                 }
