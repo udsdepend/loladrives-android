@@ -48,7 +48,15 @@ class RDEValidator(
     // The sensor profile of the car which is determined.
     var rdeProfile: MutableList<OBDCommand> = mutableListOf()
     var extendedLoggingProfile: MutableList<OBDCommand> = if (EXTENDED_LOGGING) {
-        mutableListOf(OBDCommand.RPM)
+        mutableListOf(
+            OBDCommand.ABSOLUTE_THROTTLE_POSITION,
+            OBDCommand.RELATIVE_THROTTLE_POSITION,
+            OBDCommand.COMMANDED_EGR_AND_ERROR,
+            OBDCommand.NOX_CONTROL_SYSTEM,
+            OBDCommand.SCR_INDUCEMENT_SYSTEM,
+            OBDCommand.AFTERTREATMENT_STATUS,
+            OBDCommand.NOX_SENSOR_ALTERNATIVE,
+            OBDCommand.ENGINE_FUEL_RATE_MULTI)
     } else {
         mutableListOf()
     }
