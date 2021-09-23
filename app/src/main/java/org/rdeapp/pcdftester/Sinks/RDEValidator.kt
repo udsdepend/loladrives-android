@@ -86,7 +86,7 @@ class RDEValidator(
         VELOCITY to null,
         ALTITUDE to null,
         TEMPERATURE to null,
-        NOX_PPM to 50.0,
+        NOX_PPM to null,
         MASS_AIR_FLOW to null,
         FUEL_RATE to null,
         FUEL_AIR_EQUIVALENCE to null
@@ -104,7 +104,7 @@ class RDEValidator(
                     countAvailable++
                 }
             }
-            return countAvailable == rdeProfile.size + 2
+            return countAvailable == rdeProfile.size + 1
         }
 
     // Load the FFI RTLola engine.
@@ -337,7 +337,7 @@ class RDEValidator(
                 rdeProfile.add(OBDCommand.NOX_SENSOR_CORRECTED_ALTERNATIVE)
             } else -> {
                 println("Incompatible for RDE: NOx sensor not provided by the car.")
-                //return false
+                return false
             }
         }
 
