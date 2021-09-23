@@ -98,10 +98,12 @@ class RDEFragment : Fragment() {
                             // Init the matching RTLola spec
                             rdeValidator.initSpec()
                             // Load RDE Profile with supported Pids
+                            val commands = mutableListOf<RDECommand>()
+                            rdeValidator.rdeProfile.forEach { i -> commands.add(RDECommand.toRDECommand(i)) }
+                            rdeValidator.extendedLoggingProfile.forEach { i -> commands.add(RDECommand.toRDECommand(i)) }
                             activity.selectedProfile = Pair(
                                 "rde_profile",
-                                rdeValidator.rdeProfile.map { i -> RDECommand.toRDECommand(i) }
-                                    .toTypedArray()
+                                commands.toTypedArray()
                             )
                             // Start Tracking
                             activity.startTracking(true)

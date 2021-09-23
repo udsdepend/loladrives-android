@@ -26,6 +26,7 @@ import pcdfEvent.events.obdEvents.obdIntermediateEvents.reducedComponentEvents.N
 import pcdfEvent.events.obdEvents.obdIntermediateEvents.singleComponentEvents.*
 
 const val VERBOSITY_MODE = false
+const val EXTENDED_LOGGING = true
 
 /**
  * Main class for the RTLola communication and validation of the RDE constraints.
@@ -46,6 +47,11 @@ class RDEValidator(
 
     // The sensor profile of the car which is determined.
     var rdeProfile: MutableList<OBDCommand> = mutableListOf()
+    var extendedLoggingProfile: MutableList<OBDCommand> = if (EXTENDED_LOGGING) {
+        mutableListOf(OBDCommand.RPM)
+    } else {
+        mutableListOf()
+    }
     private var fuelType = ""
     private var fuelRateSupported = false
     private var faeSupported = false
@@ -80,7 +86,7 @@ class RDEValidator(
         VELOCITY to null,
         ALTITUDE to null,
         TEMPERATURE to null,
-        NOX_PPM to null,
+        NOX_PPM to 50.0,
         MASS_AIR_FLOW to null,
         FUEL_RATE to null,
         FUEL_AIR_EQUIVALENCE to null
@@ -98,7 +104,7 @@ class RDEValidator(
                     countAvailable++
                 }
             }
-            return countAvailable == rdeProfile.size + 1
+            return countAvailable == rdeProfile.size + 2
         }
 
     // Load the FFI RTLola engine.
@@ -194,6 +200,13 @@ class RDEValidator(
         if (event.type == GPS) {
             inputs[ALTITUDE] = (event as GPSEvent).altitude
         } else if (event.type == OBD_RESPONSE) {
+            if (EXTENDED_LOGGING) {
+                val e = (event as OBDEvent).toIntermediate()
+                val cmd = OBDCommand.getCommand(e.mode, e.pid)
+                if (cmd !in rdeProfile) {
+                    return doubleArrayOf()
+                }
+            }
             // Reduces the event if possible (e.g. NOx or FuelRate events) using the PCDFCore library.
             val rEvent = activity.sensorReducer.reduce(
                 (event as OBDEvent).toIntermediate()
@@ -324,7 +337,7 @@ class RDEValidator(
                 rdeProfile.add(OBDCommand.NOX_SENSOR_CORRECTED_ALTERNATIVE)
             } else -> {
                 println("Incompatible for RDE: NOx sensor not provided by the car.")
-                return false
+                //return false
             }
         }
 
