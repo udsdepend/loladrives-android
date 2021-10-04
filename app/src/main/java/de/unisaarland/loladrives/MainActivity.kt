@@ -54,8 +54,6 @@ import kotlinx.android.synthetic.main.webview.view.*
 import kotlinx.coroutines.*
 import org.rdeapp.pcdftester.Sinks.EventLogger
 import pcdfEvent.events.obdEvents.OBDCommand
-import pcdfPattern.PCDFPattern
-import serialization.Serializer
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -200,7 +198,7 @@ class MainActivity : AppCompatActivity() {
             onBackPressed()
         }
 
-        analysisCacheManager.addAllFilesToCache()
+        // analysisCacheManager.addAllFilesToCache()
     }
 
     /**
@@ -449,11 +447,8 @@ class MainActivity : AppCompatActivity() {
         progressBarBluetooth.visibility = View.VISIBLE
         /* Check whether the selected file still exists */
         GlobalScope.launch {
-            val events = mutableListOf<PCDFPattern>()
-            val serializer = Serializer()
             try {
-                file.forEachLine { l -> events.add(serializer.parseToPattern(l)) }
-                val detailFragment = HistoryDetailFragment(file, events, rde)
+                val detailFragment = HistoryDetailFragment(file, rde)
                 supportFragmentManager.beginTransaction().replace(
                     R.id.frame_layout,
                     detailFragment
@@ -483,12 +478,21 @@ class MainActivity : AppCompatActivity() {
         val defaultProfile = File(letDirectory, "default_profile.json")
         val allProfile = File(letDirectory, "all_supported.json")
 
+        defaultProfile.delete()
         if (!defaultProfile.exists()) {
             defaultProfile.appendText(
                 profileParser.generateFromArray(
                     arrayOf(
-                        RDECommand(OBDCommand.SPEED, 0),
-                        RDECommand(OBDCommand.RPM, 0)
+                            RDECommand(OBDCommand.SPEED, 0),
+                            RDECommand(OBDCommand.RPM, 0),
+                            RDECommand(OBDCommand.COMMANDED_EGR, 0),
+                            RDECommand(OBDCommand.ENGINE_FUEL_RATE, 0),
+                            RDECommand(OBDCommand.AMBIENT_AIR_TEMPERATURE, 0),
+                            RDECommand(OBDCommand.FUEL_TYPE, 0),
+                            RDECommand(OBDCommand.NOX_SENSOR, 0),
+                            RDECommand(OBDCommand.NOX_SENSOR_CORRECTED, 0),
+                            RDECommand(OBDCommand.NOX_SENSOR_ALTERNATIVE, 0),
+                            RDECommand(OBDCommand.NOX_SENSOR_CORRECTED_ALTERNATIVE, 0)
                     )
                 )
             )
@@ -508,10 +512,10 @@ class MainActivity : AppCompatActivity() {
          default profile.
         */
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
-        val safedProfile = File(letDirectory, sharedPref.getString("profile", "default_profile.json")!!)
+        val savedProfile = File(letDirectory, sharedPref.getString("profile", "default_profile.json")!!)
 
-        selectedProfile = if (safedProfile.exists()) {
-            Pair(safedProfile.nameWithoutExtension, profileParser.parseProfile(safedProfile.readText()) ?: arrayOf())
+        selectedProfile = if (savedProfile.exists()) {
+            Pair(savedProfile.nameWithoutExtension, profileParser.parseProfile(savedProfile.readText()) ?: arrayOf())
         } else {
             Pair("default_profile", profileParser.parseProfile(defaultProfile.readText()) ?: arrayOf())
         }

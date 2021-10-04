@@ -1,5 +1,7 @@
 package org.rdeapp.pcdftester.Sinks
 
+import android.util.Log
+import de.unisaarland.loladrives.Constants
 import de.unisaarland.loladrives.Constants.Companion.RDE_RTLOLA_ENGINE
 import de.unisaarland.loladrives.Constants.Companion.RDE_RTLOLA_INPUT_QUANTITIES
 import de.unisaarland.loladrives.Constants.Companion.RDE_RTLOLA_INPUT_QUANTITIES.*
@@ -13,19 +15,23 @@ import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
+import pcdfEvent.EventType
 import pcdfEvent.EventType.GPS
 import pcdfEvent.EventType.OBD_RESPONSE
 import pcdfEvent.PCDFEvent
 import pcdfEvent.events.GPSEvent
 import pcdfEvent.events.obdEvents.OBDCommand
+import pcdfEvent.events.obdEvents.OBDCommand.*
 import pcdfEvent.events.obdEvents.OBDEvent
 import pcdfEvent.events.obdEvents.obdIntermediateEvents.OBDIntermediateEvent
 import pcdfEvent.events.obdEvents.obdIntermediateEvents.multiComponentEvents.MAFSensorEvent
 import pcdfEvent.events.obdEvents.obdIntermediateEvents.reducedComponentEvents.FuelRateReducedEvent
 import pcdfEvent.events.obdEvents.obdIntermediateEvents.reducedComponentEvents.NOXReducedEvent
 import pcdfEvent.events.obdEvents.obdIntermediateEvents.singleComponentEvents.*
+import java.io.File
 
 const val VERBOSITY_MODE = false
+const val EXTENDED_LOGGING = false
 
 /**
  * Main class for the RTLola communication and validation of the RDE constraints.
@@ -46,6 +52,11 @@ class RDEValidator(
 
     // The sensor profile of the car which is determined.
     var rdeProfile: MutableList<OBDCommand> = mutableListOf()
+    var extendedLoggingProfile: MutableList<OBDCommand> = if (EXTENDED_LOGGING) {
+        mutableListOf(RPM)
+    } else {
+        mutableListOf()
+    }
     private var fuelType = ""
     private var fuelRateSupported = false
     private var faeSupported = false
@@ -61,7 +72,6 @@ class RDEValidator(
     private val specMAFToFuelRateDiesel: String
     private val specMAFToFuelRateGasolineFAE: String
     private val specMAFToFuelRateGasoline: String
-
 
     @ExperimentalCoroutinesApi
     val outputChannel = BroadcastChannel<DoubleArray>(10000)
@@ -104,7 +114,6 @@ class RDEValidator(
     // Load the FFI RTLola engine.
     init {
         System.loadLibrary(RDE_RTLOLA_ENGINE)
-
         specBody = activity.resources?.openRawResource(R.raw.spec_body)?.bufferedReader().use {
             it?.readText() ?: ""
         }
@@ -146,6 +155,7 @@ class RDEValidator(
             activity.resources?.openRawResource(R.raw.spec_maf_to_fuel_rate_gasoline)?.bufferedReader().use {
                 it?.readText() ?: ""
             }
+
     }
 
     /**
@@ -194,6 +204,13 @@ class RDEValidator(
         if (event.type == GPS) {
             inputs[ALTITUDE] = (event as GPSEvent).altitude
         } else if (event.type == OBD_RESPONSE) {
+            if (EXTENDED_LOGGING) {
+                val e = (event as OBDEvent).toIntermediate()
+                val cmd = OBDCommand.getCommand(e.mode, e.pid)
+                if (cmd !in rdeProfile) {
+                    return doubleArrayOf()
+                }
+            }
             // Reduces the event if possible (e.g. NOx or FuelRate events) using the PCDFCore library.
             val rEvent = activity.sensorReducer.reduce(
                 (event as OBDEvent).toIntermediate()
@@ -218,6 +235,7 @@ class RDEValidator(
             if (VERBOSITY_MODE) {
                 println("Sending(Lola): ${inputsArray.joinToString()}")
             }
+
             // Send latest received inputs to the RTLola monitor to update our streams, in return we receive an array of
             // values of selected OutputStreams (see: lola-rust-bridge) which we send to the outputchannel (e.g. the UI).
             val lolaResult = sendevent(inputsArray)
@@ -295,7 +313,7 @@ class RDEValidator(
 
         // Velocity information to determine acceleration, distance travelled and to calculate the driving dynamics.
         if (supportedPids.contains(0x0D)) {
-            rdeProfile.add(OBDCommand.SPEED)
+            rdeProfile.add(SPEED)
         } else {
             println("Incompatible for RDE: Speed data not provided by the car.")
             return false
@@ -303,7 +321,7 @@ class RDEValidator(
 
         // Ambient air temperature for checking compliance with the environmental constraints.
         if (supportedPids.contains(0x46)) {
-            rdeProfile.add(OBDCommand.AMBIENT_AIR_TEMPERATURE)
+            rdeProfile.add(AMBIENT_AIR_TEMPERATURE)
         } else {
             println("Incompatible for RDE: Ambient air temperature not provided by the car.")
             return false
@@ -312,16 +330,16 @@ class RDEValidator(
         // NOx sensor(s) to check for violation of the EU regulations.
         when {
             supportedPids.contains(0x83) -> {
-                rdeProfile.add(OBDCommand.NOX_SENSOR)
+                rdeProfile.add(NOX_SENSOR)
             }
             supportedPids.contains(0xA1) -> {
-                rdeProfile.add(OBDCommand.NOX_SENSOR_CORRECTED)
+                rdeProfile.add(NOX_SENSOR_CORRECTED)
             }
             supportedPids.contains(0xA7) -> {
-                rdeProfile.add(OBDCommand.NOX_SENSOR_ALTERNATIVE)
+                rdeProfile.add(NOX_SENSOR_ALTERNATIVE)
             }
             supportedPids.contains(0xA8) -> {
-                rdeProfile.add(OBDCommand.NOX_SENSOR_CORRECTED_ALTERNATIVE)
+                rdeProfile.add(NOX_SENSOR_CORRECTED_ALTERNATIVE)
             } else -> {
                 println("Incompatible for RDE: NOx sensor not provided by the car.")
                 return false
@@ -332,11 +350,11 @@ class RDEValidator(
         // TODO: ask Maxi for the EMF PID
         fuelRateSupported = when {
             supportedPids.contains(0x5E) -> {
-                rdeProfile.add(OBDCommand.ENGINE_FUEL_RATE)
+                rdeProfile.add(ENGINE_FUEL_RATE)
                 true
             }
             supportedPids.contains(0x9D) -> {
-                rdeProfile.add(OBDCommand.ENGINE_FUEL_RATE_MULTI)
+                rdeProfile.add(ENGINE_FUEL_RATE_MULTI)
                 true
             } else -> {
                 println("RDE: Fuel rate not provided by the car.")
@@ -347,10 +365,10 @@ class RDEValidator(
         // Mass air flow rate for the calcuation of the exhaust mass flow.
         when {
             supportedPids.contains(0x10) -> {
-                rdeProfile.add(OBDCommand.MAF_AIR_FLOW_RATE)
+                rdeProfile.add(MAF_AIR_FLOW_RATE)
             }
             supportedPids.contains(0x66) -> {
-                rdeProfile.add(OBDCommand.MAF_AIR_FLOW_RATE_SENSOR)
+                rdeProfile.add(MAF_AIR_FLOW_RATE_SENSOR)
             } else -> {
                 println("Incompatible for RDE: Mass air flow not provided by the car.")
                 return false
@@ -359,7 +377,7 @@ class RDEValidator(
 
         // Fuel air equivalence ratio for a more precise calculation of the fuel rate with MAF.
         faeSupported = if (supportedPids.contains(0x44) && !fuelRateSupported) {
-            rdeProfile.add(OBDCommand.FUEL_AIR_EQUIVALENCE_RATIO)
+            rdeProfile.add(FUEL_AIR_EQUIVALENCE_RATIO)
             true
         } else {
             println("RDE: Fuel air equivalence ratio not provided by the car.")
@@ -399,12 +417,25 @@ class RDEValidator(
      *
      */
     @ExperimentalCoroutinesApi
-    fun monitorOffline(data: List<PCDFEvent>): DoubleArray {
-        if (data.isEmpty()) {
+    fun monitorOffline(dataIterator: Iterator<PCDFEvent>): DoubleArray {
+        if (!dataIterator.hasNext()) {
             throw IllegalStateException()
         }
 
-        val initialEvents = data.subList(0, 13)
+        val initialEvents = mutableListOf<PCDFEvent>()
+        // Get initial events
+        while (dataIterator.hasNext()) {
+            val event = dataIterator.next()
+            if (event.toIntermediate().type == OBD_RESPONSE) {
+                val ievent = event.toIntermediate() as OBDIntermediateEvent
+                val command = OBDCommand.getCommand(ievent.mode, ievent.pid)
+                if (command !in Constants.NOT_TRACKABLE_EVENTS && command !in Constants.SINGLE_TIME_EVENTS) {
+                    break
+                }
+            }
+            initialEvents.add(event)
+        }
+
 
         // Check initial events for supported PIDs, fuel type, etc.
         val suppPids = mutableListOf<Int>()
@@ -439,7 +470,6 @@ class RDEValidator(
         )
 
         var result = doubleArrayOf()
-        val dataIterator = data.iterator()
 
         // Collect events, similar to online monitoring.
         while (dataIterator.hasNext()) {

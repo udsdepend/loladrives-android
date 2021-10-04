@@ -25,9 +25,13 @@ import kotlinx.android.synthetic.main.fragment_history_detail.*
 import kotlinx.android.synthetic.main.histroy_event_item.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.rdeapp.pcdftester.Sinks.RDEUIUpdater
 import org.rdeapp.pcdftester.Sinks.RDEValidator
+import pcdfEvent.EventType
 import pcdfEvent.PCDFEvent
 import pcdfEvent.events.obdEvents.OBDEvent
 import pcdfEvent.events.obdEvents.obdIntermediateEvents.singleComponentEvents.SpeedEvent
@@ -39,10 +43,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class HistoryDetailFragment(
-    val file: File, private val events: MutableList<PCDFPattern>, val rde:
-    Boolean
-) :
+class HistoryDetailFragment(val file: File,  val rde: Boolean) :
     Fragment(), TabLayout.OnTabSelectedListener {
     private lateinit var activity: MainActivity
 
@@ -66,10 +67,12 @@ class HistoryDetailFragment(
         activity.progressBarBluetooth.visibility = View.INVISIBLE
         activity.title_textview.text = file.nameWithoutExtension
 
-        setupAdapter(events)
-        //setupChart(events)
-        setupSummary()
-        setupRDEAnalysis()
+        setupAdapter(file)
+        setupChart(file)
+        //setupSummary()
+        runBlocking {
+            setupRDEAnalysis()
+        }
         initRDEViews()
         initRDEHelpOnClick()
         GlobalScope.launch(Dispatchers.Main) {
@@ -84,9 +87,15 @@ class HistoryDetailFragment(
         super.onStart()
     }
 
-    private fun setupAdapter(events: MutableList<PCDFPattern>) {
+    private fun setupAdapter(file: File) {
+        val reader = file.bufferedReader()
+        val events = reader.lineSequence().take(10_000).map {
+            PCDFEvent.fromString(it).toIntermediate()
+        }.toMutableList()
         val adapter = HistoryEventListAdapter(requireActivity(), events)
         eventDetailListView.adapter = adapter
+        reader.close()
+
     }
 
     private fun setupSummary() {
@@ -113,27 +122,29 @@ class HistoryDetailFragment(
         }
     }
 
-    private fun setupChart(events: MutableList<PCDFPattern>) {
-        val parser = PatternParser()
+    private fun setupChart(file: File) {
+        val iter = file.bufferedReader().lineSequence().map {
+            PCDFEvent.fromString(it).toIntermediate()
+        }.iterator()
+        if (!iter.hasNext()) return
         val chart = chartView
         val vDataSet = ArrayList<Entry>()
 
         chart.description.isEnabled = true
         chart.description.text = "Time [min] / v [km/h]"
-        val first = events[0].timestamp
+        val first = iter.next().timestamp
         chart.xAxis.labelCount = 10
         chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
 
-        for (event in events) {
-            if (event.type == "OBD_RESPONSE") {
-                val data = parser.parsePattern(event)
+        while (iter.hasNext()) {
+            val event = iter.next()
+            if (event.type == EventType.OBD_RESPONSE) {
                 try {
-                    val iData = (data as OBDEvent).toIntermediate()
-                    if (iData is SpeedEvent) {
+                    if (event is SpeedEvent) {
                         vDataSet.add(
                             Entry(
                                 (event.timestamp - first).toFloat() / 60_000_000_000.0.toFloat(),
-                                iData.speed.toFloat()
+                                event.speed.toFloat()
                             )
                         )
                     }
@@ -165,25 +176,14 @@ class HistoryDetailFragment(
     }
 
     private fun setupRDEAnalysis() {
-        // Parse PCDFPatterns
-        val parser = PatternParser()
         val rdeValidator = RDEValidator(null, activity)
-
-        val data = mutableListOf<PCDFEvent>()
-        for (pattern in events) {
-            when (pattern.type) {
-                "META" -> {
-                    data.add(parser.parseMeta(pattern))
-                }
-                else -> {
-                    data.add(parser.parsePattern(pattern))
-                }
-            }
-        }
 
         // activity.progressBarBluetooth.visibility = View.VISIBLE
         try {
-            rdeResults = rdeValidator.monitorOffline(data)
+            val iter = file.bufferedReader().lineSequence().map {
+                PCDFEvent.fromString(it).toIntermediate()
+            }.iterator()
+            rdeResults = rdeValidator.monitorOffline(iter)
         } catch (e: Exception) {
             if (rdeAnalysisTab != null) {
                 tabLayout.removeTab(rdeAnalysisTab!!)
@@ -451,26 +451,26 @@ class HistoryDetailFragment(
 
     private fun showSpeedChart() {
         eventDetailListView.visibility = View.INVISIBLE
-        summaryView.visibility = View.VISIBLE
+        chartView.visibility = View.VISIBLE
         rdeView.visibility = View.INVISIBLE
     }
 
     private fun showEvents() {
         eventDetailListView.visibility = View.VISIBLE
-        summaryView.visibility = View.INVISIBLE
+        chartView.visibility = View.INVISIBLE
         rdeView.visibility = View.INVISIBLE
     }
 
     private fun showRDE() {
         eventDetailListView.visibility = View.INVISIBLE
-        summaryView.visibility = View.INVISIBLE
+        chartView.visibility = View.INVISIBLE
         rdeView.visibility = View.VISIBLE
     }
 
     class HistoryEventListAdapter(
         private val context: Activity,
-        private val events: MutableList<PCDFPattern>
-    ) : ArrayAdapter<PCDFPattern>(
+        private val events: MutableList<PCDFEvent>
+    ) : ArrayAdapter<PCDFEvent>(
         context,
         R.layout.histroy_event_item,
         events
@@ -484,19 +484,19 @@ class HistoryDetailFragment(
             val rowView = inflater.inflate(R.layout.histroy_event_item, null, true)
             val event = events[position]
 
-            val millis = if (event.type == "META") {
+            val millis = if (event.type == EventType.META) {
                 0
             } else {
                 event.timestamp - events[1].timestamp
             }
 
-            rowView.typeTextView.text = event.type.replace("_", " ")
+            rowView.typeTextView.text = event.type.toString().replace("_", " ")
             rowView.timeStampTextView.text = convertMillis(millis)
             try {
-                rowView.dataTextView.text = eventToString(event)
+                rowView.dataTextView.text = event.toString()
             } catch (e: Exception) {
                 rowView.typeTextView.setTextColor(ContextCompat.getColor(context, R.color.redColor))
-                val str = "Could not parse the following event: \n ${serializer.generateFromPattern(event)}"
+                val str = "Could not parse the following event: \n ${serializer.generateFromPattern(event.getPattern())}"
                 rowView.dataTextView.text = str
             }
             return rowView
@@ -508,26 +508,6 @@ class HistoryDetailFragment(
             val df = SimpleDateFormat("HH:mm:ss", Locale.GERMANY)
             df.timeZone = tz
             return df.format(Date(millis))
-        }
-
-        private fun eventToString(event: PCDFPattern): String {
-            val parser = PatternParser()
-
-            return when (event.type) {
-                "META" -> {
-                    val data = parser.parseMeta(event)
-                    return data.toString()
-                }
-                "OBD_RESPONSE" -> {
-                    val data =
-                        (parser.parsePattern(event) as OBDEvent).toIntermediate()
-                    return data.toString()
-                }
-                "GPS", "ERROR", "ANALYSER" -> {
-                    parser.parsePattern(event).toString()
-                }
-                else -> ""
-            }
         }
     }
 }

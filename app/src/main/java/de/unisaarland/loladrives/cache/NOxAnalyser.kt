@@ -35,6 +35,6 @@ class NOxAnalyser(eventStream: EventStream, activity: MainActivity) : Analyser<D
     }
 
     private fun getResults(): DoubleArray {
-        return validator.monitorOffline(eventStream.toList())
+        return validator.monitorOffline(eventStream.iterator())
     }
 }
