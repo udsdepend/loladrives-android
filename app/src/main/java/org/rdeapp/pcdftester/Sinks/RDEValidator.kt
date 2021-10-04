@@ -113,9 +113,7 @@ class RDEValidator(
 
     // Load the FFI RTLola engine.
     init {
-        println("Lade Lola")
         System.loadLibrary(RDE_RTLOLA_ENGINE)
-        println("Lib geladen")
         specBody = activity.resources?.openRawResource(R.raw.spec_body)?.bufferedReader().use {
             it?.readText() ?: ""
         }
@@ -185,7 +183,6 @@ class RDEValidator(
      * Build the specification depending on the determined sensor profile and initialize the RTLola monitor.
      */
     fun initSpec() {
-        println("init monitor -------")
         initmonitor(
             buildSpec()
         )
@@ -431,8 +428,8 @@ class RDEValidator(
             val event = dataIterator.next()
             if (event.toIntermediate().type == OBD_RESPONSE) {
                 val ievent = event.toIntermediate() as OBDIntermediateEvent
-                if (OBDCommand.getCommand(ievent.mode, ievent.pid) !in Constants.NOT_TRACKABLE_EVENTS
-                        && OBDCommand.getCommand(ievent.mode, ievent.pid) !in Constants.SINGLE_TIME_EVENTS) {
+                val command = OBDCommand.getCommand(ievent.mode, ievent.pid)
+                if (command !in Constants.NOT_TRACKABLE_EVENTS && command !in Constants.SINGLE_TIME_EVENTS) {
                     break
                 }
             }

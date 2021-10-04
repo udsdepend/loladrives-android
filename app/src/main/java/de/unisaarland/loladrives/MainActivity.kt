@@ -198,7 +198,7 @@ class MainActivity : AppCompatActivity() {
             onBackPressed()
         }
 
-        analysisCacheManager.addAllFilesToCache()
+        // analysisCacheManager.addAllFilesToCache()
     }
 
     /**
