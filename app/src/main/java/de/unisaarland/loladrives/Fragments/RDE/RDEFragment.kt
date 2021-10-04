@@ -96,6 +96,7 @@ class RDEFragment : Fragment() {
                     when (rdeReady) {
                         OKAY -> {
                             // Init the matching RTLola spec
+                            println("Init spec")
                             rdeValidator.initSpec()
                             // Load RDE Profile with supported Pids
                             val commands = mutableListOf<RDECommand>()
