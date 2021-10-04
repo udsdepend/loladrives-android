@@ -90,6 +90,7 @@ class TrackingUIUpdater(
                         is ParticularMatterEvent ->
                             textView?.text = iEvent.sensor1_1.format(2) + " \r " +
                                     (iEvent.sensor2_1.format(2))
+                        else -> textView?.text = iEvent.toString()
                     }
                     fragment.adapter.notifyDataSetChanged()
                 } catch (e: Exception) {
