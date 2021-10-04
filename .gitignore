@@ -9,5 +9,6 @@
 apikey.properties
 /.idea
 app/build
+app/release
 app/libs
 app/src/test
