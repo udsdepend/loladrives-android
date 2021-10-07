@@ -52,8 +52,6 @@ class RDEValidator(
             OBDCommand.ABSOLUTE_THROTTLE_POSITION,
             OBDCommand.RELATIVE_THROTTLE_POSITION,
             OBDCommand.COMMANDED_EGR_AND_ERROR,
-            OBDCommand.NOX_CONTROL_SYSTEM,
-            OBDCommand.SCR_INDUCEMENT_SYSTEM,
             OBDCommand.AFTERTREATMENT_STATUS,
             OBDCommand.NOX_SENSOR_ALTERNATIVE,
             OBDCommand.ENGINE_FUEL_RATE_MULTI)
