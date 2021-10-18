@@ -16,7 +16,7 @@ import java.io.OutputStream
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 
-const val VERBOSITY_MODE = true
+const val VERBOSITY_MODE = false
 
 /**
  * Main class for communication with the OBD-Adapter.
