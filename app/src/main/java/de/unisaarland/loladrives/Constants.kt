@@ -10,7 +10,7 @@ import pcdfEvent.events.obdEvents.OBDCommand
 
 class Constants {
     companion object {
-        const val RECONNECTION_TRIES: Int = 6
+        const val RECONNECTION_TRIES: Int = 1 // 5
 
         const val RDE_RTLOLA_ENGINE = "rde_bridge"
 

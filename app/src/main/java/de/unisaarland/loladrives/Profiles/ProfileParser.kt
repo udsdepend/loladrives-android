@@ -15,7 +15,7 @@ class ProfileParser {
     private val api = MedeiaJacksonApi()
     private val objectMapper = jacksonObjectMapper()
     private val s = StringWriter()
-    private val validator = loadSchema()
+    //private val validator = loadSchema()
 
     /**
      * validates JSON string against profile specification and parses into List of RDECommands
@@ -23,10 +23,10 @@ class ProfileParser {
      */
     fun parseProfile(input: String): Array<RDECommand>? {
         val unvalidatedParser = objectMapper.factory.createParser(input)
-        val validatedParser = api.decorateJsonParser(validator, unvalidatedParser)
+        //val validatedParser = api.decorateJsonParser(validator, unvalidatedParser)
 
         return try {
-            val commands = objectMapper.readValue(validatedParser, Array<RDECommand>::class.java)
+            val commands = objectMapper.readValue(unvalidatedParser, Array<RDECommand>::class.java)
             commands
         } catch (e: Exception) {
             e.printStackTrace()
@@ -38,9 +38,9 @@ class ProfileParser {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
         val unvalidatedGenerator = objectMapper.factory.createGenerator(s)
-        val validatedGenerator = api.decorateJsonGenerator(validator, unvalidatedGenerator)
+        //val validatedGenerator = api.decorateJsonGenerator(validator, unvalidatedGenerator)
 
-        objectMapper.writeValue(validatedGenerator, profile)
+        objectMapper.writeValue(unvalidatedGenerator, profile)
 
         val tmp = s.toString()
         s.buffer.setLength(0)

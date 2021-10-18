@@ -677,8 +677,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     } else {
                         builder.setPositiveButton("Stop Monitoring") { _, _ ->
-                            val currentFragment = supportFragmentManager.fragments[1]
-                            if (currentFragment is TrackingFragment) {
+                            if (trackingFragment.isVisible) {
                                 trackingFragment.stopTracking()
                             } else {
                                 runBlocking { stopTracking() }
@@ -859,47 +858,51 @@ class MainActivity : AppCompatActivity() {
 
         override fun onPreExecute() {
             if (!activity.tryingToReconnect || activity.tracking) {
-                activity.progressBarBluetooth.visibility = View.VISIBLE
+                GlobalScope.launch(Dispatchers.Main) {
+                    activity.progressBarBluetooth.visibility = View.VISIBLE
+                }
             }
             super.onPreExecute()
         }
         override fun onPostExecute(result: String?) {
             super.onPostExecute(result)
-            if (!connectSuccess) {
-                if (!activity.tryingToReconnect || activity.tracking) {
-                    val toast =
-                        Toast.makeText(context, "Could not connect to device", Toast.LENGTH_LONG)
-                    toast.show()
-                }
-                if (!activity.tracking && !activity.tryingToReconnect) {
-                    activity.showBluetoothDialog()
-                }
-            } else {
-                activity.bluetoothConnected = true
-                activity.checkConnection()
-
-                /* Update the OBD-Source if a track is ongoing */
-                if (activity.tracking) {
-                    activity.obdProducer?.changeIOStreams(
-                        activity.mBluetoothSocket!!.inputStream,
-                        activity
-                            .mBluetoothSocket!!
-                            .outputStream
-                    )
-                    activity.obdProducer?.initELM()
+            GlobalScope.launch(Dispatchers.Main) {
+                if (!connectSuccess) {
+                    if (!activity.tryingToReconnect || activity.tracking) {
+                        val toast =
+                                Toast.makeText(context, "Could not connect to device", Toast.LENGTH_LONG)
+                        toast.show()
+                    }
+                    if (!activity.tracking && !activity.tryingToReconnect) {
+                        activity.showBluetoothDialog()
+                    }
                 } else {
-                    if (activity.targetFragment != null) {
-                        activity.supportFragmentManager.beginTransaction().replace(
-                            R.id.frame_layout,
-                            activity.targetFragment!!
-                        ).setTransition(
-                            FragmentTransaction.TRANSIT_FRAGMENT_OPEN
-                        ).commit()
-                        activity.targetFragment = null
+                    activity.bluetoothConnected = true
+                    activity.checkConnection()
+
+                    /* Update the OBD-Source if a track is ongoing */
+                    if (activity.tracking) {
+                        activity.obdProducer?.changeIOStreams(
+                                activity.mBluetoothSocket!!.inputStream,
+                                activity
+                                        .mBluetoothSocket!!
+                                        .outputStream
+                        )
+                        activity.obdProducer?.initELM()
+                    } else {
+                        if (activity.targetFragment != null) {
+                            activity.supportFragmentManager.beginTransaction().replace(
+                                    R.id.frame_layout,
+                                    activity.targetFragment!!
+                            ).setTransition(
+                                    FragmentTransaction.TRANSIT_FRAGMENT_OPEN
+                            ).commit()
+                            activity.targetFragment = null
+                        }
                     }
                 }
+                activity.progressBarBluetooth.visibility = View.INVISIBLE
             }
-            activity.progressBarBluetooth.visibility = View.INVISIBLE
         }
     }
 
