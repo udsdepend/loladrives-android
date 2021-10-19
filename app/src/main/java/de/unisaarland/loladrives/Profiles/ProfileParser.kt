@@ -15,7 +15,7 @@ class ProfileParser {
     private val api = MedeiaJacksonApi()
     private val objectMapper = jacksonObjectMapper()
     private val s = StringWriter()
-    //private val validator = loadSchema()
+    private var validator : SchemaValidator? = null
 
     /**
      * validates JSON string against profile specification and parses into List of RDECommands
@@ -23,10 +23,19 @@ class ProfileParser {
      */
     fun parseProfile(input: String): Array<RDECommand>? {
         val unvalidatedParser = objectMapper.factory.createParser(input)
-        //val validatedParser = api.decorateJsonParser(validator, unvalidatedParser)
+        validator = try {
+            loadSchema()
+        } catch (e: Exception) {
+            null
+        }
+        val validatedParser = if (validator != null) {
+            api.decorateJsonParser(validator!!, unvalidatedParser)
+        } else {
+            unvalidatedParser
+        }
 
         return try {
-            val commands = objectMapper.readValue(unvalidatedParser, Array<RDECommand>::class.java)
+            val commands = objectMapper.readValue(validatedParser, Array<RDECommand>::class.java)
             commands
         } catch (e: Exception) {
             e.printStackTrace()
@@ -35,16 +44,28 @@ class ProfileParser {
     }
 
     fun generateFromArray(profile: Array<RDECommand>): String {
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        return try {
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            val unvalidatedGenerator = objectMapper.factory.createGenerator(s)
+            validator = try {
+                loadSchema()
+            } catch (e: Exception) {
+                null
+            }
+            val validatedGenerator = if (validator != null) {
+                api.decorateJsonGenerator(validator!!, unvalidatedGenerator)
+            } else {
+                unvalidatedGenerator
+            }
 
-        val unvalidatedGenerator = objectMapper.factory.createGenerator(s)
-        //val validatedGenerator = api.decorateJsonGenerator(validator, unvalidatedGenerator)
+            objectMapper.writeValue(validatedGenerator, profile)
 
-        objectMapper.writeValue(unvalidatedGenerator, profile)
-
-        val tmp = s.toString()
-        s.buffer.setLength(0)
-        return tmp
+            val tmp = s.toString()
+            s.buffer.setLength(0)
+            tmp
+        } catch (e: Exception) {
+            "Error while parsing array to profile"
+        }
     }
 
     // loads json-schema profile specification
