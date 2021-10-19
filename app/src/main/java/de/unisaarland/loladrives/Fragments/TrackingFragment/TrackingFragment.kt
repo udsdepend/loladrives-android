@@ -105,7 +105,7 @@ class TrackingFragment : Fragment() {
         if ((requireActivity() as MainActivity).tracking) {
             val toast = Toast.makeText(
                 context,
-                "Already running a RDE Track",
+                "Already running an RDE Track",
                 Toast.LENGTH_LONG
             )
             toast.show()
