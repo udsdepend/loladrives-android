@@ -504,7 +504,11 @@ class OBDSource(
             ioLock.lock()
             // Reset ELM
             // TODO: change this here since it may make the app freeze
-            while (!response.contains("ELM")) {
+            if (VERBOSITY_MODE) {
+                println("Init ELM: reset")
+            }
+            //while (!response.contains("ELM")) {
+            while (response.length == 0) {
                 sendELM("Z")
                 response = receiveELM()
             }
@@ -512,6 +516,9 @@ class OBDSource(
             response = ""
 
             // Disable Echo
+            if (VERBOSITY_MODE) {
+                println("Init ELM: disable echo")
+            }
             while (!response.contains("OK")) {
                 sendELM("E0")
                 response = receiveELM()
@@ -520,6 +527,9 @@ class OBDSource(
             response = ""
 
             // disable linefeed, no carriage return characters after every response
+            if (VERBOSITY_MODE) {
+                println("Init ELM: disable linefeed")
+            }
             while (!response.contains("OK")) {
                 sendELM("L0")
                 response = receiveELM()
@@ -528,6 +538,9 @@ class OBDSource(
             response = ""
 
             // enable headers
+            if (VERBOSITY_MODE) {
+                println("Init ELM: enable headers")
+            }
             while (!response.contains("OK")) {
                 sendELM("H1")
                 response = receiveELM()
