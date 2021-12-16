@@ -15,13 +15,17 @@ import pcdfEvent.events.GPSEvent
 class GPSSource(val outputChannel: SendChannel<PCDFEvent>, val activity: Activity) {
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     val mUUID = "6183f7d2-9dc1-11ea-bb37-0242ac130002"
-
+    var running = false
     fun start() {
+        running = true
+        println("starte gps")
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
         requestNewLocationData()
     }
 
     fun stop() {
+        println("Stoppe GPS")
+        running = false
         stopLocationUpdates()
     }
 
@@ -51,12 +55,20 @@ class GPSSource(val outputChannel: SendChannel<PCDFEvent>, val activity: Activit
                 mLastLocation.speed.toDouble()
             )
             GlobalScope.launch(Dispatchers.Main) {
-                outputChannel.send(event)
+                try {
+                    println("Receive gps")
+                    outputChannel.send(event)
+                } catch(e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
     }
 
     private fun stopLocationUpdates() {
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback)
+        try {
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback)
+        } catch (e: Exception) {
+        }
     }
 }

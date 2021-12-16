@@ -48,6 +48,7 @@ class Constants {
 }
 
 enum class OBDCommunication {
+    NO_FUELTYPE,
     INSUFFICIENT_SENSORS,
     OBD_COMMUNICATION_ERROR,
     UNSUPPORTED_PROTOCOL,

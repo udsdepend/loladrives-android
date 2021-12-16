@@ -57,9 +57,9 @@ class RDEValidator(
     } else {
         mutableListOf()
     }
-    private var fuelType = ""
-    private var fuelRateSupported = false
-    private var faeSupported = false
+    private var fuelType = "Diesel"
+    private var fuelRateSupported = true
+    private var faeSupported = true
 
     private val specBody: String
     private val specHeader: String
@@ -90,7 +90,7 @@ class RDEValidator(
         VELOCITY to null,
         ALTITUDE to null,
         TEMPERATURE to null,
-        NOX_PPM to null,
+        NOX_PPM to 50.0,
         MASS_AIR_FLOW to null,
         FUEL_RATE to null,
         FUEL_AIR_EQUIVALENCE to null
@@ -108,12 +108,12 @@ class RDEValidator(
                     countAvailable++
                 }
             }
-            return countAvailable == rdeProfile.size + 1
+            return countAvailable == rdeProfile.size + 2
         }
 
     // Load the FFI RTLola engine.
     init {
-        System.loadLibrary(RDE_RTLOLA_ENGINE)
+        System.loadLibrary("rtlola_kotlin_bridge")
         specBody = activity.resources?.openRawResource(R.raw.spec_body)?.bufferedReader().use {
             it?.readText() ?: ""
         }
@@ -158,13 +158,28 @@ class RDEValidator(
 
     }
 
+    fun test() {
+        val monitor = initmonitor(
+                buildSpec(),
+                "a,va,weight,u_va_pct,u_rpa,r_rpa"
+        )
+        println("Rust Feedback: " + monitor)
+        println(sendevent(doubleArrayOf(10.0,10.0,10.0,10.0,10.0,10.0,1.0)).joinToString())
+        println(sendevent(doubleArrayOf(20.0,10.0,10.0,10.0,10.0,10.0,2.1)).joinToString())
+        println(sendevent(doubleArrayOf(25.0,10.0,10.0,10.0,10.0,10.0,3.3)).joinToString())
+        println(sendevent(doubleArrayOf(35.0,10.0,10.0,10.0,10.0,10.0,4.3)).joinToString())
+        println(sendevent(doubleArrayOf(45.0,10.0,10.0,10.0,10.0,10.0,5.3)).joinToString())
+        println(sendevent(doubleArrayOf(55.0,10.0,10.0,10.0,10.0,10.0,6.3)).joinToString())
+
+    }
+
     /**
      * Initializes the RTLola monitor with a given specification.
      *
      * @param spec RTLola specification as a string.
      * @return String "worked" if initialization went fine, or some error description if something went wrong.
      */
-    private external fun initmonitor(spec: String): String
+    private external fun initmonitor(spec: String, relevant_outsputs: String): String
 
     /**
      * Sends an array of update values to the RTLola engine to extend the InputStreams.
@@ -184,13 +199,15 @@ class RDEValidator(
      */
     fun initSpec() {
         initmonitor(
-            buildSpec()
+            buildSpec(),
+                "a"
         )
     }
 
     @ExperimentalCoroutinesApi
     suspend fun startRDETrack() {
         for (event in inputChannel!!) {
+            println(inputs.values.joinToString())
             collectData(event)
         }
     }
@@ -303,58 +320,75 @@ class RDEValidator(
      * @param fuelType The car's fuel type, from [getFuelType].
      * @return If an RDE test is possible with the connected car.
      */
-    private fun checkSupportedPids(supportedPids: List<Int>, fuelType: String): Boolean {
+    private fun checkSupportedPids(supportedPids: List<Int>, fuelType: String): Pair<Boolean, List<OBDCommand>> {
         // If the car is not a diesel or gasoline, the RDE test is not possible since there are no corresponding
         // specifications.
+        val commandList = mutableListOf<OBDCommand>()
+        var validPids = true
         if (fuelType != "Diesel" && fuelType != "Gasoline") {
             println("Incompatible for RDE: Fuel type unknown or invalid ('${fuelType}')")
-            return false
+            validPids = false
         }
 
         // Velocity information to determine acceleration, distance travelled and to calculate the driving dynamics.
         if (supportedPids.contains(0x0D)) {
             rdeProfile.add(SPEED)
+            commandList.add(SPEED)
         } else {
             println("Incompatible for RDE: Speed data not provided by the car.")
-            return false
+            validPids = false
         }
 
         // Ambient air temperature for checking compliance with the environmental constraints.
         if (supportedPids.contains(0x46)) {
             rdeProfile.add(AMBIENT_AIR_TEMPERATURE)
+            commandList.add(AMBIENT_AIR_TEMPERATURE)
         } else {
             println("Incompatible for RDE: Ambient air temperature not provided by the car.")
-            return false
+            validPids = false
         }
 
         // NOx sensor(s) to check for violation of the EU regulations.
-        when {
-            supportedPids.contains(0x83) -> {
-                rdeProfile.add(NOX_SENSOR)
-            }
-            supportedPids.contains(0xA1) -> {
-                rdeProfile.add(NOX_SENSOR_CORRECTED)
-            }
-            supportedPids.contains(0xA7) -> {
-                rdeProfile.add(NOX_SENSOR_ALTERNATIVE)
-            }
-            supportedPids.contains(0xA8) -> {
-                rdeProfile.add(NOX_SENSOR_CORRECTED_ALTERNATIVE)
-            } else -> {
-                println("Incompatible for RDE: NOx sensor not provided by the car.")
-                return false
-            }
+        var noxFound = false
+        if (supportedPids.contains(0x83)) {
+            rdeProfile.add(NOX_SENSOR)
+            commandList.add(NOX_SENSOR)
+            noxFound = true
+        }
+
+        if (supportedPids.contains(0xA1)) {
+            if (!noxFound) rdeProfile.add(NOX_SENSOR_CORRECTED)
+            commandList.add(NOX_SENSOR_CORRECTED)
+            noxFound = true
+        }
+
+        if (supportedPids.contains(0xA7)) {
+            if (!noxFound) rdeProfile.add(NOX_SENSOR_ALTERNATIVE)
+            commandList.add(NOX_SENSOR_ALTERNATIVE)
+            noxFound = true
+        }
+
+        if (supportedPids.contains(0xA8)) {
+            if (!noxFound) rdeProfile.add(NOX_SENSOR_CORRECTED_ALTERNATIVE)
+            commandList.add(NOX_SENSOR_CORRECTED_ALTERNATIVE)
+            noxFound = true
+        }
+
+        if (!noxFound) {
+            commandList.add(NOX_SENSOR)
+            validPids = true //TODO: change
         }
 
         // Fuelrate sensors for calculation of the exhaust mass flow. Can be replaced through MAF.
-        // TODO: ask Maxi for the EMF PID
         fuelRateSupported = when {
             supportedPids.contains(0x5E) -> {
                 rdeProfile.add(ENGINE_FUEL_RATE)
+                commandList.add(ENGINE_FUEL_RATE)
                 true
             }
             supportedPids.contains(0x9D) -> {
                 rdeProfile.add(ENGINE_FUEL_RATE_MULTI)
+                commandList.add(ENGINE_FUEL_RATE_MULTI)
                 true
             } else -> {
                 println("RDE: Fuel rate not provided by the car.")
@@ -366,18 +400,21 @@ class RDEValidator(
         when {
             supportedPids.contains(0x10) -> {
                 rdeProfile.add(MAF_AIR_FLOW_RATE)
+                commandList.add(MAF_AIR_FLOW_RATE)
             }
             supportedPids.contains(0x66) -> {
                 rdeProfile.add(MAF_AIR_FLOW_RATE_SENSOR)
+                commandList.add(MAF_AIR_FLOW_RATE_SENSOR)
             } else -> {
                 println("Incompatible for RDE: Mass air flow not provided by the car.")
-                return false
+                validPids = false
             }
         }
 
         // Fuel air equivalence ratio for a more precise calculation of the fuel rate with MAF.
         faeSupported = if (supportedPids.contains(0x44) && !fuelRateSupported) {
             rdeProfile.add(FUEL_AIR_EQUIVALENCE_RATIO)
+            commandList.add(FUEL_AIR_EQUIVALENCE_RATIO)
             true
         } else {
             println("RDE: Fuel air equivalence ratio not provided by the car.")
@@ -385,8 +422,8 @@ class RDEValidator(
         }
 
         println("Car compatible for RDE tests.")
-
-        return true
+        println("Command list: "+ commandList.joinToString())
+        return Pair(validPids,commandList)
     }
 
     /**
@@ -396,17 +433,16 @@ class RDEValidator(
      * @return If a RDE Test is possible.
      */
     @ExperimentalCoroutinesApi
-    suspend fun performSupportedPidsCheck(): OBDCommunication {
+    suspend fun performSupportedPidsCheck(): Pair<OBDCommunication,List<OBDCommand>> {
         source.initELM()
         if (!source.initProtocol()) {
-            return UNSUPPORTED_PROTOCOL
+            return Pair(UNSUPPORTED_PROTOCOL, listOf())
         }
-
         val supportedPids = getSupportedPids()
         // Check the Cars Fuel Type
-        fuelType = if (supportedPids.contains(0x51)) { getFuelType() } else { return INSUFFICIENT_SENSORS }
-
-        return if (checkSupportedPids(supportedPids, fuelType)) { OKAY } else { INSUFFICIENT_SENSORS }
+        fuelType = if (supportedPids.contains(0x51)) { getFuelType() } else { return Pair(NO_FUELTYPE, listOf()) }
+        val check = checkSupportedPids(supportedPids, fuelType)
+        return if (check.first) { Pair(OKAY,check.second) } else { Pair(INSUFFICIENT_SENSORS,check.second) }
     }
 
     /**
@@ -459,14 +495,15 @@ class RDEValidator(
         }
 
         // Check Supported PIDs
-        val supported = checkSupportedPids(suppPids, fuelType)
+        val supported = checkSupportedPids(suppPids, fuelType).first
         if (!supported) {
             throw IllegalStateException()
         }
 
         // Setup RTLola Monitor
         initmonitor(
-            buildSpec()
+            buildSpec(),
+                "a"
         )
 
         var result = doubleArrayOf()

@@ -264,6 +264,8 @@ class MainActivity : AppCompatActivity() {
                     true
                 } catch (e: Exception) {
                     stopTracking()
+                    e.printStackTrace()
+                    println("Hier")
                     Toast.makeText(this@MainActivity, getString(R.string.obd_comm_err), Toast.LENGTH_LONG).show()
                     false
                 }
@@ -367,6 +369,7 @@ class MainActivity : AppCompatActivity() {
                     FragmentTransaction.TRANSIT_FRAGMENT_OPEN
                 ).commit()
             } else {
+                progressBarBluetooth.visibility = View.VISIBLE
                 supportFragmentManager.beginTransaction().replace(
                     R.id.frame_layout,
                     rdeSettingsFragment
@@ -865,6 +868,7 @@ class MainActivity : AppCompatActivity() {
         }
         override fun onPostExecute(result: String?) {
             super.onPostExecute(result)
+            println("Bin im post execute")
             if (!connectSuccess) {
                 if (!activity.tryingToReconnect || activity.tracking) {
                     val toast =
@@ -874,10 +878,11 @@ class MainActivity : AppCompatActivity() {
                 if (!activity.tracking && !activity.tryingToReconnect) {
                     activity.showBluetoothDialog()
                 }
+                activity.progressBarBluetooth.visibility = View.INVISIBLE
             } else {
                 activity.bluetoothConnected = true
                 activity.checkConnection()
-
+                println("connected")
                 /* Update the OBD-Source if a track is ongoing */
                 if (activity.tracking) {
                     activity.obdProducer?.changeIOStreams(
@@ -887,19 +892,27 @@ class MainActivity : AppCompatActivity() {
                             .outputStream
                     )
                     activity.obdProducer?.initELM()
+                    activity.progressBarBluetooth.visibility = View.INVISIBLE
                 } else {
+                    println("not tracking")
                     if (activity.targetFragment != null) {
+                        println("have target")
                         activity.supportFragmentManager.beginTransaction().replace(
                             R.id.frame_layout,
                             activity.targetFragment!!
                         ).setTransition(
                             FragmentTransaction.TRANSIT_FRAGMENT_OPEN
                         ).commit()
+                        if (activity.targetFragment !is RDESettingsFragment){
+                            activity.progressBarBluetooth.visibility = View.INVISIBLE
+                        }
                         activity.targetFragment = null
+                    } else {
+                        activity.progressBarBluetooth.visibility = View.INVISIBLE
                     }
                 }
             }
-            activity.progressBarBluetooth.visibility = View.INVISIBLE
+
         }
     }
 
@@ -1050,11 +1063,22 @@ class MainActivity : AppCompatActivity() {
         if (supportFragmentManager.fragments.any { it is LicenseFragment || it is InitialPrivacyFragment }) {
             return
         }
+        var fragment: Fragment? = null
+        for (f in supportFragmentManager.fragments) {
+            if (f.isVisible) {
+                fragment = f
+            }
+        }
         val nextFragment: Fragment =
-            when (supportFragmentManager.fragments[0]) {
+            when (fragment) {
                 is ProfileDetailFragment -> {
                     profileDetialFragment.onBackPressed()
                     profilesFragment
+                }
+                is RDESettingsFragment -> {
+                    println("Back pressed in rde settings, stop gps source")
+                    gpsSource?.stop()
+                    homeFragment
                 }
                 is HistoryDetailFragment -> {
                     historyFragment
