@@ -1,4 +1,4 @@
-package org.rdeapp.pcdftester.Sinks
+package de.unisaarland.loladrives.Sinks
 
 import de.unisaarland.loladrives.Constants
 import kotlinx.coroutines.channels.ReceiveChannel

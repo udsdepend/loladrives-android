@@ -45,7 +45,8 @@ class ProfileCommandListAadapter(
                 rowView.editText.setText("-1")
             }
             if (rowView.selectCommandSwitch.isChecked) {
-                checkedEvents[OBDCommand.valueOf(commands[position])] = rowView.editText.text.toString().toInt()
+                checkedEvents[OBDCommand.valueOf(commands[position])] =
+                    rowView.editText.text.toString().toInt()
             } else {
                 checkedEvents.remove(OBDCommand.valueOf(commands[position]))
             }
@@ -54,7 +55,8 @@ class ProfileCommandListAadapter(
 
         rowView.editText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                checkedEvents[OBDCommand.valueOf(commands[position])] = rowView.editText.text.toString().toInt()
+                checkedEvents[OBDCommand.valueOf(commands[position])] =
+                    rowView.editText.text.toString().toInt()
                 fragment.hideKeyboard()
                 true
             } else {

@@ -1,10 +1,10 @@
-package org.rdeapp.pcdftester.Sinks
+package de.unisaarland.loladrives.Sinks
 
-import android.util.Log
 import de.unisaarland.loladrives.Constants
 import de.unisaarland.loladrives.Constants.Companion.RDE_RTLOLA_ENGINE
 import de.unisaarland.loladrives.Constants.Companion.RDE_RTLOLA_INPUT_QUANTITIES
 import de.unisaarland.loladrives.Constants.Companion.RDE_RTLOLA_INPUT_QUANTITIES.*
+import de.unisaarland.loladrives.Constants.Companion.RELEVANT_OUTPUTS
 import de.unisaarland.loladrives.MainActivity
 import de.unisaarland.loladrives.OBDCommunication
 import de.unisaarland.loladrives.OBDCommunication.*
@@ -15,7 +15,6 @@ import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
-import pcdfEvent.EventType
 import pcdfEvent.EventType.GPS
 import pcdfEvent.EventType.OBD_RESPONSE
 import pcdfEvent.PCDFEvent
@@ -28,7 +27,6 @@ import pcdfEvent.events.obdEvents.obdIntermediateEvents.multiComponentEvents.MAF
 import pcdfEvent.events.obdEvents.obdIntermediateEvents.reducedComponentEvents.FuelRateReducedEvent
 import pcdfEvent.events.obdEvents.obdIntermediateEvents.reducedComponentEvents.NOXReducedEvent
 import pcdfEvent.events.obdEvents.obdIntermediateEvents.singleComponentEvents.*
-import java.io.File
 
 const val VERBOSITY_MODE = false
 const val EXTENDED_LOGGING = false
@@ -42,8 +40,8 @@ const val EXTENDED_LOGGING = false
  * @property activity Current MainActivity
  */
 class RDEValidator(
-    private val inputChannel: ReceiveChannel<PCDFEvent>?,
-    val activity: MainActivity
+        private val inputChannel: ReceiveChannel<PCDFEvent>?,
+        val activity: MainActivity
 ) {
     var isPaused = false
 
@@ -57,9 +55,9 @@ class RDEValidator(
     } else {
         mutableListOf()
     }
-    private var fuelType = ""
-    private var fuelRateSupported = false
-    private var faeSupported = false
+    private var fuelType = "Diesel"
+    private var fuelRateSupported = true
+    private var faeSupported = true
 
     private val specBody: String
     private val specHeader: String
@@ -78,22 +76,22 @@ class RDEValidator(
 
     // Second OBDSource used for determination of the sensor profile.
     private val source = OBDSource(
-        activity.mBluetoothSocket?.inputStream,
-        activity.mBluetoothSocket?.outputStream,
-        Channel(10000),
-        mutableListOf(),
-        activity.mUUID
+            activity.mBluetoothSocket?.inputStream,
+            activity.mBluetoothSocket?.outputStream,
+            Channel(10000),
+            mutableListOf(),
+            activity.mUUID
     )
 
     // Latest relevant values from OBD- and GPSSource.
     private var inputs: MutableMap<RDE_RTLOLA_INPUT_QUANTITIES, Double?> = mutableMapOf(
-        VELOCITY to null,
-        ALTITUDE to null,
-        TEMPERATURE to null,
-        NOX_PPM to null,
-        MASS_AIR_FLOW to null,
-        FUEL_RATE to null,
-        FUEL_AIR_EQUIVALENCE to null
+            VELOCITY to null,
+            ALTITUDE to null,
+            TEMPERATURE to null,
+            NOX_PPM to null,
+            MASS_AIR_FLOW to null,
+            FUEL_RATE to null,
+            FUEL_AIR_EQUIVALENCE to null
     )
 
     /*
@@ -111,12 +109,9 @@ class RDEValidator(
             return countAvailable == rdeProfile.size + 1
         }
 
-    fun test(){
-        val m = initmonitor(buildSpec(), "va")
-    }
     // Load the FFI RTLola engine.
     init {
-        System.loadLibrary("rtlola_kotlin_bridge")
+        System.loadLibrary(RDE_RTLOLA_ENGINE)
         specBody = activity.resources?.openRawResource(R.raw.spec_body)?.bufferedReader().use {
             it?.readText() ?: ""
         }
@@ -127,37 +122,37 @@ class RDEValidator(
             it?.readText() ?: ""
         }
         specFuelRateToCo2Diesel =
-            activity.resources?.openRawResource(R.raw.spec_fuel_rate_to_co2_diesel)?.bufferedReader().use {
-                it?.readText() ?: ""
-            }
+                activity.resources?.openRawResource(R.raw.spec_fuel_rate_to_co2_diesel)?.bufferedReader().use {
+                    it?.readText() ?: ""
+                }
         specFuelRateToEMFDiesel =
-            activity.resources?.openRawResource(R.raw.spec_fuel_rate_to_emf_diesel)?.bufferedReader().use {
-                it?.readText() ?: ""
-            }
+                activity.resources?.openRawResource(R.raw.spec_fuel_rate_to_emf_diesel)?.bufferedReader().use {
+                    it?.readText() ?: ""
+                }
         specFuelRateToCo2Gasoline =
-            activity.resources?.openRawResource(R.raw.spec_fuelrate_to_co2_gasoline)?.bufferedReader().use {
-                it?.readText() ?: ""
-            }
+                activity.resources?.openRawResource(R.raw.spec_fuelrate_to_co2_gasoline)?.bufferedReader().use {
+                    it?.readText() ?: ""
+                }
         specFuelRateToEMFGasoline =
-            activity.resources?.openRawResource(R.raw.spec_fuelrate_to_emf_gasoline)?.bufferedReader().use {
-                it?.readText() ?: ""
-            }
+                activity.resources?.openRawResource(R.raw.spec_fuelrate_to_emf_gasoline)?.bufferedReader().use {
+                    it?.readText() ?: ""
+                }
         specMAFToFuelRateDieselFAE =
-            activity.resources?.openRawResource(R.raw.spec_maf_to_fuel_rate_diesel_fae)?.bufferedReader().use {
-                it?.readText() ?: ""
-            }
+                activity.resources?.openRawResource(R.raw.spec_maf_to_fuel_rate_diesel_fae)?.bufferedReader().use {
+                    it?.readText() ?: ""
+                }
         specMAFToFuelRateDiesel =
-            activity.resources?.openRawResource(R.raw.spec_maf_to_fuel_rate_diesel)?.bufferedReader().use {
-                it?.readText() ?: ""
-            }
+                activity.resources?.openRawResource(R.raw.spec_maf_to_fuel_rate_diesel)?.bufferedReader().use {
+                    it?.readText() ?: ""
+                }
         specMAFToFuelRateGasolineFAE =
-            activity.resources?.openRawResource(R.raw.spec_maf_to_fuel_rate_gasoline_fae)?.bufferedReader().use {
-                it?.readText() ?: ""
-            }
+                activity.resources?.openRawResource(R.raw.spec_maf_to_fuel_rate_gasoline_fae)?.bufferedReader().use {
+                    it?.readText() ?: ""
+                }
         specMAFToFuelRateGasoline =
-            activity.resources?.openRawResource(R.raw.spec_maf_to_fuel_rate_gasoline)?.bufferedReader().use {
-                it?.readText() ?: ""
-            }
+                activity.resources?.openRawResource(R.raw.spec_maf_to_fuel_rate_gasoline)?.bufferedReader().use {
+                    it?.readText() ?: ""
+                }
 
     }
 
@@ -186,10 +181,7 @@ class RDEValidator(
      * Build the specification depending on the determined sensor profile and initialize the RTLola monitor.
      */
     fun initSpec() {
-        initmonitor(
-            buildSpec(),
-            "d,d_u,d_r,d_m,t_u,t_r,t_m,u_avg_v,r_avg_v,m_avg_v,u_va_pct, r_va_pct, m_va_pct, u_rpa, r_rpa, m_rpa, nox_per_kilometer, is_valid_test_num, not_rde_test_num"
-        )
+        initmonitor(buildSpec(), RELEVANT_OUTPUTS)
     }
 
     @ExperimentalCoroutinesApi
@@ -217,7 +209,7 @@ class RDEValidator(
             }
             // Reduces the event if possible (e.g. NOx or FuelRate events) using the PCDFCore library.
             val rEvent = activity.sensorReducer.reduce(
-                (event as OBDEvent).toIntermediate()
+                    (event as OBDEvent).toIntermediate()
             )
             collectOBDEvent((rEvent as OBDIntermediateEvent))
         }
@@ -344,7 +336,8 @@ class RDEValidator(
             }
             supportedPids.contains(0xA8) -> {
                 rdeProfile.add(NOX_SENSOR_CORRECTED_ALTERNATIVE)
-            } else -> {
+            }
+            else -> {
                 println("Incompatible for RDE: NOx sensor not provided by the car.")
                 return false
             }
@@ -360,7 +353,8 @@ class RDEValidator(
             supportedPids.contains(0x9D) -> {
                 rdeProfile.add(ENGINE_FUEL_RATE_MULTI)
                 true
-            } else -> {
+            }
+            else -> {
                 println("RDE: Fuel rate not provided by the car.")
                 false
             }
@@ -373,7 +367,8 @@ class RDEValidator(
             }
             supportedPids.contains(0x66) -> {
                 rdeProfile.add(MAF_AIR_FLOW_RATE_SENSOR)
-            } else -> {
+            }
+            else -> {
                 println("Incompatible for RDE: Mass air flow not provided by the car.")
                 return false
             }
@@ -408,9 +403,17 @@ class RDEValidator(
 
         val supportedPids = getSupportedPids()
         // Check the Cars Fuel Type
-        fuelType = if (supportedPids.contains(0x51)) { getFuelType() } else { return INSUFFICIENT_SENSORS }
+        fuelType = if (supportedPids.contains(0x51)) {
+            getFuelType()
+        } else {
+            return INSUFFICIENT_SENSORS
+        }
 
-        return if (checkSupportedPids(supportedPids, fuelType)) { OKAY } else { INSUFFICIENT_SENSORS }
+        return if (checkSupportedPids(supportedPids, fuelType)) {
+            OKAY
+        } else {
+            INSUFFICIENT_SENSORS
+        }
     }
 
     /**
@@ -469,19 +472,18 @@ class RDEValidator(
         }
 
         // Setup RTLola Monitor
-        initmonitor(
-            buildSpec(),
-            "d,d_u,d_r,d_m,t_u,t_r,t_m,u_avg_v,r_avg_v,m_avg_v,u_va_pct, r_va_pct, m_va_pct, u_rpa, r_rpa, m_rpa, nox_per_kilometer, is_valid_test_num, not_rde_test_num"
-
-        )
-
+        initmonitor(buildSpec(), RELEVANT_OUTPUTS)
         var result = doubleArrayOf()
 
         // Collect events, similar to online monitoring.
         while (dataIterator.hasNext()) {
             val event = dataIterator.next()
             val lolaResult = runBlocking { collectData(event) }
-            result = if (lolaResult.isNotEmpty()) { lolaResult } else { result }
+            result = if (lolaResult.isNotEmpty()) {
+                lolaResult
+            } else {
+                result
+            }
         }
         return result
     }

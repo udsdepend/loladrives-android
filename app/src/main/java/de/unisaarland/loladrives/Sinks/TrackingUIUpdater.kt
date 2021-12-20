@@ -1,4 +1,4 @@
-package org.rdeapp.pcdftester.Sinks
+package de.unisaarland.loladrives.Sinks
 
 import android.annotation.SuppressLint
 import android.widget.TextView
@@ -43,7 +43,8 @@ class TrackingUIUpdater(
                         is MaximumAirFowRateEvent -> textView?.text = iEvent.rate.toString()
                         is MAFAirFlowRateEvent -> textView?.text = iEvent.rate.format(2)
                         is MAFSensorEvent -> textView?.text = iEvent.mafSensorA.format(2)
-                        is IntakeAirTemperatureEvent -> textView?.text = iEvent.temperature.toString()
+                        is IntakeAirTemperatureEvent -> textView?.text =
+                            iEvent.temperature.toString()
                         is FuelTypeEvent -> textView?.text = iEvent.fueltype
                         is FuelRateEvent -> textView?.text = iEvent.engineFuelRate.format(2)
                         is FuelRateMultiEvent -> textView?.text = when {
@@ -77,16 +78,23 @@ class TrackingUIUpdater(
                         )
                         is FuelTankLevelInputEvent -> textView?.text = iEvent.level.format(2)
                         is FuelAirEquivalenceRatioEvent -> textView?.text = iEvent.ratio.format(2)
-                        is EngineOilTemperatureEvent -> textView?.text = iEvent.temperature.toString()
+                        is EngineOilTemperatureEvent -> textView?.text =
+                            iEvent.temperature.toString()
                         is EngineExhaustFlowRateEvent -> textView?.text = iEvent.rate.format(2)
-                        is EngineCoolantTemperatureEvent -> textView?.text = iEvent.temperature.toString()
+                        is EngineCoolantTemperatureEvent -> textView?.text =
+                            iEvent.temperature.toString()
                         is EGRErrorEvent -> textView?.text = iEvent.error.format(2)
                         is CommandedEGREvent -> textView?.text = iEvent.commandedEGR.format(2)
-                        is AmbientAirTemperatureEvent -> textView?.text = iEvent.temperature.toString()
-                        is CatalystTemperature1_1Event -> textView?.text = iEvent.temperature.format(2)
-                        is CatalystTemperature1_2Event -> textView?.text = iEvent.temperature.format(2)
-                        is CatalystTemperature2_1Event -> textView?.text = iEvent.temperature.format(2)
-                        is CatalystTemperature2_2Event -> textView?.text = iEvent.temperature.format(2)
+                        is AmbientAirTemperatureEvent -> textView?.text =
+                            iEvent.temperature.toString()
+                        is CatalystTemperature1_1Event -> textView?.text =
+                            iEvent.temperature.format(2)
+                        is CatalystTemperature1_2Event -> textView?.text =
+                            iEvent.temperature.format(2)
+                        is CatalystTemperature2_1Event -> textView?.text =
+                            iEvent.temperature.format(2)
+                        is CatalystTemperature2_2Event -> textView?.text =
+                            iEvent.temperature.format(2)
                         is ParticularMatterEvent ->
                             textView?.text = iEvent.sensor1_1.format(2) + " \r " +
                                     (iEvent.sensor2_1.format(2))
@@ -108,20 +116,20 @@ class TrackingUIUpdater(
         } else {
             ""
         } +
-            if (sensor1_2 != -1) {
-                " Sensor 2: $sensor1_2 "
-            } else {
-                ""
-            } +
-            if (sensor2_1 != -1) {
-                " Sensor 3: $sensor2_1 "
-            } else {
-                ""
-            } +
-            if (sensor2_2 != -1) {
-                " Sensor 4: $sensor2_2 "
-            } else {
-                ""
-            }
+                if (sensor1_2 != -1) {
+                    " Sensor 2: $sensor1_2 "
+                } else {
+                    ""
+                } +
+                if (sensor2_1 != -1) {
+                    " Sensor 3: $sensor2_1 "
+                } else {
+                    ""
+                } +
+                if (sensor2_2 != -1) {
+                    " Sensor 4: $sensor2_2 "
+                } else {
+                    ""
+                }
     }
 }

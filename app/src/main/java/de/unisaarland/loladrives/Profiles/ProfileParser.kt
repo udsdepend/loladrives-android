@@ -15,7 +15,7 @@ class ProfileParser {
     private val api = MedeiaJacksonApi()
     private val objectMapper = jacksonObjectMapper()
     private val s = StringWriter()
-    private var validator : SchemaValidator? = null
+    private var validator: SchemaValidator? = null
 
     /**
      * validates JSON string against profile specification and parses into List of RDECommands
@@ -73,22 +73,22 @@ class ProfileParser {
         // TODO: replace through file
         val source = StringSchemaSource(
             "{\n" +
-                "    \"type\": \"array\",\n" +
-                "    \"items\": {\n" +
-                "        \"type\":\"object\",\n" +
-                "        \"properties\":{\n" +
-                "            \"command\":{\n" +
-                "                \"type\":\"string\"\n" +
-                "            },\n" +
-                "            \"update_frequency\":{\n" +
-                "                \"type\":\"integer\",\n" +
-                "                \"minimum\": -1\n" +
-                "            }\n" +
-                "        },\n" +
-                "        \"required\":[\"command\",\"update_frequency\"]\n" +
-                "    },\n" +
-                "    \"uniqueItems\":true\n" +
-                "}",
+                    "    \"type\": \"array\",\n" +
+                    "    \"items\": {\n" +
+                    "        \"type\":\"object\",\n" +
+                    "        \"properties\":{\n" +
+                    "            \"command\":{\n" +
+                    "                \"type\":\"string\"\n" +
+                    "            },\n" +
+                    "            \"update_frequency\":{\n" +
+                    "                \"type\":\"integer\",\n" +
+                    "                \"minimum\": -1\n" +
+                    "            }\n" +
+                    "        },\n" +
+                    "        \"required\":[\"command\",\"update_frequency\"]\n" +
+                    "    },\n" +
+                    "    \"uniqueItems\":true\n" +
+                    "}",
             JsonSchemaVersion.DRAFT07
         )
         return api.loadSchema(source)

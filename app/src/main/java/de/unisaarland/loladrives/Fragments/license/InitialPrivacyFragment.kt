@@ -26,18 +26,20 @@ class InitialPrivacyFragment : Fragment() {
 
     override fun onStart() {
         val activity = requireActivity() as MainActivity
-        initialPrivacyWebView.getSettings().setJavaScriptEnabled(true)
+        initialPrivacyWebView.settings.javaScriptEnabled = true
         initialPrivacyWebView.loadUrl("file:///android_res/raw/privacy.html")
 
         acceptButton.setOnClickListener {
             activity.changeDonatingAllowed(true)
-            activity.supportFragmentManager.beginTransaction().replace(R.id.frame_layout, activity.homeFragment)
+            activity.supportFragmentManager.beginTransaction()
+                .replace(R.id.frame_layout, activity.homeFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
         }
 
         rejectButton.setOnClickListener {
             activity.changeDonatingAllowed(false)
-            activity.supportFragmentManager.beginTransaction().replace(R.id.frame_layout, activity.homeFragment)
+            activity.supportFragmentManager.beginTransaction()
+                .replace(R.id.frame_layout, activity.homeFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
         }
 

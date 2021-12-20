@@ -1,4 +1,4 @@
-package org.rdeapp.pcdftester.Sinks
+package de.unisaarland.loladrives.Sinks
 
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -24,6 +24,7 @@ class RDEUIUpdater(
     // The current expected distance (may change during track).
     private var expectedDistance = fragment.distance
     private var started = false
+
     // Constants concerning the NOx values, we take 200[mg/km] to be the largest amount we may display in the NOx-Bar.
     private val noxMaximum = 0.2 // [g/km]
     private val noxThr1 = 0.12 // [g/km]
@@ -53,7 +54,8 @@ class RDEUIUpdater(
                 fragment.textViewUrbanTime.text = convertSeconds(outputs[4].toLong())
                 fragment.textViewRuralTime.text = convertSeconds(outputs[5].toLong())
                 fragment.textViewMotorwayTime.text = convertSeconds(outputs[6].toLong())
-                fragment.textViewTotalTime.text = convertSeconds(outputs[4].toLong() + outputs[5].toLong() + outputs[6].toLong())
+                fragment.textViewTotalTime.text =
+                    convertSeconds(outputs[4].toLong() + outputs[5].toLong() + outputs[6].toLong())
 
                 // Update the distance ProgressBars (total[0], urban[1], rural[2], motorway[3])
                 handleDistance(outputs[0], outputs[1], outputs[2], outputs[3])
@@ -72,19 +74,25 @@ class RDEUIUpdater(
                 )
 
                 // Update the NOx ProgessBar and TextView
-                fragment.roundCornerProgressBarNOX.progress = (outputs[16] / noxMaximum * 100.0).toFloat()
+                fragment.roundCornerProgressBarNOX.progress =
+                    (outputs[16] / noxMaximum * 100.0).toFloat()
                 fragment.textViewNOxCurrentValue.text = convert(outputs[16] * 1000.0, "mg/km")
 
                 // Change the color of the NOx ProgressBar, depending on exceedance of the thresholds.
                 when {
                     outputs[16] > noxThr2 -> {
-                        fragment.roundCornerProgressBarNOX.progressColor = ContextCompat.getColor(fragment.requireContext(), R.color.redColor)
+                        fragment.roundCornerProgressBarNOX.progressColor =
+                            ContextCompat.getColor(fragment.requireContext(), R.color.redColor)
                     }
                     outputs[16] > noxThr1 -> {
-                        fragment.roundCornerProgressBarNOX.progressColor = ContextCompat.getColor(fragment.requireContext(), R.color.questionYellow)
+                        fragment.roundCornerProgressBarNOX.progressColor = ContextCompat.getColor(
+                            fragment.requireContext(),
+                            R.color.questionYellow
+                        )
                     }
                     else -> {
-                        fragment.roundCornerProgressBarNOX.progressColor = ContextCompat.getColor(fragment.requireContext(), R.color.greenColor)
+                        fragment.roundCornerProgressBarNOX.progressColor =
+                            ContextCompat.getColor(fragment.requireContext(), R.color.greenColor)
                     }
                 }
 
@@ -130,7 +138,11 @@ class RDEUIUpdater(
         // Calculate Horizontal Marker Positions
         val uRpaThreshold = -0.0016 * u_avg_v + 0.1755
         val rRpaThreshold = -0.0016 * r_avg_v + 0.1755
-        val mRpaThreshold = if (m_avg_v <= 94.05) { -0.0016 * m_avg_v + 0.1755 } else { 0.025 }
+        val mRpaThreshold = if (m_avg_v <= 94.05) {
+            -0.0016 * m_avg_v + 0.1755
+        } else {
+            0.025
+        }
 
         val uRpaMarkerPercentage = uRpaThreshold / maxRpa
         val rRpaMarkerPercentage = rRpaThreshold / maxRpa
@@ -149,7 +161,11 @@ class RDEUIUpdater(
 
         // Calculate Horizontal Marker Positions
         val uPctThreshold = 0.136 * u_avg_v + 14.44
-        val rPctThreshold = if (r_avg_v <= 74.6) { 0.136 * r_avg_v + 14.44 } else { 0.0742 * r_avg_v + 18.966 }
+        val rPctThreshold = if (r_avg_v <= 74.6) {
+            0.136 * r_avg_v + 14.44
+        } else {
+            0.0742 * r_avg_v + 18.966
+        }
         val mPctThreshold = 0.0742 * m_avg_v + 18.966
 
         val uPctMarkerPercentage = uPctThreshold / maxPct
@@ -166,13 +182,16 @@ class RDEUIUpdater(
         val mRpaBallPercentage = m_rpa / maxRpa
 
         fragment.guidelineCircleUrbanLow.setGuidelinePercent(
-            (lengthRpa * uRpaBallPercentage + offsetRpa).toFloat().coerceAtMost(boundaryRpa.toFloat())
+            (lengthRpa * uRpaBallPercentage + offsetRpa).toFloat()
+                .coerceAtMost(boundaryRpa.toFloat())
         )
         fragment.guidelineCircleRuralLow.setGuidelinePercent(
-            (lengthRpa * rRpaBallPercentage + offsetRpa).toFloat().coerceAtMost(boundaryRpa.toFloat())
+            (lengthRpa * rRpaBallPercentage + offsetRpa).toFloat()
+                .coerceAtMost(boundaryRpa.toFloat())
         )
         fragment.guidelineCircleMotorwayLow.setGuidelinePercent(
-            (lengthRpa * mRpaBallPercentage + offsetRpa).toFloat().coerceAtMost(boundaryRpa.toFloat())
+            (lengthRpa * mRpaBallPercentage + offsetRpa).toFloat()
+                .coerceAtMost(boundaryRpa.toFloat())
         )
 
         // Calculate PCT Ball Positions
@@ -181,13 +200,16 @@ class RDEUIUpdater(
         val mPctBallPercentage = m_va_pct / maxPct
 
         fragment.guidelineCircleUrbanHigh.setGuidelinePercent(
-            (lengthPct * uPctBallPercentage + offsetPct).toFloat().coerceAtMost(boundaryPct.toFloat())
+            (lengthPct * uPctBallPercentage + offsetPct).toFloat()
+                .coerceAtMost(boundaryPct.toFloat())
         )
         fragment.guidelineCircleRuralHigh.setGuidelinePercent(
-            (lengthPct * rPctBallPercentage + offsetPct).toFloat().coerceAtMost(boundaryPct.toFloat())
+            (lengthPct * rPctBallPercentage + offsetPct).toFloat()
+                .coerceAtMost(boundaryPct.toFloat())
         )
         fragment.guidelineCircleMotorwayHigh.setGuidelinePercent(
-            (lengthPct * mPctBallPercentage + offsetPct).toFloat().coerceAtMost(boundaryPct.toFloat())
+            (lengthPct * mPctBallPercentage + offsetPct).toFloat()
+                .coerceAtMost(boundaryPct.toFloat())
         )
     }
 
@@ -229,9 +251,12 @@ class RDEUIUpdater(
         val ruralProgress = fragment.roundCornerProgressBarRural
         val motorwayProgress = fragment.roundCornerProgressBarMotorway
 
-        urbanProgress.progress = urbanDistance.toFloat() / 1000 / expectedDistance.toFloat() * 2 * 100
-        ruralProgress.progress = ruralDistance.toFloat() / 1000 / expectedDistance.toFloat() * 2 * 100
-        motorwayProgress.progress = motorwayDistance.toFloat() / 1000 / expectedDistance.toFloat() * 2 * 100
+        urbanProgress.progress =
+            urbanDistance.toFloat() / 1000 / expectedDistance.toFloat() * 2 * 100
+        ruralProgress.progress =
+            ruralDistance.toFloat() / 1000 / expectedDistance.toFloat() * 2 * 100
+        motorwayProgress.progress =
+            motorwayDistance.toFloat() / 1000 / expectedDistance.toFloat() * 2 * 100
 
         fragment.distance = expectedDistance
     }
@@ -260,7 +285,10 @@ class RDEUIUpdater(
  * UI class for the [HomeFragment].
  * Updates the little total duration TextView on the HomeFragment during an ongoing RDE-Track (with blinking red dot).
  */
-class RDEHomeUpdater(private val inputChannel: ReceiveChannel<DoubleArray>, val fragment: HomeFragment) {
+class RDEHomeUpdater(
+    private val inputChannel: ReceiveChannel<DoubleArray>,
+    val fragment: HomeFragment
+) {
     private var uiJob: Job? = null
     fun start() {
         uiJob = GlobalScope.launch(Dispatchers.Main) {
@@ -268,8 +296,8 @@ class RDEHomeUpdater(private val inputChannel: ReceiveChannel<DoubleArray>, val 
                 try {
                     fragment.homeTotalRDETime.text = RDEUIUpdater.convertSeconds(
                         inputs[4].toLong() + inputs[5].toLong() +
-                            inputs[6]
-                                .toLong()
+                                inputs[6]
+                                    .toLong()
                     )
                 } catch (e: Exception) {
                     cancel()

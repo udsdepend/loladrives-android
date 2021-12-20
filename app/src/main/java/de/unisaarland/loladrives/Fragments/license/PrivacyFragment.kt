@@ -15,7 +15,11 @@ class PrivacyFragment : Fragment() {
 
     private lateinit var activity: MainActivity
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         activity = requireActivity() as MainActivity
         return inflater.inflate(R.layout.privacy_dialog, container, false)
@@ -25,7 +29,7 @@ class PrivacyFragment : Fragment() {
         activity.title_textview.text = getString(R.string.privacy)
         activity.backButton.setImageResource(R.drawable.back_arrow_icon)
 
-        privacyWebView.getSettings().setJavaScriptEnabled(true)
+        privacyWebView.settings.javaScriptEnabled = true
         privacyWebView.loadUrl("file:///android_res/raw/privacy.html")
         privacySwitch.setOnClickListener {
             activity.changeDonatingAllowed(privacySwitch.isChecked)

@@ -11,7 +11,8 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-class Uploader(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
+class Uploader(appContext: Context, workerParams: WorkerParameters) :
+    Worker(appContext, workerParams) {
 
     override fun doWork(): Result {
         val directory = File(inputData.getString("directory")!!)
@@ -40,7 +41,9 @@ class Uploader(appContext: Context, workerParams: WorkerParameters) : Worker(app
                                 // Remember the Authentication Token
                                 val metaData = FileTokenPair(it.name, authToken)
                                 val metaFile = File(subDirectory, "meta.json")
-                                metaFile.appendText(GsonBuilder().setPrettyPrinting().create().toJson(metaData))
+                                metaFile.appendText(
+                                    GsonBuilder().setPrettyPrinting().create().toJson(metaData)
+                                )
 
                                 println("File $it uploaded successfully!")
                             } else {
@@ -82,7 +85,8 @@ class Uploader(appContext: Context, workerParams: WorkerParameters) : Worker(app
 
             val uploadDestinationDebug = "https://api.loladrives.app/debug/donations"
             val uploadDestinationRelease = "https://api.loladrives.app/deploy/donations"
-            val uploadDestination = if (isReleaseVersion) uploadDestinationRelease else uploadDestinationDebug
+            val uploadDestination =
+                if (isReleaseVersion) uploadDestinationRelease else uploadDestinationDebug
             connection = URL(uploadDestination).openConnection() as HttpsURLConnection
             connection.requestMethod = "POST"
             connection.doOutput = true
@@ -106,7 +110,8 @@ class Uploader(appContext: Context, workerParams: WorkerParameters) : Worker(app
             outputStream.close()
 
             val responseCode = connection.responseCode
-            val inputStream = if (responseCode >= 400) connection.errorStream else connection.inputStream
+            val inputStream =
+                if (responseCode >= 400) connection.errorStream else connection.inputStream
             val responseText = inputStream.bufferedReader().readText()
 
             val responseData = JSONObject(responseText)
