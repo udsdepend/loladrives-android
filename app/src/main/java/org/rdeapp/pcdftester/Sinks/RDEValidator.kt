@@ -111,9 +111,12 @@ class RDEValidator(
             return countAvailable == rdeProfile.size + 1
         }
 
+    fun test(){
+        val m = initmonitor(buildSpec(), "va")
+    }
     // Load the FFI RTLola engine.
     init {
-        System.loadLibrary(RDE_RTLOLA_ENGINE)
+        System.loadLibrary("rtlola_kotlin_bridge")
         specBody = activity.resources?.openRawResource(R.raw.spec_body)?.bufferedReader().use {
             it?.readText() ?: ""
         }
@@ -164,7 +167,7 @@ class RDEValidator(
      * @param spec RTLola specification as a string.
      * @return String "worked" if initialization went fine, or some error description if something went wrong.
      */
-    private external fun initmonitor(spec: String): String
+    private external fun initmonitor(spec: String, relevant_outputs: String): String
 
     /**
      * Sends an array of update values to the RTLola engine to extend the InputStreams.
@@ -184,7 +187,8 @@ class RDEValidator(
      */
     fun initSpec() {
         initmonitor(
-            buildSpec()
+            buildSpec(),
+            "d,d_u,d_r,d_m,t_u,t_r,t_m,u_avg_v,r_avg_v,m_avg_v,u_va_pct, r_va_pct, m_va_pct, u_rpa, r_rpa, m_rpa, nox_per_kilometer, is_valid_test_num, not_rde_test_num"
         )
     }
 
@@ -466,7 +470,9 @@ class RDEValidator(
 
         // Setup RTLola Monitor
         initmonitor(
-            buildSpec()
+            buildSpec(),
+            "d,d_u,d_r,d_m,t_u,t_r,t_m,u_avg_v,r_avg_v,m_avg_v,u_va_pct, r_va_pct, m_va_pct, u_rpa, r_rpa, m_rpa, nox_per_kilometer, is_valid_test_num, not_rde_test_num"
+
         )
 
         var result = doubleArrayOf()

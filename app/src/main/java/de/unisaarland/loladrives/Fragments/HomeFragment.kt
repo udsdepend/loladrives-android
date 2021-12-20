@@ -15,7 +15,9 @@ import de.unisaarland.loladrives.R.layout
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import org.rdeapp.pcdftester.Sinks.RDEHomeUpdater
+import org.rdeapp.pcdftester.Sinks.RDEValidator
 
 /**
  * The inital Fragment
@@ -122,6 +124,7 @@ class HomeFragment : Fragment() {
         }
 
         helpImageButton.setOnClickListener {
+            /*
             val htmlFragment = mActivity.simpleHTMLContentFragment
             htmlFragment.url = "file:///android_res/raw/help.html"
             htmlFragment.title = "Help"
@@ -131,6 +134,9 @@ class HomeFragment : Fragment() {
             ).setTransition(
                 FragmentTransaction.TRANSIT_FRAGMENT_OPEN
             ).commit()
+             */
+            val validator = RDEValidator(Channel(500), mActivity)
+            validator.test()
         }
 
         textViewButtonAck.setOnClickListener {
