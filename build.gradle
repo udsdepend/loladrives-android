@@ -7,6 +7,7 @@ buildscript {
         maven { url 'https://plugins.gradle.org/m2/'}
         maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
         maven { url "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
+        maven { url "https://maven.google.com" }
         mavenLocal()
         mavenCentral()
         google()
@@ -28,6 +29,7 @@ plugins {
 allprojects {
     repositories {
         maven { url 'https://jitpack.io' }
+        maven { url "https://maven.google.com" }
         google()
         jcenter()
         mavenCentral()
