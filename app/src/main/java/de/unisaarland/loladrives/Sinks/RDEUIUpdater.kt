@@ -2,6 +2,7 @@ package de.unisaarland.loladrives.Sinks
 
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import de.unisaarland.loladrives.Fragments.HomeFragment
 import de.unisaarland.loladrives.Fragments.RDE.RDEFragment
 import de.unisaarland.loladrives.R
@@ -211,6 +212,12 @@ class RDEUIUpdater(
             (lengthPct * mPctBallPercentage + offsetPct).toFloat()
                 .coerceAtMost(boundaryPct.toFloat())
         )
+
+        // Show Warnings if a constraint is violated in a fragment
+        fragment.imageViewDynamicsWarningUrban.visibility = if (u_rpa < uRpaThreshold || u_va_pct < uPctThreshold) { View.VISIBLE } else { View.INVISIBLE }
+        fragment.imageViewDynamicsWarningRural.visibility = if (r_rpa< rRpaThreshold || r_va_pct < rPctThreshold) { View.VISIBLE } else { View.INVISIBLE }
+        fragment.imageViewDynamicsWarningMotorway.visibility = if (m_rpa < mRpaThreshold || m_va_pct < mPctThreshold) { View.VISIBLE } else { View.INVISIBLE }
+
     }
 
     /**
