@@ -88,7 +88,7 @@ class RDEValidator(
             VELOCITY to null,
             ALTITUDE to null,
             TEMPERATURE to null,
-            NOX_PPM to 50.0,
+            NOX_PPM to null,
             MASS_AIR_FLOW to null,
             FUEL_RATE to null,
             FUEL_AIR_EQUIVALENCE to null
@@ -106,7 +106,7 @@ class RDEValidator(
                     countAvailable++
                 }
             }
-            return countAvailable == rdeProfile.size + 2
+            return countAvailable == rdeProfile.size + 1
         }
 
     // Load the FFI RTLola engine.
@@ -353,8 +353,7 @@ class RDEValidator(
         }
 
         if (!noxFound) {
-            commandList.add(NOX_SENSOR)
-            validPids = true //TODO: change
+            validPids = false
         }
 
         // Fuelrate sensors for calculation of the exhaust mass flow. Can be replaced through MAF.
