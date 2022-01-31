@@ -55,9 +55,9 @@ class RDEValidator(
     } else {
         mutableListOf()
     }
-    private var fuelType = "Diesel"
-    private var fuelRateSupported = true
-    private var faeSupported = true
+    private var fuelType = ""
+    private var fuelRateSupported = false
+    private var faeSupported = false
 
     private val specBody: String
     private val specHeader: String
@@ -88,7 +88,7 @@ class RDEValidator(
             VELOCITY to null,
             ALTITUDE to null,
             TEMPERATURE to null,
-            NOX_PPM to null,
+            NOX_PPM to 50.0,
             MASS_AIR_FLOW to null,
             FUEL_RATE to null,
             FUEL_AIR_EQUIVALENCE to null
@@ -106,7 +106,7 @@ class RDEValidator(
                     countAvailable++
                 }
             }
-            return countAvailable == rdeProfile.size + 1
+            return countAvailable == rdeProfile.size + 2
         }
 
     // Load the FFI RTLola engine.
@@ -339,7 +339,7 @@ class RDEValidator(
             }
             else -> {
                 println("Incompatible for RDE: NOx sensor not provided by the car.")
-                return false
+                //return false
             }
         }
 
