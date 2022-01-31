@@ -214,9 +214,9 @@ class RDEUIUpdater(
         )
 
         // Show Warnings if a constraint is violated in a fragment
-        fragment.imageViewDynamicsWarningUrban.visibility = if (u_rpa < uRpaThreshold || u_va_pct < uPctThreshold) { View.VISIBLE } else { View.INVISIBLE }
-        fragment.imageViewDynamicsWarningRural.visibility = if (r_rpa< rRpaThreshold || r_va_pct < rPctThreshold) { View.VISIBLE } else { View.INVISIBLE }
-        fragment.imageViewDynamicsWarningMotorway.visibility = if (m_rpa < mRpaThreshold || m_va_pct < mPctThreshold) { View.VISIBLE } else { View.INVISIBLE }
+        fragment.imageViewDynamicsWarningUrban.visibility = if (u_rpa < uRpaThreshold || u_va_pct > uPctThreshold) { View.VISIBLE } else { View.INVISIBLE }
+        fragment.imageViewDynamicsWarningRural.visibility = if (r_rpa < rRpaThreshold || r_va_pct > rPctThreshold) { View.VISIBLE } else { View.INVISIBLE }
+        fragment.imageViewDynamicsWarningMotorway.visibility = if (m_rpa < mRpaThreshold || m_va_pct > mPctThreshold) { View.VISIBLE } else { View.INVISIBLE }
 
     }
 

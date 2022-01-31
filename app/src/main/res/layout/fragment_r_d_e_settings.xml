@@ -193,6 +193,16 @@
         app:layout_constraintBottom_toTopOf="@id/guidelineSpeedTemp"
         app:layout_constraintLeft_toRightOf="@id/textViewTemp" />
 
+    <ImageView
+        android:id="@+id/imageViewGPS"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/bt_connected"
+        app:layout_constraintBottom_toTopOf="@id/guidelineGPS"
+        app:layout_constraintLeft_toRightOf="@id/textViewGPS"
+        android:visibility="invisible"/>
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineNoxCalc"
         android:layout_width="wrap_content"
@@ -215,7 +225,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:text="MAF, FAE "
+        android:text="None"
         android:textSize="18dp"
         app:layout_constraintBottom_toTopOf="@id/guidelineNoxCalc"
         app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid" />

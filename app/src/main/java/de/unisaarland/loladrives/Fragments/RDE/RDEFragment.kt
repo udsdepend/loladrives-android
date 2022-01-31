@@ -91,7 +91,7 @@ class RDEFragment : Fragment() {
                 GlobalScope.launch(Dispatchers.Main) {
                     // Perform supported Pids check
                     val rdeReady = try {
-                        rdeValidator.performSupportedPidsCheck()
+                        rdeValidator.performSupportedPidsCheck().first
                     } catch (e: Exception) {
                         println("OBD Error: $e")
                         OBD_COMMUNICATION_ERROR
@@ -132,7 +132,7 @@ class RDEFragment : Fragment() {
                             // Show stop button
                             stopRDEButton.visibility = View.VISIBLE
                         }
-                        INSUFFICIENT_SENSORS, UNSUPPORTED_PROTOCOL -> {
+                        INSUFFICIENT_SENSORS, UNSUPPORTED_PROTOCOL, NO_FUELTYPE -> {
                             MainActivity.InfoDialog("unsupported_car.html", null).show(
                                 activity.supportFragmentManager,
                                 null
