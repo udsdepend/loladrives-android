@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -13,9 +14,11 @@ import com.warkiz.widget.OnSeekChangeListener
 import com.warkiz.widget.SeekParams
 import de.unisaarland.loladrives.MainActivity
 import de.unisaarland.loladrives.OBDCommunication
+import de.unisaarland.loladrives.OBDCommunication.*
 import de.unisaarland.loladrives.R
 import de.unisaarland.loladrives.Sinks.RDEValidator
 import de.unisaarland.loladrives.Sources.GPSSource
+import de.unisaarland.loladrives.Sources.OBDSource
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.fragment_r_d_e_settings.*
@@ -34,6 +37,8 @@ class RDESettingsFragment : Fragment() {
     private var rdeValidator: RDEValidator? = null
     private lateinit var activity: MainActivity
     private var gpsInit = false
+
+    private lateinit var source: OBDSource
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,6 +67,15 @@ class RDESettingsFragment : Fragment() {
             override fun onStopTrackingTouch(seekBar: IndicatorSeekBar) {}
         }
 
+        // Init OBDSource used for NOx Warm-Up-check
+        source = OBDSource(
+                activity.mBluetoothSocket?.inputStream,
+                activity.mBluetoothSocket?.outputStream,
+                Channel(10000),
+                mutableListOf(),
+                activity.mUUID
+        )
+
         activity.checkConnection()
         if (!activity.bluetoothConnected) {
             val toast = Toast.makeText(
@@ -78,22 +92,25 @@ class RDESettingsFragment : Fragment() {
                 checkGPS()
                 val rdeReady = initRDE()
 
-                startImageButton.setOnClickListener {
-                    if (rdeReady) {
+                if (rdeReady.first == OKAY) {
+
+                    startNOxWarmUp(rdeReady.second)
+
+                    startImageButton.setOnClickListener {
                         activity.rdeFragment.distance = distance.toDouble()
 
                         activity.supportFragmentManager.beginTransaction().replace(
                                 R.id.frame_layout,
                                 activity.rdeFragment
                         ).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
-                    } else {
-                        val toast = Toast.makeText(
-                                context,
-                                "Your car does not support all necessary sensors for an RDE Test, see the above list for an overview.",
-                                Toast.LENGTH_LONG
-                        )
-                        toast.show()
                     }
+                } else {
+                    val toast = Toast.makeText(
+                            context,
+                            "Your car does not support all necessary sensors for an RDE Test, see the above list for an overview.",
+                            Toast.LENGTH_LONG
+                    )
+                    toast.show()
                 }
             } else {
                 val toast = Toast.makeText(
@@ -129,8 +146,7 @@ class RDESettingsFragment : Fragment() {
     }
 
     @ExperimentalCoroutinesApi
-    private fun initRDE() : Boolean {
-        println("Starte Validtor und checke PIDS")
+    private fun initRDE() : Pair<OBDCommunication, List<OBDCommand>> {
         rdeValidator = RDEValidator(
                 activity.eventDistributor.registerReceiver(),
                 activity
@@ -140,22 +156,19 @@ class RDESettingsFragment : Fragment() {
                 rdeValidator!!.performSupportedPidsCheck()
             } catch (e: Exception) {
                 println("OBD Error: $e")
-                Pair(OBDCommunication.OBD_COMMUNICATION_ERROR, listOf())
+                Pair(OBD_COMMUNICATION_ERROR, listOf())
             }
         }
 
         fillCarInfo(rdeReady)
-        if (rdeReady.first != OBDCommunication.OKAY) {
-            return false
-        }
-        return true
+        return rdeReady
     }
 
     private fun fillCarInfo(rdeReady: Pair<OBDCommunication, List<OBDCommand>>) {
         val result = rdeReady.first
         val suppList = rdeReady.second
 
-        if (result == OBDCommunication.OBD_COMMUNICATION_ERROR) {
+        if (result == OBD_COMMUNICATION_ERROR) {
             val toast = Toast.makeText(
                     context,
                     getString(R.string.obd_comm_err),
@@ -178,7 +191,7 @@ class RDESettingsFragment : Fragment() {
         }
 
         if (suppList.intersect(listOf(NOX_SENSOR, NOX_SENSOR_CORRECTED, NOX_SENSOR_ALTERNATIVE, NOX_SENSOR_CORRECTED_ALTERNATIVE)).isEmpty()) {
-            textViewNOXSensorInit.text = "No NOx Sensor found!"
+            textViewNOXSensorInit.text = getString(R.string.noNox)
             textViewNOXSensorInit.setTextColor(Color.RED)
         }
 
@@ -199,5 +212,21 @@ class RDESettingsFragment : Fragment() {
         }
 
         textViewNoxCalc2.text = noxCalcString
+    }
+
+    private fun startNOxWarmUp(suppPIDs: List<OBDCommand>) {
+        val commands = mutableListOf(NOX_SENSOR, NOX_SENSOR_ALTERNATIVE, NOX_SENSOR_CORRECTED, NOX_SENSOR_CORRECTED_ALTERNATIVE).intersect(suppPIDs)
+
+
+        val a = arrayListOf("Nox1", "Nox2")
+        val adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, a)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        spinner.adapter = adapter
+        spinner.invalidate()
+
+        spinner.setOnItemClickListener { parent, view, position, id ->
+            print("Position: " + position + " ID: "+ id)
+        }
     }
 }
