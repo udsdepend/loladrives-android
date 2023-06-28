@@ -9,47 +9,11 @@ import androidx.core.content.ContextCompat
 import de.unisaarland.loladrives.Fragments.HomeFragment
 import de.unisaarland.loladrives.Fragments.RDE.RDEFragment
 import de.unisaarland.loladrives.R
-import kotlinx.android.synthetic.main.fragment_home.homeTotalRDETime
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleMotorwayHigh
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleMotorwayLow
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleRuralHigh
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleRuralLow
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleUrbanHigh
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleUrbanLow
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerHighMotorway
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerHighRural
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerHighUrban
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerLowMotorway
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerLowRural
-import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerLowUrban
-import kotlinx.android.synthetic.main.fragment_r_d_e.progressBarDistance
-import kotlinx.android.synthetic.main.fragment_r_d_e.progressBarTime
-import kotlinx.android.synthetic.main.fragment_r_d_e.roundCornerProgressBarMotorway
-import kotlinx.android.synthetic.main.fragment_r_d_e.roundCornerProgressBarNOX
-import kotlinx.android.synthetic.main.fragment_r_d_e.roundCornerProgressBarRural
-import kotlinx.android.synthetic.main.fragment_r_d_e.roundCornerProgressBarUrban
-import kotlinx.android.synthetic.main.fragment_r_d_e.textViewMotorwayDistance
-import kotlinx.android.synthetic.main.fragment_r_d_e.textViewMotorwayTime
-import kotlinx.android.synthetic.main.fragment_r_d_e.textViewNOxCurrentValue
-import kotlinx.android.synthetic.main.fragment_r_d_e.textViewRDEPrompt
-import kotlinx.android.synthetic.main.fragment_r_d_e.textViewRuralDistance
-import kotlinx.android.synthetic.main.fragment_r_d_e.textViewRuralTime
-import kotlinx.android.synthetic.main.fragment_r_d_e.textViewTotalDistance
-import kotlinx.android.synthetic.main.fragment_r_d_e.textViewTotalTime
-import kotlinx.android.synthetic.main.fragment_r_d_e.textViewUrbanDistance
-import kotlinx.android.synthetic.main.fragment_r_d_e.textViewUrbanTime
-import kotlinx.android.synthetic.main.fragment_r_d_e.validityImageView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.launch
+import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.fragment_r_d_e.*
+import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
-
+import java.util.*
 
 /**
  * UI class for the [RDEFragment].
