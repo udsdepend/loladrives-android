@@ -1,5 +1,7 @@
 package org.rdeapp.pcdftester.Sinks
 
+import android.annotation.SuppressLint
+import android.graphics.Color
 import android.view.View
 import androidx.core.content.ContextCompat
 import de.unisaarland.loladrives.Fragments.HomeFragment
@@ -41,6 +43,7 @@ class RDEUIUpdater(
                 fragment.progressBarDistance.visibility = View.INVISIBLE
                 fragment.textViewTotalTime.visibility = View.VISIBLE
                 fragment.textViewTotalDistance.visibility = View.VISIBLE
+                fragment.textViewRDEPrompt.visibility = View.VISIBLE
                 started = true
             }
 
@@ -100,6 +103,8 @@ class RDEUIUpdater(
                         fragment.validityImageView.setImageResource(R.drawable.yellow_question)
                     }
                 }
+
+                //
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -236,6 +241,57 @@ class RDEUIUpdater(
         fragment.distance = expectedDistance
     }
 
+    /**
+     * Update the prompt for improving the driving style according to the received RTLola results.
+     */
+    private fun handlePrompt(
+        totalDistance: Double,
+        urbanDistance: Double,
+        ruralDistance: Double,
+        motorwayDistance: Double
+    ) {
+        expectedDistance = fragment.distance
+        val urbanProportion = urbanDistance / expectedDistance
+        val ruralProportion = ruralDistance / expectedDistance
+        val motorwayProportion = motorwayDistance / expectedDistance
+
+        if (urbanProportion > 0.44 || ruralProportion> 0.43 || motorwayProportion > 0.43) {
+            fragment.textViewRDEPrompt.text = "This RDE test will be invalid...."
+            fragment.textViewRDEPrompt.setTextColor(Color.RED)
+        }
+        if (totalDistance > expectedDistance/2){
+            if (urbanProportion > 0.29){
+                if (ruralProportion < 0.23) {
+                    if (motorwayProportion > 0.23) {
+                        fragment.textViewRDEPrompt.text = "Aim for more rural driving"
+                        fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
+                    } else {
+                        // Rural and Motorway have not passed yet
+                        fragment.textViewRDEPrompt.text = "Aim for a higher driving speed"
+                        fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+                    }
+                } else if (motorwayProportion < 0.23) {
+                    fragment.textViewRDEPrompt.text = "Aim for more motorway driving"
+                    fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
+                }
+            } else {
+                if (motorwayProportion < 0.23) {
+                    if (ruralProportion > 0.23) {
+                        fragment.textViewRDEPrompt.text = "Aim for more motorway driving"
+                        fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
+                    } else {
+                        // Rural and Motorway have not passed yet
+                        fragment.textViewRDEPrompt.text = "Aim for a lower driving speed"
+                        fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+                    }
+                } else if (ruralProportion < 0.23) {
+                    fragment.textViewRDEPrompt.text = "Aim for more rural driving"
+                    fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
+                }
+            }
+        }
+    }
+
     companion object {
         fun convertSeconds(seconds: Long): String {
             val millis: Long = seconds * 1000
@@ -268,8 +324,8 @@ class RDEHomeUpdater(private val inputChannel: ReceiveChannel<DoubleArray>, val 
                 try {
                     fragment.homeTotalRDETime.text = RDEUIUpdater.convertSeconds(
                         inputs[4].toLong() + inputs[5].toLong() +
-                            inputs[6]
-                                .toLong()
+                                inputs[6]
+                                    .toLong()
                     )
                 } catch (e: Exception) {
                     cancel()
