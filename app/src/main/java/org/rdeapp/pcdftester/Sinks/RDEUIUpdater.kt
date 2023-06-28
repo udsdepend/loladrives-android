@@ -1,18 +1,55 @@
 package org.rdeapp.pcdftester.Sinks
 
-import android.annotation.SuppressLint
 import android.graphics.Color
+import android.os.Build
+import android.speech.tts.TextToSpeech
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import de.unisaarland.loladrives.Fragments.HomeFragment
 import de.unisaarland.loladrives.Fragments.RDE.RDEFragment
 import de.unisaarland.loladrives.R
-import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.android.synthetic.main.fragment_r_d_e.*
-import kotlinx.coroutines.*
+import kotlinx.android.synthetic.main.fragment_home.homeTotalRDETime
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleMotorwayHigh
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleMotorwayLow
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleRuralHigh
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleRuralLow
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleUrbanHigh
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineCircleUrbanLow
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerHighMotorway
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerHighRural
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerHighUrban
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerLowMotorway
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerLowRural
+import kotlinx.android.synthetic.main.fragment_r_d_e.guidelineDynamicMarkerLowUrban
+import kotlinx.android.synthetic.main.fragment_r_d_e.progressBarDistance
+import kotlinx.android.synthetic.main.fragment_r_d_e.progressBarTime
+import kotlinx.android.synthetic.main.fragment_r_d_e.roundCornerProgressBarMotorway
+import kotlinx.android.synthetic.main.fragment_r_d_e.roundCornerProgressBarNOX
+import kotlinx.android.synthetic.main.fragment_r_d_e.roundCornerProgressBarRural
+import kotlinx.android.synthetic.main.fragment_r_d_e.roundCornerProgressBarUrban
+import kotlinx.android.synthetic.main.fragment_r_d_e.textViewMotorwayDistance
+import kotlinx.android.synthetic.main.fragment_r_d_e.textViewMotorwayTime
+import kotlinx.android.synthetic.main.fragment_r_d_e.textViewNOxCurrentValue
+import kotlinx.android.synthetic.main.fragment_r_d_e.textViewRDEPrompt
+import kotlinx.android.synthetic.main.fragment_r_d_e.textViewRuralDistance
+import kotlinx.android.synthetic.main.fragment_r_d_e.textViewRuralTime
+import kotlinx.android.synthetic.main.fragment_r_d_e.textViewTotalDistance
+import kotlinx.android.synthetic.main.fragment_r_d_e.textViewTotalTime
+import kotlinx.android.synthetic.main.fragment_r_d_e.textViewUrbanDistance
+import kotlinx.android.synthetic.main.fragment_r_d_e.textViewUrbanTime
+import kotlinx.android.synthetic.main.fragment_r_d_e.validityImageView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+
 
 /**
  * UI class for the [RDEFragment].
@@ -22,10 +59,11 @@ import java.util.*
 class RDEUIUpdater(
     private val inputChannel: ReceiveChannel<DoubleArray>,
     val fragment: RDEFragment
-) {
+): TextToSpeech.OnInitListener {
     // The current expected distance (may change during track).
     private var expectedDistance = fragment.distance
     private var started = false
+    private var tts: TextToSpeech? = TextToSpeech(fragment.requireActivity(), this)
     // Constants concerning the NOx values, we take 200[mg/km] to be the largest amount we may display in the NOx-Bar.
     private val noxMaximum = 0.2 // [g/km]
     private val noxThr1 = 0.12 // [g/km]
@@ -308,6 +346,24 @@ class RDEUIUpdater(
 
         fun convert(value: Double, unit: String): String {
             return "%.2f".format(value).replace(",", ".") + " $unit"
+        }
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts!!.setLanguage(Locale.US)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Toast.makeText(fragment.requireActivity(),"The Language not supported!", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun speak() {
+        val text = fragment.textViewRDEPrompt.text.toString()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null, "ID")
+        } else {
+            Toast.makeText(fragment.requireActivity(), "This SDK version does not support Text To Speech.", Toast.LENGTH_LONG).show()
         }
     }
 }
