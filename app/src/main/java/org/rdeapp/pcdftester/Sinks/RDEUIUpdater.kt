@@ -12,6 +12,7 @@ import de.unisaarland.loladrives.R
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_r_d_e.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ReceiveChannel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -330,6 +331,8 @@ class RDEUIUpdater(
             Toast.makeText(fragment.requireActivity(), "This SDK version does not support Text To Speech.", Toast.LENGTH_LONG).show()
         }
     }
+
+    // TODO check if onDestroy() is needed through fragment.requireActivity()
 }
 
 /**
