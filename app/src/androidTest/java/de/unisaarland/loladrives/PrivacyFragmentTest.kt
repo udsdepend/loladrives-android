@@ -66,7 +66,7 @@ class PrivacyFragmentTest {
      * Test the switch in the privacy fragment will alternate the user's choice if clicked
      */
     @Test
-    fun testPrivacyFragmentSwitchActive() {
+    fun testPrivacyFragmentSwitchChange() {
         val scenario = ActivityScenario.launch(MainActivity::class.java)
         var userDonating: Boolean = false
         scenario.onActivity {
