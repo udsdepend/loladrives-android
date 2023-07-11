@@ -17,6 +17,10 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/**
+ * Test class for the Privacy fragment, which is used to display the agreed Privacy Policy and
+ * allow the user to revisit their consent status for data donations.
+ */
 @RunWith(AndroidJUnit4::class)
 class PrivacyFragmentTest {
     @Before
