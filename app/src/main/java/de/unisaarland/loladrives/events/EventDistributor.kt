@@ -51,4 +51,8 @@ class EventDistributor {
         outputChannels.remove(channel)
         lock.unlock()
     }
+
+    fun getOutputChannels(): MutableList<Channel<PCDFEvent>> {
+        return outputChannels
+    }
 }

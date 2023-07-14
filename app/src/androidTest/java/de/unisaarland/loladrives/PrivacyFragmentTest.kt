@@ -10,7 +10,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.android.synthetic.main.privacy_dialog.privacySwitch
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
