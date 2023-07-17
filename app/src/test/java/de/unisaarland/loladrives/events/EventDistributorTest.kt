@@ -1,6 +1,7 @@
 package de.unisaarland.loladrives.events
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*
@@ -22,13 +23,20 @@ class EventDistributorTest {
 
     @Test
     fun testStart() {
-        // TODO: Implement with suspend function
+        eventDistributor.registerReceiver()
+        GlobalScope.launch {
+            eventDistributor.start()
+        }
+        assertFalse(eventDistributor.inputChannel.isClosedForSend)
+        val outputChannels = eventDistributor.getOutputChannels()
+        assertFalse(outputChannels.isEmpty())
     }
 
     @Test
     fun testRegisterReceiver() {
         val newChannel = eventDistributor.registerReceiver()
         val outputChannels = eventDistributor.getOutputChannels()
+        assertFalse(outputChannels.isEmpty())
         assertEquals(newChannel, outputChannels.last())
     }
 

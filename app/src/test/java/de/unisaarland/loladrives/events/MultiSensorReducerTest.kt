@@ -1,6 +1,8 @@
 package de.unisaarland.loladrives.events
 
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import org.junit.Test
 import org.junit.Assert.*
 import pcdfEvent.EventType
@@ -19,6 +21,20 @@ class MultiSensorReducerTest {
     val multiSensorReducer: MultiSensorReducer = MultiSensorReducer(inputChannel)
 
     /**
+     * Test that the input and output channels are open after calling start().
+     */
+    @Test
+    fun testStart() {
+        GlobalScope.launch {
+            multiSensorReducer.start()
+        }
+        assertFalse(inputChannel.isClosedForSend)
+        assertFalse(inputChannel.isClosedForReceive)
+        assertFalse(multiSensorReducer.outputChannel.isClosedForReceive)
+        assertFalse(multiSensorReducer.outputChannel.isClosedForSend)
+    }
+
+    /**
      * Test that the input and output channels are closed after calling stop().
      */
     @Test
@@ -27,11 +43,7 @@ class MultiSensorReducerTest {
         assertTrue(inputChannel.isClosedForSend)
         assertTrue(inputChannel.isClosedForReceive)
         assertTrue(multiSensorReducer.outputChannel.isClosedForSend)
-    }
-
-    @Test
-    fun testStart() {
-        // TODO: Implement with suspend function
+        assertTrue(multiSensorReducer.outputChannel.isClosedForReceive)
     }
 
     /**
@@ -39,7 +51,9 @@ class MultiSensorReducerTest {
      */
     @Test
     fun testReduceNOxSensorEvent() {
-        val noxSensorEvent = NOXSensorEvent("SENSOR", System.nanoTime(), "0", 1, 1, -1, -1, -1, -1)
+        val noxSensorEvent = NOXSensorEvent(
+            "SENSOR", System.nanoTime(), "0", 1, 1, -1, -1, -1, -1
+        )
         val reducedEvent = multiSensorReducer.reduce(noxSensorEvent)
         assertTrue(reducedEvent is NOXReducedEvent)
     }
@@ -49,7 +63,9 @@ class MultiSensorReducerTest {
      */
     @Test
     fun testReduceNOxSensorCorrectedEvent() {
-        val noxSensorCorrectedEvent = NOXSensorCorrectedEvent("SENSOR", System.nanoTime(), "0", 1, 1, -1, -1, -1, -1)
+        val noxSensorCorrectedEvent = NOXSensorCorrectedEvent(
+            "SENSOR", System.nanoTime(), "0", 1, 1, -1, -1, -1, -1
+        )
         val reducedEvent = multiSensorReducer.reduce(noxSensorCorrectedEvent)
         assertTrue(reducedEvent is NOXReducedEvent)
     }
@@ -59,7 +75,9 @@ class MultiSensorReducerTest {
      */
     @Test
     fun testReduceNOxSensorAlternativeEvent() {
-        val noxSensorAlternativeEvent = NOXSensorAlternativeEvent("SENSOR", System.nanoTime(), "0", 1, 1, -1, -1, -1, -1)
+        val noxSensorAlternativeEvent = NOXSensorAlternativeEvent(
+            "SENSOR", System.nanoTime(), "0", 1, 1, -1, -1, -1, -1
+        )
         val reducedEvent = multiSensorReducer.reduce(noxSensorAlternativeEvent)
         assertTrue(reducedEvent is NOXReducedEvent)
     }
@@ -69,7 +87,9 @@ class MultiSensorReducerTest {
      */
     @Test
     fun testReduceNOxSensorCorrectedAlternativeEvent() {
-        val noxSensorCorrectedAlternativeEvent = NOXSensorCorrectedAlternativeEvent("SENSOR", System.nanoTime(), "0", 1, 1, -1, -1, -1, -1)
+        val noxSensorCorrectedAlternativeEvent = NOXSensorCorrectedAlternativeEvent(
+            "SENSOR", System.nanoTime(), "0", 1, 1, -1, -1, -1, -1
+        )
         val reducedEvent = multiSensorReducer.reduce(noxSensorCorrectedAlternativeEvent)
         assertTrue(reducedEvent is NOXReducedEvent)
     }
@@ -79,7 +99,8 @@ class MultiSensorReducerTest {
      */
     @Test
     fun testReduceFuelRateEvent() {
-        val fuelRateEvent = FuelRateEvent("SENSOR", System.nanoTime(), "0", 1, 1, 0.0)
+        val fuelRateEvent = FuelRateEvent(
+            "SENSOR", System.nanoTime(), "0", 1, 1, 0.0)
         val reducedEvent = multiSensorReducer.reduce(fuelRateEvent)
         assertTrue(reducedEvent is FuelRateReducedEvent)
     }
@@ -89,7 +110,9 @@ class MultiSensorReducerTest {
      */
     @Test
     fun testReduceFuelRateMultiEvent() {
-        val fuelRateMultiEvent = FuelRateMultiEvent("SENSOR", System.nanoTime(), "0", 1, 1, 0.0, 0.0)
+        val fuelRateMultiEvent = FuelRateMultiEvent(
+            "SENSOR", System.nanoTime(), "0", 1, 1, 0.0, 0.0
+        )
         val reducedEvent = multiSensorReducer.reduce(fuelRateMultiEvent)
         assertTrue(reducedEvent is FuelRateReducedEvent)
     }
