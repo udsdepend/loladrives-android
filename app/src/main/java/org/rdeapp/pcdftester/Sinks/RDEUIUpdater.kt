@@ -64,6 +64,9 @@ class RDEUIUpdater(
                 // Update the distance ProgressBars (total[0], urban[1], rural[2], motorway[3])
                 handleDistance(outputs[0], outputs[1], outputs[2], outputs[3])
 
+                // Update the prompt ProgressBars (urban[4], rural[5], motorway[6])
+                handlePrompt(outputs[0], outputs[1], outputs[2], outputs[3])
+
                 // Update the Dynamics-Markers (grey balls)
                 handleDynamics(
                     outputs[7],
@@ -258,41 +261,48 @@ class RDEUIUpdater(
         val ruralProportion = ruralDistance / expectedDistance
         val motorwayProportion = motorwayDistance / expectedDistance
 
+        // Cases where the RDE test is invalid
         if (urbanProportion > 0.44 || ruralProportion> 0.43 || motorwayProportion > 0.43) {
+            // TODO: add time exceeded for 120 minutes
             fragment.textViewRDEPrompt.text = "This RDE test will be invalid...."
             fragment.textViewRDEPrompt.setTextColor(Color.RED)
+            // TODO: suggest to stop the test and start a new one
         }
-        if (totalDistance > expectedDistance/2){
+
+        // Cases where the RDE test is still valid, but the driver should improve
+        if (totalDistance > expectedDistance/2) {
+            // TODO: more procedural instructions for the driver
             if (urbanProportion > 0.29){
                 if (ruralProportion < 0.23) {
                     if (motorwayProportion > 0.23) {
-                        fragment.textViewRDEPrompt.text = "Aim for more rural driving"
+                        fragment.textViewRDEPrompt.text = "Aim for more rural driving, between 60 and 90 kilometers per hour"
                         fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
                     } else {
                         // Rural and Motorway have not passed yet
-                        fragment.textViewRDEPrompt.text = "Aim for a higher driving speed"
+                        fragment.textViewRDEPrompt.text = "Aim for a higher driving speed, more than 60 kilometers per hour"
                         fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
                     }
                 } else if (motorwayProportion < 0.23) {
-                    fragment.textViewRDEPrompt.text = "Aim for more motorway driving"
+                    fragment.textViewRDEPrompt.text = "Aim for more motorway driving, between 90 and 160 kilometers per hour"
                     fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
                 }
             } else {
                 if (motorwayProportion < 0.23) {
                     if (ruralProportion > 0.23) {
-                        fragment.textViewRDEPrompt.text = "Aim for more motorway driving"
+                        fragment.textViewRDEPrompt.text = "Aim for more motorway driving, between 90 and 160 kilometers per hour"
                         fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
                     } else {
                         // Rural and Motorway have not passed yet
-                        fragment.textViewRDEPrompt.text = "Aim for a lower driving speed"
+                        fragment.textViewRDEPrompt.text = "Aim for a lower driving speed, under 90 kilometers per hour"
                         fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
                     }
                 } else if (ruralProportion < 0.23) {
-                    fragment.textViewRDEPrompt.text = "Aim for more rural driving"
+                    fragment.textViewRDEPrompt.text = "Aim for more rural driving, between 60 and 90 kilometers per hour"
                     fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
                 }
             }
         }
+        speak()
     }
 
     companion object {
