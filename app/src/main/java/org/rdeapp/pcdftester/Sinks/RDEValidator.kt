@@ -57,6 +57,7 @@ class RDEValidator(
     } else {
         mutableListOf()
     }
+    var currentSpeed: Double = 0.0
     private var fuelType = ""
     private var fuelRateSupported = false
     private var faeSupported = false
@@ -261,7 +262,8 @@ class RDEValidator(
     private fun collectOBDEvent(event: OBDIntermediateEvent) {
         when (event) {
             is SpeedEvent -> {
-                inputs[VELOCITY] = event.speed.toDouble()
+                currentSpeed = event.speed.toDouble()
+                inputs[VELOCITY] = currentSpeed
             }
             is AmbientAirTemperatureEvent -> {
                 inputs[TEMPERATURE] = event.temperature.toDouble() + 273.15 // C -> K
