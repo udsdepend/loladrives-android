@@ -48,52 +48,38 @@ class PromptHandler (
 
         // Cases where the RDE test is still valid, but the driver should improve
         if (totalDistance > expectedDistance/2) {
-            if (urbanSufficient){
-                if (ruralInsufficient) {
-                    if (motorwaySufficient) {
-                        // Rural has not passed yet
-                        drivingStyleText = "for more rural driving"
-                        speedChange = computeSpeedChange(currentSpeed, 60, 90)
-                    } else {
-                        // Rural and Motorway have not passed yet
-                        drivingStyleText = "for more rural and motorway driving"
-                        speedChange = computeSpeedChange(currentSpeed, 60, 160)
-                    }
-                } else if (motorwayInsufficient) {
-                    // Motorway has not passed yet
+            when {
+                urbanSufficient && ruralSufficient && motorwayInsufficient -> {
                     drivingStyleText = "for more motorway driving"
                     speedChange = computeSpeedChange(currentSpeed, 90, 160)
                 }
-            } else {
-                if (urbanInsufficient) {
-                    if (ruralSufficient) {
-                        if (motorwaySufficient) {
-                            speedChange = computeSpeedChange(currentSpeed, 0, 60)
-                        }
-                    }
+                urbanSufficient && ruralInsufficient && motorwaySufficient -> {
+                    drivingStyleText = "for more rural driving"
+                    speedChange = computeSpeedChange(currentSpeed, 60, 90)
                 }
-                if (motorwayInsufficient) {
-                    if (ruralSufficient) {
-                        // Motorway has not passed yet
-                        drivingStyleText = "for more motorway driving"
-                        speedChange = computeSpeedChange(currentSpeed, 90, 160)
-                    } else {
-                        // Urban, Rural and Motorway have not passed yet
-                        drivingStyleText = "for more rural and motorway driving"
-                        speedChange = computeSpeedChange(currentSpeed, 0, 160)
-                    }
-                } else if (ruralInsufficient) {
-                    // Rural has not passed yet, urban is not complete
+                urbanInsufficient && ruralSufficient && motorwaySufficient -> {
+                    drivingStyleText = "for more urban driving"
+                    speedChange = computeSpeedChange(currentSpeed, 0, 60)
+                }
+                urbanSufficient && ruralInsufficient && motorwayInsufficient -> {
+                    drivingStyleText = "for more rural and motorway driving"
+                    speedChange = computeSpeedChange(currentSpeed, 60, 160)
+                }
+                urbanInsufficient && ruralSufficient && motorwayInsufficient -> {
+                    drivingStyleText = "for less rural driving"
+                    speedChange = 0.0
+                }
+                urbanInsufficient && ruralInsufficient && motorwaySufficient -> {
                     drivingStyleText = "for more urban and rural driving"
                     speedChange = computeSpeedChange(currentSpeed, 0, 90)
                 }
             }
 
             if (speedChange > 0) {
-                fragment.textViewRDEPrompt.text = "Aim for a higher driving speed $drivingStyleText"
+                fragment.textViewRDEPrompt.text = "Aim for a higher driving speed, if it is safe to do so, $drivingStyleText"
                 fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
             } else if (speedChange < 0) {
-                fragment.textViewRDEPrompt.text = "Aim for a lower driving speed $drivingStyleText"
+                fragment.textViewRDEPrompt.text = "Aim for a lower driving speed, if it is safe to do so, $drivingStyleText"
                 fragment.textViewRDEPrompt.setTextColor(Color.RED)
             } else {
                 fragment.textViewRDEPrompt.text = "Your driving style is good"
