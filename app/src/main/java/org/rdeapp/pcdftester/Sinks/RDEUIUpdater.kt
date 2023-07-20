@@ -275,15 +275,14 @@ class RDEUIUpdater(
         val currentSpeed = fragment.rdeValidator.currentSpeed
         var speedChange: Double = 0.0
         var drivingStyleText: String = "";
-        var speedText: String;
 
         // Cases where the RDE test is still valid, but the driver should improve
         if (totalDistance > expectedDistance/2) {
             if (urbanComplete){
                 if (ruralInsufficient) {
                     if (motorwayComplete) {
-                        drivingStyleText = "for more rural driving"
                         // Rural has not passed yet
+                        drivingStyleText = "for more rural driving"
                         speedChange = computeSpeedChange(currentSpeed, 60, 90)
                     } else {
                         // Rural and Motorway have not passed yet
@@ -319,24 +318,21 @@ class RDEUIUpdater(
                     speedChange = computeSpeedChange(currentSpeed, 0, 90)
                 }
             }
-        } else {
-            drivingStyleText = "" // TODO: add a text for the case where early in the test
-            speedChange = computeSpeedChange(currentSpeed, 0, 160)
-        }
 
-        if (speedChange > 0) {
-            speedText = "Aim for a higher driving speed"
-            fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
-        } else if (speedChange < 0) {
-            speedText = "Aim for a lower driving speed"
-            fragment.textViewRDEPrompt.setTextColor(Color.RED)
+            if (speedChange > 0) {
+                fragment.textViewRDEPrompt.text = "Aim for a higher driving speed $drivingStyleText"
+                fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+            } else if (speedChange < 0) {
+                fragment.textViewRDEPrompt.text = "Aim for a lower driving speed $drivingStyleText"
+                fragment.textViewRDEPrompt.setTextColor(Color.RED)
+            } else {
+                fragment.textViewRDEPrompt.text = "Your driving style is good"
+                fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
+            }
+            speak()
         } else {
-            speedText = "Your driving style is good"
-            fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
+            // TODO announce if a driving style has been complete
         }
-
-        fragment.textViewRDEPrompt.text = "$speedText $drivingStyleText"
-        speak()
     }
 
     companion object {
