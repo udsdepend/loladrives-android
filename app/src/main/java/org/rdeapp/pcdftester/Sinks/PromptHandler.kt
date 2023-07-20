@@ -3,8 +3,13 @@ package org.rdeapp.pcdftester.Sinks
 import android.graphics.Color
 import android.os.Build
 import android.speech.tts.TextToSpeech
+import android.view.Gravity
+import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.fragment.app.FragmentTransaction
 import de.unisaarland.loladrives.Fragments.RDE.RDEFragment
+import de.unisaarland.loladrives.MainActivity
+import de.unisaarland.loladrives.R
 import kotlinx.android.synthetic.main.fragment_r_d_e.textViewRDEPrompt
 import java.util.Locale
 
@@ -32,13 +37,8 @@ class PromptHandler (
     fun handlePrompt(
         totalDistance: Double,
         totalTime: Double,
-    ) {
-        // Cases where the RDE test is invalid
-        if (urbanComplete || ruralComplete || motorwayComplete || totalTime > 120) {
-            fragment.textViewRDEPrompt.text = "This RDE test will be invalid, you may want to restart it."
-            fragment.textViewRDEPrompt.setTextColor(Color.RED)
-            // TODO: suggest to stop the test and start a new one
-        }
+        ) {
+        checkInvalidRDE(totalTime)
 
         val currentSpeed = fragment.rdeValidator.currentSpeed
         var speedChange: Double = 0.0
@@ -46,9 +46,9 @@ class PromptHandler (
 
         // Cases where the RDE test is still valid, but the driver should improve
         if (totalDistance > expectedDistance/2) {
-            if (urbanComplete){
+            if (urbanSufficient){
                 if (ruralInsufficient) {
-                    if (motorwayComplete) {
+                    if (motorwaySufficient) {
                         // Rural has not passed yet
                         drivingStyleText = "for more rural driving"
                         speedChange = computeSpeedChange(currentSpeed, 60, 90)
@@ -64,14 +64,14 @@ class PromptHandler (
                 }
             } else {
                 if (urbanInsufficient) {
-                    if (ruralComplete) {
-                        if (motorwayComplete) {
+                    if (ruralSufficient) {
+                        if (motorwaySufficient) {
                             speedChange = computeSpeedChange(currentSpeed, 0, 60)
                         }
                     }
                 }
                 if (motorwayInsufficient) {
-                    if (ruralComplete) {
+                    if (ruralSufficient) {
                         // Motorway has not passed yet
                         drivingStyleText = "for more motorway driving"
                         speedChange = computeSpeedChange(currentSpeed, 90, 160)
@@ -99,7 +99,9 @@ class PromptHandler (
             }
             speak()
         } else {
-            // TODO announce if a driving style has been complete
+            // Only 1 driving style can be sufficient in the first half of the test.
+            fragment.textViewRDEPrompt.text = checkSufficient()
+            fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
         }
     }
 
@@ -128,6 +130,39 @@ class PromptHandler (
         urbanInsufficient = urbanProportion < 0.23
     }
 
+    /**
+     * Check if the RDS test is invalid.
+     * If so, announce it to the driver, and move to the RDE settings fragment.
+     */
+    fun checkInvalidRDE(totalTime: Double) {
+        if (urbanComplete || ruralComplete || motorwayComplete || totalTime > 120) {
+            fragment.textViewRDEPrompt.text = "This RDE test is invalid, and will be stopped now."
+            fragment.textViewRDEPrompt.setTextColor(Color.RED)
+            speak()
+
+            Toast.makeText(fragment.requireActivity(),"Exiting...", Toast.LENGTH_LONG).show()
+
+            fragment.requireActivity().supportFragmentManager.beginTransaction().replace(
+                R.id.frame_layout,
+                (fragment.requireActivity() as MainActivity).rdeSettingsFragment
+            ).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
+        }
+    }
+
+    /**
+     * Check whether a driving style is sufficient.
+     */
+    private fun checkSufficient(): String {
+        return if (motorwaySufficient) {
+            "Motorway driving is sufficient"
+        } else if (ruralSufficient) {
+            "Rural driving is sufficient"
+        } else if (urbanSufficient) {
+            "Urban driving is sufficient"
+        } else {
+            "Your driving style is good"
+        }
+    }
 
     /**
      * Calculate the acceleration and deceleration of the car.
