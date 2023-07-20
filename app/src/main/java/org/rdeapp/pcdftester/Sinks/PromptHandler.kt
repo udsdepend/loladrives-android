@@ -29,6 +29,7 @@ class PromptHandler (
     private var motorwayInsufficient: Boolean = false
     private var ruralInsufficient: Boolean = false
     private var urbanInsufficient: Boolean = false
+    private var currentText: String = ""
 
 
     /**
@@ -38,6 +39,7 @@ class PromptHandler (
         totalDistance: Double,
         totalTime: Double,
         ) {
+        // Check if the RDE test is still valid
         checkInvalidRDE(totalTime)
 
         val currentSpeed = fragment.rdeValidator.currentSpeed
@@ -97,12 +99,17 @@ class PromptHandler (
                 fragment.textViewRDEPrompt.text = "Your driving style is good"
                 fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
             }
-            speak()
+
+            // Only speak if the text has changed
+            if (currentText != fragment.textViewRDEPrompt.text.toString()) {
+                speak()
+            }
         } else {
             // Only 1 driving style can be sufficient in the first half of the test.
             fragment.textViewRDEPrompt.text = checkSufficient()
             fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
         }
+        currentText = fragment.textViewRDEPrompt.text.toString()
     }
 
     /**
@@ -134,11 +141,15 @@ class PromptHandler (
      * Check if the RDS test is invalid.
      * If so, announce it to the driver, and move to the RDE settings fragment.
      */
-    fun checkInvalidRDE(totalTime: Double) {
+    private fun checkInvalidRDE(totalTime: Double) {
         if (urbanComplete || ruralComplete || motorwayComplete || totalTime > 120) {
             fragment.textViewRDEPrompt.text = "This RDE test is invalid, and will be stopped now."
             fragment.textViewRDEPrompt.setTextColor(Color.RED)
-            speak()
+
+            // Only speak if the text has changed
+            if (currentText != fragment.textViewRDEPrompt.text.toString()) {
+                speak()
+            }
 
             Toast.makeText(fragment.requireActivity(),"Exiting...", Toast.LENGTH_LONG).show()
 
@@ -200,7 +211,5 @@ class PromptHandler (
             Toast.makeText(fragment.requireActivity(), "This SDK version does not support Text To Speech.", Toast.LENGTH_LONG).show()
         }
     }
-
-    // TODO check if onDestroy() is needed through fragment.requireActivity()
 
 }
