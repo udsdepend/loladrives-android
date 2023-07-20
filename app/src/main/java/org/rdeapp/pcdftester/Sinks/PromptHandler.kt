@@ -3,13 +3,12 @@ package org.rdeapp.pcdftester.Sinks
 import android.graphics.Color
 import android.os.Build
 import android.speech.tts.TextToSpeech
-import android.view.Gravity
-import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.fragment.app.FragmentTransaction
 import de.unisaarland.loladrives.Fragments.RDE.RDEFragment
 import de.unisaarland.loladrives.MainActivity
 import de.unisaarland.loladrives.R
+import kotlinx.android.synthetic.main.fragment_r_d_e.textViewAnalysis
 import kotlinx.android.synthetic.main.fragment_r_d_e.textViewRDEPrompt
 import java.util.Locale
 
@@ -30,6 +29,10 @@ class PromptHandler (
     private var ruralInsufficient: Boolean = false
     private var urbanInsufficient: Boolean = false
     private var currentText: String = ""
+
+    private var urbanProportion: Double = 0.0
+    private var ruralProportion: Double = 0.0
+    private var motorwayProportion: Double = 0.0
 
 
     /**
@@ -52,26 +55,47 @@ class PromptHandler (
                 urbanSufficient && ruralSufficient && motorwayInsufficient -> {
                     drivingStyleText = "for more motorway driving"
                     speedChange = computeSpeedChange(currentSpeed, 90, 145)
+                    computeDuration(DrivingMode.MOTORWAY)
                 }
                 urbanSufficient && ruralInsufficient && motorwaySufficient -> {
                     drivingStyleText = "for more rural driving"
                     speedChange = computeSpeedChange(currentSpeed, 60, 90)
+                    computeDuration(DrivingMode.RURAL)
                 }
                 urbanInsufficient && ruralSufficient && motorwaySufficient -> {
                     drivingStyleText = "for more urban driving"
                     speedChange = computeSpeedChange(currentSpeed, 0, 60)
+                    computeDuration(DrivingMode.URBAN)
                 }
                 urbanSufficient && ruralInsufficient && motorwayInsufficient -> {
                     drivingStyleText = "for more rural and motorway driving"
-                    speedChange = computeSpeedChange(currentSpeed, 60, 145)
+                    if (ruralProportion < motorwayProportion) {
+                        speedChange = computeSpeedChange(currentSpeed, 60, 90)
+                        computeDuration(DrivingMode.RURAL)
+                    } else {
+                        speedChange = computeSpeedChange(currentSpeed, 90, 145)
+                        computeDuration(DrivingMode.MOTORWAY)
+                    }
                 }
                 urbanInsufficient && ruralSufficient && motorwayInsufficient -> {
                     drivingStyleText = "for less rural driving"
-                    speedChange = 0.0
+                    if (urbanProportion < motorwayProportion) {
+                        speedChange = computeSpeedChange(currentSpeed, 0, 60)
+                        computeDuration(DrivingMode.URBAN)
+                    } else {
+                        speedChange = computeSpeedChange(currentSpeed, 90, 145)
+                        computeDuration(DrivingMode.MOTORWAY)
+                    }
                 }
                 urbanInsufficient && ruralInsufficient && motorwaySufficient -> {
                     drivingStyleText = "for more urban and rural driving"
-                    speedChange = computeSpeedChange(currentSpeed, 0, 90)
+                    if (ruralProportion < urbanProportion) {
+                        speedChange = computeSpeedChange(currentSpeed, 60, 90)
+                        computeDuration(DrivingMode.RURAL)
+                    } else {
+                        speedChange = computeSpeedChange(currentSpeed, 0, 60)
+                        computeDuration(DrivingMode.URBAN)
+                    }
                 }
             }
 
@@ -85,7 +109,6 @@ class PromptHandler (
                 fragment.textViewRDEPrompt.text = "Your driving style is good"
                 fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
             }
-
             // Only speak if the text has changed
             if (currentText != fragment.textViewRDEPrompt.text.toString()) {
                 speak()
@@ -106,9 +129,9 @@ class PromptHandler (
         ruralDistance: Double,
         motorwayDistance: Double
     ){
-        val urbanProportion = urbanDistance / expectedDistance
-        val ruralProportion = ruralDistance / expectedDistance
-        val motorwayProportion = motorwayDistance / expectedDistance
+        urbanProportion = urbanDistance / expectedDistance
+        ruralProportion = ruralDistance / expectedDistance
+        motorwayProportion = motorwayDistance / expectedDistance
 
         motorwayComplete = motorwayProportion > 0.43
         ruralComplete = ruralProportion > 0.43
@@ -178,6 +201,26 @@ class PromptHandler (
             speedChange = 0.0
         }
         return speedChange
+    }
+
+    private fun computeDuration(mode:DrivingMode) {
+        when(mode) {
+            DrivingMode.URBAN -> {
+                // Calculate the distance left to drive in urban mode with an average speed of 30 km/h
+                val urbanDistanceLeft = (0.29 - urbanProportion) * expectedDistance
+                fragment.textViewAnalysis.text = "Drive at an average speed of 30 km/h for ${urbanDistanceLeft * 2} minutes"
+            }
+            DrivingMode.RURAL -> {
+                // Calculate the distance left to drive in rural mode with an average speed of 75 km/h
+                val ruralDistanceLeft = (0.23 - ruralProportion) * expectedDistance
+                fragment.textViewAnalysis.text = "Drive at an average speed of 75 km/h for ${ruralDistanceLeft * 0.8} minutes"
+            }
+            DrivingMode.MOTORWAY -> {
+                // Calculate the distance left to drive in motorway mode with an average speed of 115 km/h
+                val motorwayDistanceLeft = (0.23 - motorwayProportion) * expectedDistance
+                fragment.textViewAnalysis.text = "Drive at an average speed of 30 km/h for ${motorwayDistanceLeft * 60 / 115} minutes"
+            }
+        }
     }
 
     override fun onInit(status: Int) {
