@@ -8,7 +8,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.mockito.Mockito.*
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
