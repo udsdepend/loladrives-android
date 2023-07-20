@@ -15,6 +15,7 @@ import de.unisaarland.loladrives.profiles.RDECommand
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.fragment_r_d_e.*
 import kotlinx.coroutines.*
+import org.rdeapp.pcdftester.Sinks.PromptHandler
 import org.rdeapp.pcdftester.Sinks.RDEUIUpdater
 import org.rdeapp.pcdftester.Sinks.RDEValidator
 import org.rdeapp.pcdftester.Sinks.VERBOSITY_MODE
@@ -25,6 +26,7 @@ import java.io.File
  */
 class RDEFragment : Fragment() {
     var distance = 83.0
+    lateinit var promptHandler: PromptHandler
     lateinit var rdeValidator: RDEValidator
     private var uiUpdaterJob: Job? = null
     private lateinit var activity: MainActivity
@@ -72,6 +74,7 @@ class RDEFragment : Fragment() {
             )
             toast.show()
         } else {
+            promptHandler = PromptHandler(this)
             rdeValidator = RDEValidator(
                 activity.eventDistributor.registerReceiver(),
                 activity

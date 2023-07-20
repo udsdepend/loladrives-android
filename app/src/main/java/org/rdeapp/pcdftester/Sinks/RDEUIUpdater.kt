@@ -1,10 +1,6 @@
 package org.rdeapp.pcdftester.Sinks
 
-import android.graphics.Color
-import android.os.Build
-import android.speech.tts.TextToSpeech
 import android.view.View
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import de.unisaarland.loladrives.Fragments.HomeFragment
 import de.unisaarland.loladrives.Fragments.RDE.RDEFragment
@@ -24,22 +20,14 @@ import java.util.*
 class RDEUIUpdater(
     private val inputChannel: ReceiveChannel<DoubleArray>,
     val fragment: RDEFragment
-): TextToSpeech.OnInitListener {
+) {
     // The current expected distance (may change during track).
     private var expectedDistance = fragment.distance
     private var started = false
-    private var tts: TextToSpeech? = TextToSpeech(fragment.requireActivity(), this)
     // Constants concerning the NOx values, we take 200[mg/km] to be the largest amount we may display in the NOx-Bar.
     private val noxMaximum = 0.2 // [g/km]
     private val noxThr1 = 0.12 // [g/km]
     private val noxThr2 = 0.168 // [g/km]
-    // RDE progression state
-    private var motorwayComplete: Boolean = false
-    private var ruralComplete: Boolean = false
-    private var urbanComplete: Boolean = false
-    private var motorwayInsufficient: Boolean = false
-    private var ruralInsufficient: Boolean = false
-    private var urbanInsufficient: Boolean = false
 
     /**
      * Suspending function which receives (blocking) RTLola results over the [inputChannel] and updates the UI accordingly.
@@ -72,11 +60,11 @@ class RDEUIUpdater(
                 handleDistance(outputs[0], outputs[1], outputs[2], outputs[3])
 
                 // Check progress (urban[4], rural[5], motorway[6])
-                checkProgress(outputs[1], outputs[2], outputs[3])
+                fragment.promptHandler.checkProgress(outputs[1], outputs[2], outputs[3])
 
                 // Update the prompt ProgressBars (total[0])
                 val totalTime = outputs[4] + outputs[5] + outputs[6]
-                handlePrompt(outputs[0], totalTime)
+                fragment.promptHandler.handlePrompt(outputs[0], totalTime)
 
                 // Update the Dynamics-Markers (grey balls)
                 handleDynamics(
@@ -258,83 +246,6 @@ class RDEUIUpdater(
         fragment.distance = expectedDistance
     }
 
-    /**
-     * Update the prompt for improving the driving style according to the received RTLola results.
-     */
-    private fun handlePrompt(
-        totalDistance: Double,
-        totalTime: Double,
-    ) {
-        // Cases where the RDE test is invalid
-        if (urbanComplete || ruralComplete || motorwayComplete || totalTime > 120) {
-            fragment.textViewRDEPrompt.text = "This RDE test will be invalid, you may want to restart it."
-            fragment.textViewRDEPrompt.setTextColor(Color.RED)
-            // TODO: suggest to stop the test and start a new one
-        }
-
-        val currentSpeed = fragment.rdeValidator.currentSpeed
-        var speedChange: Double = 0.0
-        var drivingStyleText: String = "";
-
-        // Cases where the RDE test is still valid, but the driver should improve
-        if (totalDistance > expectedDistance/2) {
-            if (urbanComplete){
-                if (ruralInsufficient) {
-                    if (motorwayComplete) {
-                        // Rural has not passed yet
-                        drivingStyleText = "for more rural driving"
-                        speedChange = computeSpeedChange(currentSpeed, 60, 90)
-                    } else {
-                        // Rural and Motorway have not passed yet
-                        drivingStyleText = "for more rural and motorway driving"
-                        speedChange = computeSpeedChange(currentSpeed, 60, 160)
-                    }
-                } else if (motorwayInsufficient) {
-                    // Motorway has not passed yet
-                    drivingStyleText = "for more motorway driving"
-                    speedChange = computeSpeedChange(currentSpeed, 90, 160)
-                }
-            } else {
-                if (urbanInsufficient) {
-                    if (ruralComplete) {
-                        if (motorwayComplete) {
-                            speedChange = computeSpeedChange(currentSpeed, 0, 60)
-                        }
-                    }
-                }
-                if (motorwayInsufficient) {
-                    if (ruralComplete) {
-                        // Motorway has not passed yet
-                        drivingStyleText = "for more motorway driving"
-                        speedChange = computeSpeedChange(currentSpeed, 90, 160)
-                    } else {
-                        // Urban, Rural and Motorway have not passed yet
-                        drivingStyleText = "for more rural and motorway driving"
-                        speedChange = computeSpeedChange(currentSpeed, 0, 160)
-                    }
-                } else if (ruralInsufficient) {
-                    // Rural has not passed yet, urban is not complete
-                    drivingStyleText = "for more urban and rural driving"
-                    speedChange = computeSpeedChange(currentSpeed, 0, 90)
-                }
-            }
-
-            if (speedChange > 0) {
-                fragment.textViewRDEPrompt.text = "Aim for a higher driving speed $drivingStyleText"
-                fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
-            } else if (speedChange < 0) {
-                fragment.textViewRDEPrompt.text = "Aim for a lower driving speed $drivingStyleText"
-                fragment.textViewRDEPrompt.setTextColor(Color.RED)
-            } else {
-                fragment.textViewRDEPrompt.text = "Your driving style is good"
-                fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
-            }
-            speak()
-        } else {
-            // TODO announce if a driving style has been complete
-        }
-    }
-
     companion object {
         fun convertSeconds(seconds: Long): String {
             val millis: Long = seconds * 1000
@@ -354,65 +265,6 @@ class RDEUIUpdater(
         }
     }
 
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            val result = tts!!.setLanguage(Locale.US)
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Toast.makeText(fragment.requireActivity(),"The Language not supported!", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun speak() {
-        val text = fragment.textViewRDEPrompt.text.toString()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null, "ID")
-        } else {
-            Toast.makeText(fragment.requireActivity(), "This SDK version does not support Text To Speech.", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    // TODO check if onDestroy() is needed through fragment.requireActivity()
-
-    /**
-     * Check the progress of Urban, Rural and Motorway driving and update corresponding booleans.
-     */
-    private fun checkProgress(
-        urbanDistance: Double,
-        ruralDistance: Double,
-        motorwayDistance: Double
-    ){
-        val urbanProportion = urbanDistance / expectedDistance
-        val ruralProportion = ruralDistance / expectedDistance
-        val motorwayProportion = motorwayDistance / expectedDistance
-
-        motorwayComplete = motorwayProportion > 0.29
-        ruralComplete = ruralProportion > 0.29
-        urbanComplete = urbanProportion > 0.29
-
-        motorwayInsufficient = motorwayProportion < 0.23
-        ruralInsufficient = ruralProportion < 0.23
-        urbanInsufficient = urbanProportion < 0.23
-    }
-
-    /**
-     * Calculate the acceleration and deceleration of the car.
-     */
-    private fun computeSpeedChange (
-        currentSpeed: Double,
-        lowerThreshold: Int,
-        upperThreshold: Int,
-    ): Double {
-        val speedChange: Double
-        if (currentSpeed < lowerThreshold) {
-            speedChange = lowerThreshold - currentSpeed
-        } else if (currentSpeed > upperThreshold) {
-            speedChange = currentSpeed - upperThreshold
-        } else {
-            speedChange = 0.0
-        }
-        return speedChange
-    }
 }
 
 /**
