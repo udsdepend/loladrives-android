@@ -75,7 +75,8 @@ class RDEUIUpdater(
                 checkProgress(outputs[1], outputs[2], outputs[3])
 
                 // Update the prompt ProgressBars (total[0])
-                handlePrompt(outputs[0])
+                val totalTime = outputs[4] + outputs[5] + outputs[6]
+                handlePrompt(outputs[0], totalTime)
 
                 // Update the Dynamics-Markers (grey balls)
                 handleDynamics(
@@ -261,49 +262,80 @@ class RDEUIUpdater(
      * Update the prompt for improving the driving style according to the received RTLola results.
      */
     private fun handlePrompt(
-        totalDistance: Double
+        totalDistance: Double,
+        totalTime: Double,
     ) {
         // Cases where the RDE test is invalid
-        if (urbanComplete || ruralComplete || motorwayComplete) {
-            // TODO: add time exceeded for 120 minutes
-            fragment.textViewRDEPrompt.text = "This RDE test will be invalid...."
+        if (urbanComplete || ruralComplete || motorwayComplete || totalTime > 120) {
+            fragment.textViewRDEPrompt.text = "This RDE test will be invalid, you may want to restart it."
             fragment.textViewRDEPrompt.setTextColor(Color.RED)
             // TODO: suggest to stop the test and start a new one
         }
 
+        val currentSpeed = fragment.rdeValidator.currentSpeed
+        var speedChange: Double = 0.0
+        var drivingStyleText: String = "";
+        var speedText: String;
+
         // Cases where the RDE test is still valid, but the driver should improve
         if (totalDistance > expectedDistance/2) {
-            // TODO: more procedural instructions for the driver
             if (urbanComplete){
                 if (ruralInsufficient) {
                     if (motorwayComplete) {
-                        fragment.textViewRDEPrompt.text = "Aim for more rural driving, between 60 and 90 kilometers per hour"
-                        fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
+                        drivingStyleText = "for more rural driving"
+                        // Rural has not passed yet
+                        speedChange = computeSpeedChange(currentSpeed, 60, 90)
                     } else {
                         // Rural and Motorway have not passed yet
-                        fragment.textViewRDEPrompt.text = "Aim for a higher driving speed, more than 60 kilometers per hour"
-                        fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+                        drivingStyleText = "for more rural and motorway driving"
+                        speedChange = computeSpeedChange(currentSpeed, 60, 160)
                     }
                 } else if (motorwayInsufficient) {
-                    fragment.textViewRDEPrompt.text = "Aim for more motorway driving, between 90 and 160 kilometers per hour"
-                    fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
+                    // Motorway has not passed yet
+                    drivingStyleText = "for more motorway driving"
+                    speedChange = computeSpeedChange(currentSpeed, 90, 160)
                 }
             } else {
+                if (urbanInsufficient) {
+                    if (ruralComplete) {
+                        if (motorwayComplete) {
+                            speedChange = computeSpeedChange(currentSpeed, 0, 60)
+                        }
+                    }
+                }
                 if (motorwayInsufficient) {
                     if (ruralComplete) {
-                        fragment.textViewRDEPrompt.text = "Aim for more motorway driving, between 90 and 160 kilometers per hour"
-                        fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
+                        // Motorway has not passed yet
+                        drivingStyleText = "for more motorway driving"
+                        speedChange = computeSpeedChange(currentSpeed, 90, 160)
                     } else {
-                        // Rural and Motorway have not passed yet
-                        fragment.textViewRDEPrompt.text = "Aim for a lower driving speed, under 90 kilometers per hour"
-                        fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+                        // Urban, Rural and Motorway have not passed yet
+                        drivingStyleText = "for more rural and motorway driving"
+                        speedChange = computeSpeedChange(currentSpeed, 0, 160)
                     }
                 } else if (ruralInsufficient) {
-                    fragment.textViewRDEPrompt.text = "Aim for more rural driving, between 60 and 90 kilometers per hour"
-                    fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
+                    // Rural has not passed yet, urban is not complete
+                    drivingStyleText = "for more urban and rural driving"
+                    speedChange = computeSpeedChange(currentSpeed, 0, 90)
                 }
             }
+        } else {
+            drivingStyleText = "" // TODO: add a text for the case where early in the test
+            speedChange = computeSpeedChange(currentSpeed, 0, 160)
         }
+
+        if (speedChange > 0) {
+            speedText = "Aim for a higher driving speed"
+            fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+        } else if (speedChange < 0) {
+            speedText = "Aim for a lower driving speed"
+            fragment.textViewRDEPrompt.setTextColor(Color.RED)
+        } else {
+            speedText = "Your driving style is good"
+            fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
+        }
+
+        fragment.textViewRDEPrompt.text = "$speedText $drivingStyleText"
         speak()
     }
 
@@ -365,6 +397,25 @@ class RDEUIUpdater(
         motorwayInsufficient = motorwayProportion < 0.23
         ruralInsufficient = ruralProportion < 0.23
         urbanInsufficient = urbanProportion < 0.23
+    }
+
+    /**
+     * Calculate the acceleration and deceleration of the car.
+     */
+    private fun computeSpeedChange (
+        currentSpeed: Double,
+        lowerThreshold: Int,
+        upperThreshold: Int,
+    ): Double {
+        val speedChange: Double
+        if (currentSpeed < lowerThreshold) {
+            speedChange = lowerThreshold - currentSpeed
+        } else if (currentSpeed > upperThreshold) {
+            speedChange = currentSpeed - upperThreshold
+        } else {
+            speedChange = 0.0
+        }
+        return speedChange
     }
 }
 
