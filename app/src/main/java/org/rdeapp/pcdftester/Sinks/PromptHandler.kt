@@ -51,7 +51,7 @@ class PromptHandler (
             when {
                 urbanSufficient && ruralSufficient && motorwayInsufficient -> {
                     drivingStyleText = "for more motorway driving"
-                    speedChange = computeSpeedChange(currentSpeed, 90, 160)
+                    speedChange = computeSpeedChange(currentSpeed, 90, 145)
                 }
                 urbanSufficient && ruralInsufficient && motorwaySufficient -> {
                     drivingStyleText = "for more rural driving"
@@ -63,7 +63,7 @@ class PromptHandler (
                 }
                 urbanSufficient && ruralInsufficient && motorwayInsufficient -> {
                     drivingStyleText = "for more rural and motorway driving"
-                    speedChange = computeSpeedChange(currentSpeed, 60, 160)
+                    speedChange = computeSpeedChange(currentSpeed, 60, 145)
                 }
                 urbanInsufficient && ruralSufficient && motorwayInsufficient -> {
                     drivingStyleText = "for less rural driving"
