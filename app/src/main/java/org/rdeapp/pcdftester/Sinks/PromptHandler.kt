@@ -12,6 +12,10 @@ import kotlinx.android.synthetic.main.fragment_r_d_e.textViewAnalysis
 import kotlinx.android.synthetic.main.fragment_r_d_e.textViewRDEPrompt
 import java.util.Locale
 
+/**
+ * Class for handling the prompt for improving the driving style.
+ * @property fragment The RDEFragment in which the prompt is displayed.
+ */
 class PromptHandler (
     private val fragment: RDEFragment
     ) : TextToSpeech.OnInitListener{
@@ -147,7 +151,7 @@ class PromptHandler (
     }
 
     /**
-     * Check if the RDS test is invalid.
+     * Check if the RDE test is invalid.
      * If so, announce it to the driver, and move to the RDE settings fragment.
      */
     private fun checkInvalidRDE(totalTime: Double) {
@@ -185,7 +189,7 @@ class PromptHandler (
     }
 
     /**
-     * Calculate the acceleration and deceleration of the car.
+     * Calculate the speed change required to improve the driving style.
      */
     private fun computeSpeedChange (
         currentSpeed: Double,
@@ -203,6 +207,9 @@ class PromptHandler (
         return speedChange
     }
 
+    /**
+     * Calculate how long the user to should drive in the certain driving mode to improve their driving style.
+     */
     private fun computeDuration(mode:DrivingMode) {
         when(mode) {
             DrivingMode.URBAN -> {
@@ -223,6 +230,9 @@ class PromptHandler (
         }
     }
 
+    /**
+     * Initialise the Text To Speech engine.
+     */
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             val result = tts!!.setLanguage(Locale.US)
@@ -232,6 +242,9 @@ class PromptHandler (
         }
     }
 
+    /**
+     * Speak the text in the RDE prompt TextView.
+     */
     private fun speak() {
         val text = fragment.textViewRDEPrompt.text.toString()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
