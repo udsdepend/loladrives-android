@@ -38,6 +38,10 @@ class PromptHandler (
     private var ruralProportion: Double = 0.0
     private var motorwayProportion: Double = 0.0
 
+    private val currentSpeed = fragment.rdeValidator.currentSpeed
+    private var speedChange: Double = 0.0
+    private var desiredDrivingMode: DrivingMode = DrivingMode.URBAN
+
 
     /**
      * Update the prompt for improving the driving style according to the received RTLola results.
@@ -49,8 +53,6 @@ class PromptHandler (
         // Check if the RDE test is still valid
         checkInvalidRDE(totalTime)
 
-        val currentSpeed = fragment.rdeValidator.currentSpeed
-        var speedChange: Double = 0.0
         var drivingStyleText: String = ""
 
         // Cases where the RDE test is still valid, but the driver should improve
@@ -58,61 +60,45 @@ class PromptHandler (
             when {
                 urbanSufficient && ruralSufficient && motorwayInsufficient -> {
                     drivingStyleText = "for more motorway driving"
-                    speedChange = computeSpeedChange(currentSpeed, 90, 145)
-                    computeDuration(DrivingMode.MOTORWAY)
+                    desiredDrivingMode = DrivingMode.MOTORWAY
                 }
                 urbanSufficient && ruralInsufficient && motorwaySufficient -> {
                     drivingStyleText = "for more rural driving"
-                    speedChange = computeSpeedChange(currentSpeed, 60, 90)
-                    computeDuration(DrivingMode.RURAL)
+                    desiredDrivingMode = DrivingMode.RURAL
                 }
                 urbanInsufficient && ruralSufficient && motorwaySufficient -> {
                     drivingStyleText = "for more urban driving"
-                    speedChange = computeSpeedChange(currentSpeed, 0, 60)
-                    computeDuration(DrivingMode.URBAN)
+                    desiredDrivingMode = DrivingMode.URBAN
                 }
                 urbanSufficient && ruralInsufficient && motorwayInsufficient -> {
                     drivingStyleText = "for more rural and motorway driving"
-                    if (ruralProportion < motorwayProportion) {
-                        speedChange = computeSpeedChange(currentSpeed, 60, 90)
-                        computeDuration(DrivingMode.RURAL)
+                    desiredDrivingMode = if (desiredDrivingMode == DrivingMode.RURAL) {
+                        DrivingMode.RURAL
                     } else {
-                        speedChange = computeSpeedChange(currentSpeed, 90, 145)
-                        computeDuration(DrivingMode.MOTORWAY)
+                        DrivingMode.MOTORWAY
                     }
                 }
                 urbanInsufficient && ruralSufficient && motorwayInsufficient -> {
                     drivingStyleText = "for less rural driving"
-                    if (urbanProportion < motorwayProportion) {
-                        speedChange = computeSpeedChange(currentSpeed, 0, 60)
-                        computeDuration(DrivingMode.URBAN)
+                    desiredDrivingMode = if (desiredDrivingMode == DrivingMode.URBAN) {
+                        DrivingMode.URBAN
                     } else {
-                        speedChange = computeSpeedChange(currentSpeed, 90, 145)
-                        computeDuration(DrivingMode.MOTORWAY)
+                        DrivingMode.MOTORWAY
                     }
                 }
                 urbanInsufficient && ruralInsufficient && motorwaySufficient -> {
                     drivingStyleText = "for more urban and rural driving"
-                    if (ruralProportion < urbanProportion) {
-                        speedChange = computeSpeedChange(currentSpeed, 60, 90)
-                        computeDuration(DrivingMode.RURAL)
+                    desiredDrivingMode = if (desiredDrivingMode == DrivingMode.RURAL) {
+                        DrivingMode.RURAL
                     } else {
-                        speedChange = computeSpeedChange(currentSpeed, 0, 60)
-                        computeDuration(DrivingMode.URBAN)
+                        DrivingMode.URBAN
                     }
                 }
             }
+            computeSpeedChange()
+            computeDuration()
+            setPromptText(drivingStyleText)
 
-            if (speedChange > 0) {
-                fragment.textViewRDEPrompt.text = "Aim for a higher driving speed, if it is safe to do so, $drivingStyleText"
-                fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
-            } else if (speedChange < 0) {
-                fragment.textViewRDEPrompt.text = "Aim for a lower driving speed, if it is safe to do so, $drivingStyleText"
-                fragment.textViewRDEPrompt.setTextColor(Color.RED)
-            } else {
-                fragment.textViewRDEPrompt.text = "Your driving style is good"
-                fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
-            }
             // Only speak if the text has changed
             if (currentText != fragment.textViewRDEPrompt.text.toString()) {
                 speak()
@@ -191,27 +177,30 @@ class PromptHandler (
     /**
      * Calculate the speed change required to improve the driving style.
      */
-    private fun computeSpeedChange (
-        currentSpeed: Double,
-        lowerThreshold: Int,
-        upperThreshold: Int,
-    ): Double {
-        val speedChange: Double
-        if (currentSpeed < lowerThreshold) {
-            speedChange = lowerThreshold - currentSpeed
-        } else if (currentSpeed > upperThreshold) {
-            speedChange = currentSpeed - upperThreshold
-        } else {
-            speedChange = 0.0
+    private fun computeSpeedChange () {
+        val lowerThreshold: Double;
+        val upperThreshold: Double;
+
+        when (desiredDrivingMode) {
+            DrivingMode.URBAN -> { lowerThreshold = 0.0; upperThreshold = 60.0 }
+            DrivingMode.RURAL -> { lowerThreshold = 60.0; upperThreshold = 90.0 }
+            DrivingMode.MOTORWAY -> { lowerThreshold = 90.0; upperThreshold = 145.0 }
         }
-        return speedChange
+
+        speedChange = if (currentSpeed < lowerThreshold) {
+            lowerThreshold - currentSpeed
+        } else if (currentSpeed > upperThreshold) {
+            currentSpeed - upperThreshold
+        } else {
+            0.0
+        }
     }
 
     /**
      * Calculate how long the user to should drive in the certain driving mode to improve their driving style.
      */
-    private fun computeDuration(mode:DrivingMode) {
-        when(mode) {
+    private fun computeDuration() {
+        when(desiredDrivingMode) {
             DrivingMode.URBAN -> {
                 // Calculate the distance left to drive in urban mode with an average speed of 30 km/h
                 val urbanDistanceLeft = (0.29 - urbanProportion) * expectedDistance
@@ -227,6 +216,23 @@ class PromptHandler (
                 val motorwayDistanceLeft = (0.23 - motorwayProportion) * expectedDistance
                 fragment.textViewAnalysis.text = "Drive at an average speed of 30 km/h for ${motorwayDistanceLeft * 60 / 115} minutes"
             }
+        }
+    }
+
+    /**
+     * Set the text for the prompt TextView according to the driving mode and speed change.
+     */
+    private fun setPromptText(drivingStyleText: String) {
+        // Calculate the speed change needed to improve the driving style
+        if (speedChange > 0) {
+            fragment.textViewRDEPrompt.text = "Aim for a higher driving speed, if it is safe to do so, $drivingStyleText"
+            fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+        } else if (speedChange < 0) {
+            fragment.textViewRDEPrompt.text = "Aim for a lower driving speed, if it is safe to do so, $drivingStyleText"
+            fragment.textViewRDEPrompt.setTextColor(Color.RED)
+        } else {
+            fragment.textViewRDEPrompt.text = "Your driving style is good"
+            fragment.textViewRDEPrompt.setTextColor(Color.BLACK)
         }
     }
 
