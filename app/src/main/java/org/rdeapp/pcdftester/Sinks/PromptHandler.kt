@@ -40,6 +40,7 @@ class PromptHandler (
 
     private val currentSpeed = fragment.rdeValidator.currentSpeed
     private var speedChange: Double = 0.0
+    private var drivingStyleText: String = ""
     private var desiredDrivingMode: DrivingMode = DrivingMode.URBAN
 
 
@@ -53,50 +54,14 @@ class PromptHandler (
         // Check if the RDE test is still valid
         checkInvalidRDE(totalTime)
 
-        var drivingStyleText: String = ""
-
         // Cases where the RDE test is still valid, but the driver should improve
         if (totalDistance > expectedDistance/2) {
-            when {
-                urbanSufficient && ruralSufficient && motorwayInsufficient -> {
-                    drivingStyleText = "for more motorway driving"
-                    desiredDrivingMode = DrivingMode.MOTORWAY
-                }
-                urbanSufficient && ruralInsufficient && motorwaySufficient -> {
-                    drivingStyleText = "for more rural driving"
-                    desiredDrivingMode = DrivingMode.RURAL
-                }
-                urbanInsufficient && ruralSufficient && motorwaySufficient -> {
-                    drivingStyleText = "for more urban driving"
-                    desiredDrivingMode = DrivingMode.URBAN
-                }
-                urbanSufficient && ruralInsufficient && motorwayInsufficient -> {
-                    drivingStyleText = "for more rural and motorway driving"
-                    desiredDrivingMode = if (desiredDrivingMode == DrivingMode.RURAL) {
-                        DrivingMode.RURAL
-                    } else {
-                        DrivingMode.MOTORWAY
-                    }
-                }
-                urbanInsufficient && ruralSufficient && motorwayInsufficient -> {
-                    drivingStyleText = "for less rural driving"
-                    desiredDrivingMode = if (desiredDrivingMode == DrivingMode.URBAN) {
-                        DrivingMode.URBAN
-                    } else {
-                        DrivingMode.MOTORWAY
-                    }
-                }
-                urbanInsufficient && ruralInsufficient && motorwaySufficient -> {
-                    drivingStyleText = "for more urban and rural driving"
-                    desiredDrivingMode = if (desiredDrivingMode == DrivingMode.RURAL) {
-                        DrivingMode.RURAL
-                    } else {
-                        DrivingMode.URBAN
-                    }
-                }
-            }
+            setDesiredDrivingMode() // Determine the desired driving mode
+
+            // Calculate the speed change and duration for the desired driving mode
             computeSpeedChange()
             computeDuration()
+
             setPromptText(drivingStyleText)
 
             // Only speak if the text has changed
@@ -171,6 +136,62 @@ class PromptHandler (
             "Urban driving is sufficient"
         } else {
             "Your driving style is good"
+        }
+    }
+
+    /**
+     * Determine the current driving mode according to the current speed.
+     */
+    private fun currentDrivingMode(): DrivingMode {
+        return when {
+            currentSpeed < 60 -> DrivingMode.URBAN
+            currentSpeed < 90 -> DrivingMode.RURAL
+            else -> DrivingMode.MOTORWAY
+        }
+    }
+
+    /**
+     * Set the desired driving mode according to the proportions of urban, rural and motorway driving,
+     * the current driving mode and the previously desired driving mode.
+     */
+    private fun setDesiredDrivingMode() {
+        when {
+            urbanSufficient && ruralSufficient && motorwayInsufficient -> {
+                drivingStyleText = "for more motorway driving"
+                desiredDrivingMode = DrivingMode.MOTORWAY
+            }
+            urbanSufficient && ruralInsufficient && motorwaySufficient -> {
+                drivingStyleText = "for more rural driving"
+                desiredDrivingMode = DrivingMode.RURAL
+            }
+            urbanInsufficient && ruralSufficient && motorwaySufficient -> {
+                drivingStyleText = "for more urban driving"
+                desiredDrivingMode = DrivingMode.URBAN
+            }
+            urbanSufficient && ruralInsufficient && motorwayInsufficient -> {
+                drivingStyleText = "for more rural and motorway driving"
+                desiredDrivingMode = if (desiredDrivingMode == DrivingMode.MOTORWAY || currentDrivingMode() == DrivingMode.MOTORWAY) {
+                    DrivingMode.MOTORWAY
+                } else {
+                    DrivingMode.RURAL
+                }
+            }
+            urbanInsufficient && ruralSufficient && motorwayInsufficient -> {
+                drivingStyleText = "for less rural driving"
+                desiredDrivingMode = if (currentDrivingMode() == DrivingMode.URBAN || currentDrivingMode() == DrivingMode.URBAN) {
+                    DrivingMode.URBAN
+                } else {
+                    DrivingMode.MOTORWAY
+                }
+            }
+            urbanInsufficient && ruralInsufficient && motorwaySufficient -> {
+                drivingStyleText = "for more urban and rural driving"
+                desiredDrivingMode = if (currentDrivingMode() == DrivingMode.URBAN || currentDrivingMode() == DrivingMode.URBAN) {
+                    DrivingMode.URBAN
+                } else {
+                    DrivingMode.RURAL
+                }
+            }
         }
     }
 
