@@ -10,6 +10,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.isNull
@@ -49,7 +50,7 @@ class TrackingFragmentTest {
      * monitoring is not activated.
      */
     @Test
-    @Suppress("RequiresOBDConnection")
+    @Ignore // Requires OBD Connection
     fun testTrackingFragmentInitialState() {
         val scenario = ActivityScenario.launch(MainActivity::class.java)
         var isRdeOnGoing = false
@@ -68,7 +69,7 @@ class TrackingFragmentTest {
      * Test that the "Stop" button in the tracking fragment deactivates the monitoring service when clicked.
      */
     @Test
-    @Suppress("RequiresOBDConnection")
+    @Ignore // Requires OBD Connection
     fun testTrackingFragmentStopButton() {
         val scenario = ActivityScenario.launch(MainActivity::class.java)
         var isRdeOnGoing = false
@@ -88,7 +89,7 @@ class TrackingFragmentTest {
      * Test that the "Start" button in the tracking fragment activates the monitoring service when clicked.
      */
     @Test
-    @Suppress("RequiresOBDConnection")
+    @Ignore // Requires OBD Connection
     fun testTrackingFragmentStartButton() {
         val scenario = ActivityScenario.launch(MainActivity::class.java)
         var isRdeOnGoing = false
@@ -109,7 +110,7 @@ class TrackingFragmentTest {
      * Test that the "Stop" button becomes invisible after being pressed, and that the "Start" button is visible.
      */
     @Test
-    @Suppress("RequiresOBDConnection")
+    @Ignore // Requires OBD Connection
     fun testTrackingFragmentStopIsPressed() {
         onView(withId(R.id.stopTrackingButton)).check(matches(isDisplayed()))
         onView(withId(R.id.stopTrackingButton)).perform(click())
@@ -120,7 +121,7 @@ class TrackingFragmentTest {
      * Test that the "Start" button becomes invisible after being pressed, and that the "Stop" button is visible.
      */
     @Test
-    @Suppress("RequiresOBDConnection")
+    @Ignore // Requires OBD Connection
     fun testTrackingFragmentStartIsPressed() {
         onView(withId(R.id.stopTrackingButton)).perform(click())
         onView(withId(R.id.stopTrackingButton)).perform(click())

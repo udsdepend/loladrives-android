@@ -10,6 +10,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -80,7 +81,7 @@ class RdeSettingsFragmentTest {
      * Test that the "Start" button redirects to the RDE Fragment
      */
     @Test
-    @Suppress("RequiresOBDConnection")
+    @Ignore // Requires OBD Connection
     fun testSettingsFragmentStart() {
         onView(withId(R.id.startImageButton)).perform(click())
         onView(withId(R.id.textViewValidRDE)).check(matches(isDisplayed()))

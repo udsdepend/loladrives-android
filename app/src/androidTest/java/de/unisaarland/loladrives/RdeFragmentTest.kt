@@ -10,6 +10,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -28,7 +29,7 @@ class RdeFragmentTest {
      * Test that the RDE Fragment displays all views correctly
      */
     @Test
-    @Suppress("RequiresOBDConnection")
+    @Ignore // Requires OBD Connection
     fun testRdeFragmentDisplay() {
         onView(withId(R.id.rdeImageButton)).perform(click())
         onView(withId(R.id.startImageButton)).perform(click())
