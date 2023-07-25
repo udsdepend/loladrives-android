@@ -22,12 +22,73 @@ class TrajectoryAnalyser(
     private var totalTime: Double = 0.0
     private var currentSpeed: Double = 0.0
 
+    private var highSpeedDuration: Double = 0.0
 
-    // TODO: Check each driving mode that sufficient distance is covered of at least 16km
-    // TODO: Check that a speed of 100km/h is driven for at least 5 minutes for the motorway driving mode
-    // TODO: Check that at most 3% of the motorway driving mode is driven at 145km/h to 160km/h
-    // TODO: Check that a stopping percentage of 6% to 30% is covered for the urban driving mode
-    // TODO: Check that the average urban speed is between 15km/h and 40km/h
+
+    /**
+     * Check whether the distance in a driving mode is sufficient.
+     */
+    private fun checkDistanceSufficient(): String {
+        return if (urbanProportion * expectedDistance > 16) {
+            "Urban driving is sufficient"
+        } else if (ruralProportion * expectedDistance > 16) {
+            "Rural driving is sufficient"
+        } else if (motorwayProportion * expectedDistance > 16) {
+            "Motorway driving is sufficient"
+        } else {
+            ""
+        }
+    }
+
+    /**
+     * Check that the motorway driving style is valid.
+     */
+    private fun isMotorwayValid() {
+        // TODO: Check that a speed of 100km/h is driven for at least 5 minutes for the motorway driving mode
+        if (currentSpeed > 100) {
+            highSpeedDuration += 1 // TODO: change to a timestamp
+//            canHighSpeedPass()
+        } else {
+            highSpeedDuration = 0.0
+        }
+
+        // TODO: Check that at most 3% of the motorway driving mode is driven at 145km/h to 160km/h
+        val veryHighSpeedProportion = computeVeryHighSpeedProportion()
+    }
+
+    /**
+     * Consider time and distance left to compute whether high speed can pass
+     */
+    private fun canHighSpeedPass(): Boolean {
+        if (highSpeedDuration > 5) {
+            return true
+        } else {
+            if (totalTime > 115 && highSpeedDuration == 0.0) {
+                return false
+            }
+        // TODO consider time and distance left to compute whether high speed can pass
+            return false
+        }
+    }
+
+    /**
+     * Compute the proportion of very high speed driving.
+     */
+    private fun computeVeryHighSpeedProportion(): Double {
+        // compute required distance for very high speed
+        val requiredDistance = 0.03 * expectedDistance
+        // compute very high speed proportion
+        return requiredDistance / (motorwayProportion * expectedDistance)
+    }
+
+    /**
+     * Check that the urban driving style is valid.
+     */
+    private fun checkUrbanValid() {
+        // TODO: Check that a stopping percentage of 6% to 30% is covered for the urban driving mode
+        // TODO: Check that the average urban speed is between 15km/h and 40km/h
+    }
+
 
     /**
      * Check the progress of Urban, Rural and Motorway driving and update corresponding booleans.
@@ -123,7 +184,7 @@ class TrajectoryAnalyser(
      * Set the desired driving mode according to the proportions of urban, rural and motorway driving,
      * the current driving mode and the previously desired driving mode.
      */
-    fun setDesiredDrivingMode() {
+    fun setDesiredDrivingMode(): DrivingMode {
         when {
             urbanSufficient && ruralSufficient && motorwayInsufficient -> {
                 desiredDrivingMode = DrivingMode.MOTORWAY
@@ -156,6 +217,7 @@ class TrajectoryAnalyser(
                 }
             }
         }
+        return desiredDrivingMode
     }
 
     /**

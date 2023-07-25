@@ -38,8 +38,8 @@ class PromptHandler (
         handleInvalidRDE()
 
         // Cases where the RDE test is still valid, but the driver should improve
-        if (totalDistance > expectedDistance/2) {
-            trajectoryAnalyser.setDesiredDrivingMode() // Determine the desired driving mode
+        if (totalDistance > expectedDistance/3) {
+            desiredDrivingMode = trajectoryAnalyser.setDesiredDrivingMode()
             setDrivingStyleText() // Set the text for the prompt according to the desired driving mode
 
             // Calculate the speed change and duration for the desired driving mode
