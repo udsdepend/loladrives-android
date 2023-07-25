@@ -18,6 +18,7 @@ import kotlinx.coroutines.*
 import org.rdeapp.pcdftester.Sinks.PromptHandler
 import org.rdeapp.pcdftester.Sinks.RDEUIUpdater
 import org.rdeapp.pcdftester.Sinks.RDEValidator
+import org.rdeapp.pcdftester.Sinks.TrajectoryAnalyser
 import org.rdeapp.pcdftester.Sinks.VERBOSITY_MODE
 import java.io.File
 
@@ -26,6 +27,7 @@ import java.io.File
  */
 class RDEFragment : Fragment() {
     var distance = 83.0
+    lateinit var trajectoryAnalyser: TrajectoryAnalyser
     lateinit var promptHandler: PromptHandler
     lateinit var rdeValidator: RDEValidator
     private var uiUpdaterJob: Job? = null
@@ -74,6 +76,7 @@ class RDEFragment : Fragment() {
             )
             toast.show()
         } else {
+            trajectoryAnalyser = TrajectoryAnalyser(distance)
             promptHandler = PromptHandler(this)
             rdeValidator = RDEValidator(
                 activity.eventDistributor.registerReceiver(),

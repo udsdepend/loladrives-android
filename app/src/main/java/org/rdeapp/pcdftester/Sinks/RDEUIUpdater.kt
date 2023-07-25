@@ -59,13 +59,19 @@ class RDEUIUpdater(
                 // Update the distance ProgressBars (total[0], urban[1], rural[2], motorway[3])
                 handleDistance(outputs[0], outputs[1], outputs[2], outputs[3])
 
-                // Check progress (urban[1], rural[2], motorway[3])
-                fragment.promptHandler.checkProgress(outputs[1], outputs[2], outputs[3])
-
                 val totalTime = outputs[4] + outputs[5] + outputs[6]  // Compute total test time
 
+                // Check progress (urban[1], rural[2], motorway[3])
+                fragment.trajectoryAnalyser.updateProgress(
+                    outputs[1],
+                    outputs[2],
+                    outputs[3],
+                    totalTime,
+                    fragment.rdeValidator.currentSpeed
+                )
+
                 // Update the prompt ProgressBars (total[0])
-                fragment.promptHandler.handlePrompt(outputs[0], totalTime)
+                fragment.promptHandler.handlePrompt(outputs[0])
 
                 // Update the Dynamics-Markers (grey balls)
                 handleDynamics(
