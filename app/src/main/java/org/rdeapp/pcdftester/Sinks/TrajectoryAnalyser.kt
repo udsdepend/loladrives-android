@@ -89,7 +89,7 @@ class TrajectoryAnalyser(
             isInvalid = true
         }
 
-        // Check that a speed of 145km/h is driven for less than 3% of max  for the motorway driving mode
+        // Check that a speed of 145km/h is driven for less than 3% of max for the motorway driving mode
         val veryHighSpeedDuration = velocityProfile.getVeryHighSpeed()
         if (veryHighSpeedDuration > 0.03 * 120 * 0.43) {
             isInvalid = true
@@ -104,15 +104,12 @@ class TrajectoryAnalyser(
      */
     private fun canHighSpeedPass(): Boolean {
         val highSpeedDuration = velocityProfile.getHighSpeed()
-        if (highSpeedDuration > 5) {
-            return true
+        return if (highSpeedDuration > 5) {
+            true
         } else {
-            if (totalTime > 115 && highSpeedDuration == 0.0) {
-                return false
-            }
-        // TODO consider time and distance left to compute whether high speed can pass
-            return false
+            totalTime.toLong() + (5- highSpeedDuration) <= 120
         }
+        // TODO consider time and distance left to compute whether very high speed can pass
     }
 
     /**
