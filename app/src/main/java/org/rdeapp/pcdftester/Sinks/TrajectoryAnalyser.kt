@@ -2,7 +2,8 @@ package org.rdeapp.pcdftester.Sinks
 
 
 class TrajectoryAnalyser(
-    private val expectedDistance: Double
+    private val expectedDistance: Double,
+    private val velocityProfile: VelocityProfile
 ) {
     private var motorwayComplete: Boolean = false
     private var ruralComplete: Boolean = false
@@ -22,7 +23,40 @@ class TrajectoryAnalyser(
     private var totalTime: Double = 0.0
     private var currentSpeed: Double = 0.0
 
-    private var highSpeedDuration: Double = 0.0
+    private var isInvalid: Boolean = false
+
+    /**
+     * Check the progress of Urban, Rural and Motorway driving and update corresponding booleans.
+     */
+    fun updateProgress(
+        urbanDistance: Double,
+        ruralDistance: Double,
+        motorwayDistance: Double,
+        totalTime: Double,
+        currentSpeed: Double
+    ){
+        this.totalTime = totalTime
+        this.currentSpeed = currentSpeed
+
+        velocityProfile.updateVelocityProfile(currentSpeed)
+
+        // check the progress of the driving modes
+        urbanProportion = urbanDistance / 1000 / expectedDistance
+        ruralProportion = ruralDistance / 1000 / expectedDistance
+        motorwayProportion = motorwayDistance / 1000 / expectedDistance
+
+        motorwayComplete = motorwayProportion > 0.43
+        ruralComplete = ruralProportion > 0.43
+        urbanComplete = urbanProportion > 0.44
+
+        motorwaySufficient = motorwayProportion > 0.23
+        ruralSufficient = ruralProportion > 0.23
+        urbanSufficient = urbanProportion > 0.29
+
+        motorwayInsufficient = motorwayProportion < 0.18
+        ruralInsufficient = ruralProportion < 0.18
+        urbanInsufficient = urbanProportion < 0.23
+    }
 
 
     /**
@@ -43,23 +77,33 @@ class TrajectoryAnalyser(
     /**
      * Check that the motorway driving style is valid.
      */
-    private fun isMotorwayValid() {
-        // TODO: Check that a speed of 100km/h is driven for at least 5 minutes for the motorway driving mode
-        if (currentSpeed > 100) {
-            highSpeedDuration += 1 // TODO: change to a timestamp
-//            canHighSpeedPass()
-        } else {
-            highSpeedDuration = 0.0
+    private fun isMotorwayValid(): Boolean {
+        var isValid = true
+
+        // Check that a speed of 100km/h is driven for at least 5 minutes for the motorway driving mode
+        isValid = if (velocityProfile.getHighSpeed() > 5) {
+            true
+        } else canHighSpeedPass()
+
+        if (!isValid) {
+            isInvalid = true
         }
 
-        // TODO: Check that at most 3% of the motorway driving mode is driven at 145km/h to 160km/h
-        val veryHighSpeedProportion = computeVeryHighSpeedProportion()
+        // Check that a speed of 145km/h is driven for less than 3% of max  for the motorway driving mode
+        val veryHighSpeedDuration = velocityProfile.getVeryHighSpeed()
+        if (veryHighSpeedDuration > 0.03 * 120 * 0.43) {
+            isInvalid = true
+        } else {
+            // TODO consider time and distance left to compute whether very high speed can pass
+        }
+        return isValid
     }
 
     /**
      * Consider time and distance left to compute whether high speed can pass
      */
     private fun canHighSpeedPass(): Boolean {
+        val highSpeedDuration = velocityProfile.getHighSpeed()
         if (highSpeedDuration > 5) {
             return true
         } else {
@@ -72,53 +116,19 @@ class TrajectoryAnalyser(
     }
 
     /**
-     * Compute the proportion of very high speed driving.
-     */
-    private fun computeVeryHighSpeedProportion(): Double {
-        // compute required distance for very high speed
-        val requiredDistance = 0.03 * expectedDistance
-        // compute very high speed proportion
-        return requiredDistance / (motorwayProportion * expectedDistance)
-    }
-
-    /**
      * Check that the urban driving style is valid.
      */
-    private fun checkUrbanValid() {
+    private fun checkUrbanValid(): Boolean {
         // TODO: Check that a stopping percentage of 6% to 30% is covered for the urban driving mode
+        val isValid = false
+        if (velocityProfile.getStoppingTime() > 0.3 * 120) {
+            isInvalid = true
+        }
         // TODO: Check that the average urban speed is between 15km/h and 40km/h
+
+        return isValid
     }
 
-
-    /**
-     * Check the progress of Urban, Rural and Motorway driving and update corresponding booleans.
-     */
-    fun updateProgress(
-        urbanDistance: Double,
-        ruralDistance: Double,
-        motorwayDistance: Double,
-        totalTime: Double,
-        currentSpeed: Double
-    ){
-        urbanProportion = urbanDistance / 1000 / expectedDistance
-        ruralProportion = ruralDistance / 1000 / expectedDistance
-        motorwayProportion = motorwayDistance / 1000 / expectedDistance
-
-        motorwayComplete = motorwayProportion > 0.43
-        ruralComplete = ruralProportion > 0.43
-        urbanComplete = urbanProportion > 0.44
-
-        motorwaySufficient = motorwayProportion > 0.23
-        ruralSufficient = ruralProportion > 0.23
-        urbanSufficient = urbanProportion > 0.29
-
-        motorwayInsufficient = motorwayProportion < 0.18
-        ruralInsufficient = ruralProportion < 0.18
-        urbanInsufficient = urbanProportion < 0.23
-
-        this.totalTime = totalTime
-        this.currentSpeed = currentSpeed
-    }
 
     /**
     * Check whether a driving style is sufficient.

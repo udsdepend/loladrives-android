@@ -59,7 +59,7 @@ class RDEUIUpdater(
                 // Update the distance ProgressBars (total[0], urban[1], rural[2], motorway[3])
                 handleDistance(outputs[0], outputs[1], outputs[2], outputs[3])
 
-                val totalTime = outputs[4] + outputs[5] + outputs[6]  // Compute total test time
+                val totalTime = outputs[4] + outputs[5] + outputs[6]  // Compute total test time so far
 
                 // Check progress (urban[1], rural[2], motorway[3])
                 fragment.trajectoryAnalyser.updateProgress(
