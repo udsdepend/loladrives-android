@@ -65,25 +65,59 @@ class TrajectoryAnalyser(
      * Check if any of the driving modes are complete.
      */
     fun checkInvalid() : Boolean {
-        // check if any of the constraints of specific driving modes are violated
         isMotorwayValid()
         isUrbanValid(averageUrbanSpeed)
-
         return isInvalid || totalTime > 120
     }
 
     /**
-     * Check that the motorway driving style is valid and follows the constraints.
-     * If not and they cannot be validates, set isInvalid to true.
-     *
-     * @return true if the motorway driving style is currently valid, false otherwise
+     * Set the desired driving mode according to the proportions of urban, rural and motorway driving,
+     * the current driving mode and the previously desired driving mode.
      */
-    fun isMotorwayValid(): Boolean {
-        // Check that a speed of 100km/h is driven for at least 5 minutes for the motorway driving mode
-        val isValid = canHighSpeedPass()
+    fun setDesiredDrivingMode(): DrivingMode {
+        when {
+            urbanSufficient && ruralInsufficient && motorwayInsufficient -> {
+                desiredDrivingMode = if (desiredDrivingMode == DrivingMode.MOTORWAY || currentDrivingMode() == DrivingMode.MOTORWAY) {
+                    DrivingMode.MOTORWAY
+                } else {
+                    DrivingMode.RURAL
+                }
+            }
+            urbanInsufficient && ruralSufficient && motorwayInsufficient -> {
+                desiredDrivingMode = if (currentDrivingMode() == DrivingMode.URBAN || currentDrivingMode() == DrivingMode.URBAN) {
+                    DrivingMode.URBAN
+                } else {
+                    DrivingMode.MOTORWAY
+                }
+            }
+            urbanInsufficient && ruralInsufficient && motorwaySufficient -> {
+                desiredDrivingMode = if (currentDrivingMode() == DrivingMode.URBAN || currentDrivingMode() == DrivingMode.URBAN) {
+                    DrivingMode.URBAN
+                } else {
+                    DrivingMode.RURAL
+                }
+            }
+            motorwayInsufficient -> {
+                desiredDrivingMode = DrivingMode.MOTORWAY
+            }
+            ruralInsufficient -> {
+                desiredDrivingMode = DrivingMode.RURAL
+            }
+            urbanInsufficient -> {
+                desiredDrivingMode = DrivingMode.URBAN
+            }
+        }
+        return desiredDrivingMode
+    }
 
+    /**
+     * Check that the motorway driving style is valid and does not violate the constraints.
+     * If not and they cannot be validated, set isInvalid to true.
+     *
+     */
+    private fun isMotorwayValid() {
         // if it is not possible to drive at 100km/h for 5 minutes, set isInvalid to true to terminate the test
-        if (!isValid) { isInvalid = true }
+        if (!canHighSpeedPass()) { isInvalid = true }
 
         // Check that a speed of 145km/h is driven for less than 3% of max for the motorway driving mode
         val veryHighSpeedDuration = velocityProfile.getVeryHighSpeed()
@@ -91,7 +125,6 @@ class TrajectoryAnalyser(
             // driven in > 145 km/h for more than 3% of the max test time
             isInvalid = true
         }
-        return isValid
     }
 
     /**
@@ -113,24 +146,34 @@ class TrajectoryAnalyser(
     }
 
     /**
-     * Check that the urban driving style is valid.
-     * TODO: Check that a stopping percentage of 6% to 30% is covered for the urban driving mode
-     * TODO: Check that the average urban speed is between 15km/h and 40km/h
+     * Check that the urban driving style is valid - a stopping percentage of 6% to 30% is covered
+     * for the urban driving mode, and the average speed is between 15km/h and 40km/h.
      */
-    fun isUrbanValid(averageUrbanSpeed: Double): Boolean {
-        var validStoppingPercentage: Boolean =
-            if (velocityProfile.getStoppingTime() > 0.3 * 120) {
-                false // more than 30% of the time is spent stopping
-            } else if (velocityProfile.getStoppingTime() < 0.06 * 120) {
-                    canStoppingPercentagePass(velocityProfile.getStoppingTime())
+    private fun isUrbanValid(averageUrbanSpeed: Double): Boolean {
+        val currentStoppingTime = velocityProfile.getStoppingTime()
+        val validStoppingPercentage: Boolean =
+            if (0.06 * 120 <= currentStoppingTime && currentStoppingTime <= 0.3 * 90) {
+                true
+            } else if (0.06 * totalTime <= currentStoppingTime && currentStoppingTime <= 0.3 * totalTime) {
+                true
+            } else {
+                if (canStoppingPercentagePass(velocityProfile.getStoppingTime())) {
+                    false // stopping percentage is not valid but can be increased or decreased to pass
                 } else {
-            true
-        }
+                    isInvalid = true
+                    false
+                }
+            }
 
-        var validAverageSpeed: Boolean = if (averageUrbanSpeed > 15 && averageUrbanSpeed < 40) {
+        val validAverageSpeed: Boolean = if (averageUrbanSpeed > 15 && averageUrbanSpeed < 40) {
             true
         } else {
-            canAverageUrbanSpeedPassWithExpectedDistance(averageUrbanSpeed)
+            if (canAverageUrbanSpeedPassWithExpectedDistance(averageUrbanSpeed)) {
+                false // average speed is not valid but can be increased or decreased to pass
+            } else {
+                isInvalid = true
+                false
+            }
         }
         return validAverageSpeed && validStoppingPercentage
     }
@@ -195,7 +238,6 @@ class TrajectoryAnalyser(
     /**
      * Check whether the distance in a driving mode is sufficient.
      * @return a driving style has become sufficient, or null if none has become sufficient.
-     * TODO: empty the sufficientModes list if the distance is changed
      */
     fun checkSufficient(): DrivingMode? {
         if (motorwaySufficient && !sufficientModes.contains(DrivingMode.MOTORWAY)) {
@@ -220,47 +262,6 @@ class TrajectoryAnalyser(
             currentSpeed < 90 -> DrivingMode.RURAL
             else -> DrivingMode.MOTORWAY
         }
-    }
-
-
-    /**
-     * Set the desired driving mode according to the proportions of urban, rural and motorway driving,
-     * the current driving mode and the previously desired driving mode.
-     */
-    fun setDesiredDrivingMode(): DrivingMode {
-        when {
-            urbanSufficient && ruralSufficient && motorwayInsufficient -> {
-                desiredDrivingMode = DrivingMode.MOTORWAY
-            }
-            urbanSufficient && ruralInsufficient && motorwaySufficient -> {
-                desiredDrivingMode = DrivingMode.RURAL
-            }
-            urbanInsufficient && ruralSufficient && motorwaySufficient -> {
-                desiredDrivingMode = DrivingMode.URBAN
-            }
-            urbanSufficient && ruralInsufficient && motorwayInsufficient -> {
-                desiredDrivingMode = if (desiredDrivingMode == DrivingMode.MOTORWAY || currentDrivingMode() == DrivingMode.MOTORWAY) {
-                    DrivingMode.MOTORWAY
-                } else {
-                    DrivingMode.RURAL
-                }
-            }
-            urbanInsufficient && ruralSufficient && motorwayInsufficient -> {
-                desiredDrivingMode = if (currentDrivingMode() == DrivingMode.URBAN || currentDrivingMode() == DrivingMode.URBAN) {
-                    DrivingMode.URBAN
-                } else {
-                    DrivingMode.MOTORWAY
-                }
-            }
-            urbanInsufficient && ruralInsufficient && motorwaySufficient -> {
-                desiredDrivingMode = if (currentDrivingMode() == DrivingMode.URBAN || currentDrivingMode() == DrivingMode.URBAN) {
-                    DrivingMode.URBAN
-                } else {
-                    DrivingMode.RURAL
-                }
-            }
-        }
-        return desiredDrivingMode
     }
 
     /**
