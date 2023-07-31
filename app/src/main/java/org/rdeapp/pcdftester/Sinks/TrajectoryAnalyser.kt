@@ -1,5 +1,7 @@
 package org.rdeapp.pcdftester.Sinks
 
+import kotlin.time.measureTime
+
 class TrajectoryAnalyser(
     private val expectedDistance: Double,
     private val velocityProfile: VelocityProfile
@@ -77,25 +79,13 @@ class TrajectoryAnalyser(
     fun setDesiredDrivingMode(): DrivingMode {
         when {
             urbanSufficient && ruralInsufficient && motorwayInsufficient -> {
-                desiredDrivingMode = if (desiredDrivingMode == DrivingMode.MOTORWAY || currentDrivingMode() == DrivingMode.MOTORWAY) {
-                    DrivingMode.MOTORWAY
-                } else {
-                    DrivingMode.RURAL
-                }
+                desiredDrivingMode = chooseNextDrivingMode(DrivingMode.RURAL, DrivingMode.MOTORWAY)
             }
             urbanInsufficient && ruralSufficient && motorwayInsufficient -> {
-                desiredDrivingMode = if (currentDrivingMode() == DrivingMode.URBAN || currentDrivingMode() == DrivingMode.URBAN) {
-                    DrivingMode.URBAN
-                } else {
-                    DrivingMode.MOTORWAY
-                }
+                desiredDrivingMode = chooseNextDrivingMode(DrivingMode.URBAN, DrivingMode.MOTORWAY)
             }
             urbanInsufficient && ruralInsufficient && motorwaySufficient -> {
-                desiredDrivingMode = if (currentDrivingMode() == DrivingMode.URBAN || currentDrivingMode() == DrivingMode.URBAN) {
-                    DrivingMode.URBAN
-                } else {
-                    DrivingMode.RURAL
-                }
+                desiredDrivingMode = chooseNextDrivingMode(DrivingMode.URBAN, DrivingMode.RURAL)
             }
             motorwayInsufficient -> {
                 desiredDrivingMode = DrivingMode.MOTORWAY
@@ -107,7 +97,23 @@ class TrajectoryAnalyser(
                 desiredDrivingMode = DrivingMode.URBAN
             }
         }
+
+        isMotorwayValid()
+        isUrbanValid(averageUrbanSpeed)
+
         return desiredDrivingMode
+    }
+
+    /**
+     * Choose which should be the next driving mode
+     * @return the chosen driving mode
+     */
+    private fun chooseNextDrivingMode(firstDrivingMode: DrivingMode, secondDrivingMode: DrivingMode): DrivingMode {
+        return if (currentDrivingMode() == firstDrivingMode || currentDrivingMode() == firstDrivingMode) {
+            firstDrivingMode
+        } else {
+            secondDrivingMode
+        }
     }
 
     /**
@@ -134,15 +140,7 @@ class TrajectoryAnalyser(
         val highSpeedDuration = velocityProfile.getHighSpeed()
         return if (highSpeedDuration > 5) {
             true
-        } else if (totalTime + (5 - highSpeedDuration) <= 120) {
-            // There is enough time to drive at 100km/h for 5 minutes
-            if (motorwaySufficient) { // driver still needs to drive more in motorway
-                // TODO instruct driver to drive more in motorway and 100 km/h
-            }
-            true
-        } else {
-            false
-        }
+        } else totalTime + (5 - highSpeedDuration) <= 120 // There is enough time to drive at 100km/h for 5 minutes
     }
 
     /**
