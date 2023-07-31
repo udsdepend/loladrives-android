@@ -78,10 +78,8 @@ class TrajectoryAnalyser(
      * Check that the motorway driving style is valid.
      */
     private fun isMotorwayValid(): Boolean {
-        var isValid = true
-
         // Check that a speed of 100km/h is driven for at least 5 minutes for the motorway driving mode
-        isValid = if (velocityProfile.getHighSpeed() > 5) {
+        var isValid = if (velocityProfile.getHighSpeed() > 5) {
             true
         } else canHighSpeedPass()
 
@@ -107,25 +105,86 @@ class TrajectoryAnalyser(
         return if (highSpeedDuration > 5) {
             true
         } else {
-            totalTime.toLong() + (5- highSpeedDuration) <= 120
+            totalTime + (5- highSpeedDuration) <= 120
         }
         // TODO consider time and distance left to compute whether very high speed can pass
     }
 
     /**
      * Check that the urban driving style is valid.
+     * TODO: Check that a stopping percentage of 6% to 30% is covered for the urban driving mode
+     * TODO: Check that the average urban speed is between 15km/h and 40km/h
      */
-    private fun checkUrbanValid(): Boolean {
-        // TODO: Check that a stopping percentage of 6% to 30% is covered for the urban driving mode
-        val isValid = false
-        if (velocityProfile.getStoppingTime() > 0.3 * 120) {
-            isInvalid = true
+    private fun checkUrbanValid(averageUrbanSpeed: Double): Boolean {
+        var validStoppingPercentage: Boolean = if (velocityProfile.getStoppingTime() > 0.3 * 120 || velocityProfile.getStoppingTime() < 0.06 * 120) {
+            canStoppingPercentagePassWithExpectedDistance(velocityProfile.getStoppingTime())
+        } else {
+            true
         }
-        // TODO: Check that the average urban speed is between 15km/h and 40km/h
-
-        return isValid
+        var validAverageSpeed: Boolean = if (averageUrbanSpeed > 15 && averageUrbanSpeed < 40) {
+            true
+        } else {
+            canAverageUrbanSpeedPassWithExpectedDistance(averageUrbanSpeed)
+        }
+        return validAverageSpeed && validStoppingPercentage
     }
 
+    /**
+     * Check if the stopping percentage can be increased or decreased to pass this condition.
+     * TODO: Change logic to consider all possibilities
+     */
+    private fun canStoppingPercentagePassWithExpectedDistance(stoppingPercentage: Long) : Boolean {
+        val remainingTime = 120 - totalTime
+
+        return if (stoppingPercentage < 0.06 && !urbanComplete){
+            val timeRequiredToStop =  (0.06 - stoppingPercentage) * 120
+            timeRequiredToStop < remainingTime
+        } else if (stoppingPercentage < 0.06){
+            canStoppingSpeedPass()
+        } else if (stoppingPercentage > 0.3 && !urbanInsufficient) {
+            val timeRequiredToStop = (stoppingPercentage - 0.3) * 120
+            timeRequiredToStop < remainingTime
+        } else if (stoppingPercentage > 0.3) {
+            canStoppingSpeedPass()
+        } else {
+            true
+        }
+    }
+
+    /**
+     * Check if the stopping speed can be increased or decreased to pass this condition at all.
+     */
+    private fun canStoppingSpeedPass() : Boolean{
+        TODO("Not yet implemented")
+    }
+
+    /**
+     * Can the average urban speed be still achieved with the expected distance.
+     */
+    private fun canAverageUrbanSpeedPassWithExpectedDistance(averageUrbanSpeed: Double): Boolean {
+        val urbanDistanceLeft = (0.44 - urbanProportion) * expectedDistance
+        val remainingTime = 120 - totalTime
+
+        return if (urbanDistanceLeft < 0 || urbanComplete) {
+            // Need to drive a longer distance
+            canAverageUrbanSpeedPass()
+        } else {
+            // compute the average urban speed with the remaining distance to be done
+            val averageUrbanSpeedWithDistanceLeft = urbanDistanceLeft / remainingTime
+            averageUrbanSpeedWithDistanceLeft > 15 && averageUrbanSpeedWithDistanceLeft < 40
+        }
+    }
+
+    /**
+     * Check that the average urban speed of 15km/h and 40km/h can be achieved
+     * when the expected distance is extended but within the time limit of 120 minutes.
+     */
+    private fun canAverageUrbanSpeedPass() : Boolean{
+        // val remainingTime = 120 - totalTime
+        // All the driving modes sufficient then the average urban speed can be achieved without worrying about exceeding the proportion
+        //TODO: Implement logic to check all possibilities
+        return true
+    }
 
     /**
     * Check whether a driving style is sufficient.

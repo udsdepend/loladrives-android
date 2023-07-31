@@ -4,9 +4,10 @@ import java.util.Calendar
 
 class VelocityProfile {
     private var currentSpeed: Double = 0.0
-    private var velStop: Double = 0.0
-    private var vel100plus: Double = 0.0
-    private var vel145plus: Double = 0.0
+    private var previousSpeed: Double = 0.0
+    private var velStop: Long = 0L
+    private var vel100plus: Long = 0L
+    private var vel145plus: Long = 0L
     private var lastUpdated: Long = 0L
 
     /**
@@ -29,7 +30,7 @@ class VelocityProfile {
      * Set the time spent stopping (at 0 km/h).
      */
     private fun setStop(currentTime: Long) {
-        velStop = if (currentSpeed == 0.0) {
+        velStop = if (currentSpeed == 0.0 && previousSpeed == 0.0) {
             velStop + (currentTime - lastUpdated)
         } else {
             velStop
@@ -40,7 +41,7 @@ class VelocityProfile {
      * Set the time spent at 145 km/h or more.
      */
     private fun setVeryHighSpeed(currentTime: Long) {
-        vel145plus = if (currentSpeed > 145) {
+        vel145plus = if (currentSpeed > 145 && previousSpeed > 145) {
             vel145plus + (currentTime - lastUpdated)
         } else {
             vel145plus
@@ -51,7 +52,7 @@ class VelocityProfile {
      * Set the time spent at 100 km/h or more.
      */
     private fun setHighSpeed(currentTime: Long) {
-        vel100plus = if (currentSpeed > 100) {
+        vel100plus = if (currentSpeed > 100 && previousSpeed > 100) {
             vel100plus + (currentTime - lastUpdated)
         } else {
             vel100plus
@@ -68,21 +69,21 @@ class VelocityProfile {
     /**
      * Get the time spent stopping (at 0 km/h).
      */
-    fun getStoppingTime(): Double {
+    fun getStoppingTime(): Long {
         return velStop
     }
 
     /**
      * Get the time spent at 100 km/h or more.
      */
-    fun getHighSpeed(): Double {
+    fun getHighSpeed(): Long {
         return vel100plus
     }
 
     /**
      * Get the time spent at 145 km/h or more.
      */
-    fun getVeryHighSpeed(): Double {
+    fun getVeryHighSpeed(): Long {
         return vel145plus
     }
 
