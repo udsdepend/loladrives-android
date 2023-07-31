@@ -67,7 +67,8 @@ class RDEUIUpdater(
                     outputs[2],
                     outputs[3],
                     totalTime,
-                    fragment.rdeValidator.currentSpeed
+                    fragment.rdeValidator.currentSpeed,
+                    outputs[7]
                 )
 
                 // Update the prompt ProgressBars (total[0])

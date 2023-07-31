@@ -8,7 +8,6 @@ import androidx.fragment.app.FragmentTransaction
 import de.unisaarland.loladrives.Fragments.RDE.RDEFragment
 import de.unisaarland.loladrives.MainActivity
 import de.unisaarland.loladrives.R
-import kotlinx.android.synthetic.main.fragment_r_d_e.textViewAnalysis
 import kotlinx.android.synthetic.main.fragment_r_d_e.textViewRDEPrompt
 import java.util.Locale
 
