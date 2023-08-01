@@ -155,26 +155,42 @@ class TrajectoryAnalyser(
     }
 
     /**
-     * Check that the urban driving style is valid - a stopping percentage of 6% to 30% is covered
-     * for the urban driving mode.
+     * Check if the stopping percentage can be increased or decreased to pass this condition.
+     * @return the stopping percentage that can be increased or decreased to pass this condition
+     *         or null if not required.
      */
-    private fun isStoppingTimeValid(averageUrbanSpeed: Double): Boolean {
+    private fun isStoppingTimeValid() : Double? {
         val currentStoppingTime = velocityProfile.getStoppingTime()
-        val validStoppingPercentage: Boolean =
-            if (0.06 * 120 <= currentStoppingTime && currentStoppingTime <= 0.3 * 90) {
-                true
-            } else if (0.06 * totalTime <= currentStoppingTime && currentStoppingTime <= 0.3 * totalTime) {
-                true
-            } else {
-                if (canStoppingPercentagePass(velocityProfile.getStoppingTime())) {
-                    false // stopping percentage is not valid but can be increased or decreased to pass
-                } else {
-                    isInvalid = true
-                    false
-                }
-            }
+        val remainingTime = 120 - totalTime
 
-        return validStoppingPercentage
+        when {
+            currentStoppingTime.toDouble() ==  0.03 * 90 -> {
+                // Stopping percentage is close to being valid but can be increased to pass
+                return  currentStoppingTime/90 - 0.06
+            }
+            currentStoppingTime.toDouble() == 0.25 * 120 -> {
+                // Stopping percentage is close to being invalid but can be decreased to pass
+                return currentStoppingTime/120 - 0.3
+            }
+            currentStoppingTime > 0.3 * 90 && currentStoppingTime < 0.3 * 120 -> {
+                // Stopping percentage is invalid but can be decreased to pass
+                return currentStoppingTime/120 - 0.3
+            }
+            currentStoppingTime > 0.3 * 120 && remainingTime < (0.3 * 120 - currentStoppingTime)-> {
+                // Stopping percentage is invalid and can't be decreased to pass
+                return null
+            }
+            currentStoppingTime < 0.06 * 120 && remainingTime < (0.06 * 120 - currentStoppingTime) -> {
+                // Stopping percentage is invalid and can't be increased to pass
+                return null
+            }
+            0.06 * totalTime <= currentStoppingTime && currentStoppingTime <= 0.3 * totalTime ->{
+                return null
+            }
+            else -> {
+                return null
+            }
+        }
     }
 
     /**
@@ -192,35 +208,6 @@ class TrajectoryAnalyser(
                 null
             }
         }
-    }
-
-    /**
-     * Check if the stopping percentage can be increased or decreased to pass this condition.
-     * TODO: Change logic to consider all possibilities
-     */
-    private fun canStoppingPercentagePass(stoppingPercentage: Long) : Boolean {
-        val remainingTime = 120 - totalTime
-
-        return if (stoppingPercentage < 0.06 && !urbanComplete){
-            val timeRequiredToStop =  (0.06 - stoppingPercentage) * 120
-            timeRequiredToStop < remainingTime
-        } else if (stoppingPercentage < 0.06){
-            canStoppingSpeedPass()
-        } else if (stoppingPercentage > 0.3 && urbanSufficient) {
-            val timeRequiredToStop = (stoppingPercentage - 0.3) * 120
-            timeRequiredToStop < remainingTime
-        } else if (stoppingPercentage > 0.3) {
-            canStoppingSpeedPass()
-        } else {
-            true
-        }
-    }
-
-    /**
-     * Check if the stopping speed can be increased or decreased to pass this condition at all.
-     */
-    private fun canStoppingSpeedPass() : Boolean{
-        TODO("Not yet implemented")
     }
 
     /**
