@@ -1,7 +1,5 @@
 package org.rdeapp.pcdftester.Sinks
 
-import kotlin.time.measureTime
-
 class TrajectoryAnalyser(
     private val expectedDistance: Double,
     private val velocityProfile: VelocityProfile
@@ -67,8 +65,8 @@ class TrajectoryAnalyser(
      * Check if any of the driving modes are complete.
      */
     fun checkInvalid() : Boolean {
-        isMotorwayValid()
-        isUrbanValid(averageUrbanSpeed)
+        isHighSpeedValid()
+        isStoppingTimeValid(averageUrbanSpeed)
         return isInvalid || totalTime > 120
     }
 
@@ -98,8 +96,8 @@ class TrajectoryAnalyser(
             }
         }
 
-        isMotorwayValid()
-        isUrbanValid(averageUrbanSpeed)
+        isHighSpeedValid()
+        isStoppingTimeValid(averageUrbanSpeed)
 
         return desiredDrivingMode
     }
@@ -117,37 +115,62 @@ class TrajectoryAnalyser(
     }
 
     /**
-     * Check that the motorway driving style is valid and does not violate the constraints.
-     * If not and they cannot be validated, set isInvalid to true.
-     *
+     * Check that a speed of 145km/h is driven for less than 3% of the maximum test time
+     * of the motorway driving mode.
+     * If this is exceeded, set isInvalid to true.
+     * @return the duration of the driven speed if it is valid and requires warning, null otherwise
      */
-    private fun isMotorwayValid() {
-        // if it is not possible to drive at 100km/h for 5 minutes, set isInvalid to true to terminate the test
-        if (!canHighSpeedPass()) { isInvalid = true }
-
-        // Check that a speed of 145km/h is driven for less than 3% of max for the motorway driving mode
+    private fun isVeryHighSpeedValid(): Double? {
         val veryHighSpeedDuration = velocityProfile.getVeryHighSpeed()
         if (veryHighSpeedDuration > 0.03 * 120 * 0.43) {
             // driven in > 145 km/h for more than 3% of the max test time
             isInvalid = true
+            return null
+        } else if (veryHighSpeedDuration == (0.025 * 90 * 0.29).toLong()) {
+            return 0.025 // driven in > 145 km/h for more 1.5% of the min test time
+        }
+        else if (veryHighSpeedDuration == (0.015 * 90 * 0.29).toLong()) {
+            return 0.015 // driven in > 145 km/h for more 1.5% of the min test time
+        }
+        return null
+    }
+
+    /**
+     * Check that the motorway driving style is valid and does not violate the constraints.
+     * If not and they cannot be validated, set isInvalid to true to terminate the test.
+     * @return the remaining time to be driven if it is valid and requires instruction, null otherwise
+     */
+    private fun isHighSpeedValid(): Long? {
+        return when (val highSpeed = canHighSpeedPass()) {
+            null -> {
+                isInvalid = true
+                null
+            }
+            else -> highSpeed // the remaining time to be driven at 100km/h, or 0 if it is exceeded.
         }
     }
 
     /**
      * Consider time and distance left to compute whether high speed can pass
      */
-    private fun canHighSpeedPass(): Boolean {
+    private fun canHighSpeedPass(): Long? {
         val highSpeedDuration = velocityProfile.getHighSpeed()
         return if (highSpeedDuration > 5) {
-            true
-        } else totalTime + (5 - highSpeedDuration) <= 120 // There is enough time to drive at 100km/h for 5 minutes
+            0
+        } else {
+            if (totalTime + (5 - highSpeedDuration) <= 120) {
+                5 - highSpeedDuration // There is enough time to drive at 100km/h for 5 minutes
+            } else {
+                null
+            }
+        }
     }
 
     /**
      * Check that the urban driving style is valid - a stopping percentage of 6% to 30% is covered
      * for the urban driving mode, and the average speed is between 15km/h and 40km/h.
      */
-    private fun isUrbanValid(averageUrbanSpeed: Double): Boolean {
+    private fun isStoppingTimeValid(averageUrbanSpeed: Double): Boolean {
         val currentStoppingTime = velocityProfile.getStoppingTime()
         val validStoppingPercentage: Boolean =
             if (0.06 * 120 <= currentStoppingTime && currentStoppingTime <= 0.3 * 90) {
@@ -163,17 +186,23 @@ class TrajectoryAnalyser(
                 }
             }
 
-        val validAverageSpeed: Boolean = if (averageUrbanSpeed > 15 && averageUrbanSpeed < 40) {
-            true
+        return validStoppingPercentage
+    }
+
+    /**
+     * Check if the average urban speed can be increased or decreased to pass this condition.
+     */
+    private fun isAverageSpeedValid(): Double? {
+        return if (averageUrbanSpeed > 15 && averageUrbanSpeed < 40) {
+            0.0
         } else {
             if (canAverageUrbanSpeedPassWithExpectedDistance(averageUrbanSpeed)) {
-                false // average speed is not valid but can be increased or decreased to pass
+                50.0 // average speed is not valid but can be increased or decreased to pass
             } else {
                 isInvalid = true
-                false
+                null
             }
         }
-        return validAverageSpeed && validStoppingPercentage
     }
 
     /**
