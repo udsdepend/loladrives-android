@@ -164,6 +164,16 @@ class TrajectoryAnalyser(
         val remainingTime = 120 - totalTime
 
         when {
+            currentStoppingTime > 0.3 * 120 && remainingTime < (0.3 * 120 - currentStoppingTime)-> {
+                // Stopping percentage is invalid and can't be decreased to pass
+                isInvalid = true
+                return null
+            }
+            currentStoppingTime < 0.06 * 120 && remainingTime < (0.06 * 120 - currentStoppingTime) -> {
+                // Stopping percentage is invalid and can't be increased to pass
+                isInvalid = true
+                return null
+            }
             currentStoppingTime.toDouble() ==  0.03 * 90 -> {
                 // Stopping percentage is close to being valid but can be increased to pass
                 return  currentStoppingTime/90 - 0.06
@@ -175,14 +185,6 @@ class TrajectoryAnalyser(
             currentStoppingTime > 0.3 * 90 && currentStoppingTime < 0.3 * 120 -> {
                 // Stopping percentage is invalid but can be decreased to pass
                 return currentStoppingTime/120 - 0.3
-            }
-            currentStoppingTime > 0.3 * 120 && remainingTime < (0.3 * 120 - currentStoppingTime)-> {
-                // Stopping percentage is invalid and can't be decreased to pass
-                return null
-            }
-            currentStoppingTime < 0.06 * 120 && remainingTime < (0.06 * 120 - currentStoppingTime) -> {
-                // Stopping percentage is invalid and can't be increased to pass
-                return null
             }
             0.06 * totalTime <= currentStoppingTime && currentStoppingTime <= 0.3 * totalTime ->{
                 return null
@@ -196,46 +198,49 @@ class TrajectoryAnalyser(
     /**
      * Check if the average urban speed is between 15km/h and 40km/h, or can be increased or
      * decreased to pass this condition.
+     * @return the change in average urban speed to pass this condition
+     *         eg. -5 or 10, or null if not required.
      */
     private fun isAverageSpeedValid(): Double? {
-        return if (averageUrbanSpeed > 15 && averageUrbanSpeed < 40) {
-            0.0
-        } else {
-            if (canAverageUrbanSpeedPassWithExpectedDistance(averageUrbanSpeed)) {
-                50.0 // average speed is not valid but can be increased or decreased to pass
-            } else {
-                isInvalid = true
-                null
-            }
-        }
-    }
-
-    /**
-     * Can the average urban speed be still achieved with the expected distance.
-     */
-    private fun canAverageUrbanSpeedPassWithExpectedDistance(averageUrbanSpeed: Double): Boolean {
         val urbanDistanceLeft = (0.44 - urbanProportion) * expectedDistance
         val remainingTime = 120 - totalTime
+        val requiredSpeed = urbanDistanceLeft / remainingTime
 
-        return if (urbanDistanceLeft < 0 || urbanComplete) {
-            // Need to drive a longer distance
-            canAverageUrbanSpeedPass()
-        } else {
-            // compute the average urban speed with the remaining distance to be done
-            val averageUrbanSpeedWithDistanceLeft = urbanDistanceLeft / remainingTime
-            averageUrbanSpeedWithDistanceLeft > 15 && averageUrbanSpeedWithDistanceLeft < 40
+        when {
+            averageUrbanSpeed < 15 && (15 > requiredSpeed || 40 < requiredSpeed) && remainingTime < 20 -> {
+                // Need to faster drive make the average urban speed higher to pass but can't
+                isInvalid = true
+                return null
+            }
+            averageUrbanSpeed > 40 && urbanDistanceLeft == 0.0 && remainingTime < 20-> {
+                // Need to slower drive make the average urban speed lower to pass but can't
+                isInvalid = true
+                return null
+            }
+            averageUrbanSpeed > 35 && averageUrbanSpeed < 40 -> {
+                // average speed is close to being invalid
+                return 40 - averageUrbanSpeed
+            }
+            averageUrbanSpeed > 15 && averageUrbanSpeed < 20 -> {
+                // average speed is close to being invalid
+                return 15 - averageUrbanSpeed
+            }
+            averageUrbanSpeed > 40 -> {
+                // average speed is invalid but can be decreased to pass
+                return 40 - averageUrbanSpeed
+            }
+            averageUrbanSpeed < 15 -> {
+                // average speed is invalid but can be increased to pass
+                return 15 - averageUrbanSpeed
+            }
+            averageUrbanSpeed > 15 && averageUrbanSpeed < 40 -> {
+                // average speed is valid
+                return null
+            }
+            else -> {
+                return null
+            }
         }
-    }
-
-    /**
-     * Check that the average urban speed of 15km/h and 40km/h can be achieved
-     * when the expected distance is extended but within the time limit of 120 minutes.
-     */
-    private fun canAverageUrbanSpeedPass() : Boolean{
-        // val remainingTime = 120 - totalTime
-        // All the driving modes sufficient then the average urban speed can be achieved without worrying about exceeding the proportion
-        //TODO: Implement logic to check all possibilities
-        return true
     }
 
     /**
@@ -271,8 +276,8 @@ class TrajectoryAnalyser(
      * Calculate the speed change required to improve the driving style.
      */
     fun computeSpeedChange () : Double {
-        val lowerThreshold: Double;
-        val upperThreshold: Double;
+        val lowerThreshold: Double
+        val upperThreshold: Double
 
         when (desiredDrivingMode) {
             DrivingMode.URBAN -> { lowerThreshold = 0.0; upperThreshold = 60.0 }
