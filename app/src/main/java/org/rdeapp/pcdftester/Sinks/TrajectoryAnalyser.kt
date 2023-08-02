@@ -61,6 +61,19 @@ class TrajectoryAnalyser(
         return isInvalid || totalTime > 120
     }
 
+
+    /**
+     * @return the Array of the constrains on motorway and urban driving modes. All return values
+     * are null if the constraint is satisfied or is invalid, and a Double otherwise.
+     * [0] = isHighSpeedValid()
+     * [1] = isVeryHighSpeedValid()
+     * [2] = isStoppingTimeValid()
+     * [3] = isAverageSpeedValid()
+     */
+    fun getConstraints(): Array<Double?> {
+        return arrayOf(isHighSpeedValid(), isVeryHighSpeedValid(), isStoppingTimeValid(), isAverageSpeedValid())
+    }
+
     /**
      * Set the desired driving mode according to the proportions of urban, rural and motorway driving,
      * the current driving mode and the previously desired driving mode.
@@ -128,7 +141,7 @@ class TrajectoryAnalyser(
      * If not and they cannot be validated, set isInvalid to true to terminate the test.
      * @return the remaining time to be driven if it is valid and requires instruction, null otherwise
      */
-    private fun isHighSpeedValid(): Long? {
+    private fun isHighSpeedValid(): Double? {
         return when (val highSpeed = canHighSpeedPass()) {
             null -> {
                 isInvalid = true
@@ -141,10 +154,10 @@ class TrajectoryAnalyser(
     /**
      * Consider time and distance left to compute whether high speed can pass
      */
-    private fun canHighSpeedPass(): Long? {
-        val highSpeedDuration = velocityProfile.getHighSpeed()
+    private fun canHighSpeedPass(): Double? {
+        val highSpeedDuration = velocityProfile.getHighSpeed().toDouble()
         return if (highSpeedDuration > 5) {
-            0
+            0.0
         } else {
             if (totalTime + (5 - highSpeedDuration) <= 120) {
                 5 - highSpeedDuration // There is enough time to drive at 100km/h for 5 minutes
@@ -218,11 +231,11 @@ class TrajectoryAnalyser(
                 return null
             }
             averageUrbanSpeed > 35 && averageUrbanSpeed < 40 -> {
-                // average speed is close to being invalid
+                // average speed is high and close to being invalid
                 return 40 - averageUrbanSpeed
             }
             averageUrbanSpeed > 15 && averageUrbanSpeed < 20 -> {
-                // average speed is close to being invalid
+                // average speed is low and close to being invalid
                 return 15 - averageUrbanSpeed
             }
             averageUrbanSpeed > 40 -> {

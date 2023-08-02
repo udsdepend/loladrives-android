@@ -29,6 +29,7 @@ class PromptHandler (
     private var sufficientDrivingMode: DrivingMode? = null
     private var currentText: String = ""
     private var promptType: PromptTypes? = null
+    private var constraints: Array<Double?> = arrayOf(null)
 
     /**
      * Update the prompt for improving the driving style according to the received RTLola results.
@@ -38,13 +39,13 @@ class PromptHandler (
         handleInvalidRDE()
 
         // Cases where the RDE test is still valid, but the driver should improve
-        if (totalDistance > expectedDistance/3) {
-            analyseTrajectory(totalDistance)
-        } else {
+        if (totalDistance < expectedDistance / 3) {
             val sufficientDrivingMode = trajectoryAnalyser.checkSufficient()
             if (sufficientDrivingMode != null) {
                 promptType = PromptTypes.SUFFICIENCY
             }
+        } else {
+            analyseTrajectory(totalDistance)
         }
 
         generatePrompt()
@@ -82,6 +83,42 @@ class PromptHandler (
     private fun analyseTrajectory(totalDistance: Double) {
         desiredDrivingMode = trajectoryAnalyser.setDesiredDrivingMode() // set the desired driving mode accrued to the sufficient driving modes so far
         speedChange = trajectoryAnalyser.computeSpeedChange() // get the speed change needed to improve the driving style
+
+        constraints = trajectoryAnalyser.getConstraints()
+        setPromptType(constraints) // set the prompt type according to the constraints
+    }
+
+    /**
+     * Set the prompt type according to the constraints.
+     * @param constraints The constraints on the driving style.
+     */
+    private fun setPromptType(constraints: Array<Double?>) {
+        val highSpeed = constraints[0]
+        val veryHighSpeed = constraints[1]
+        val stoppingTime = constraints[2]
+        val averageUrbanSpeed = constraints[3]
+
+        when (desiredDrivingMode) {
+            DrivingMode.MOTORWAY -> {
+                if (highSpeed != null && promptType != PromptTypes.VERYHIGHSPEEDPERCENTAGE) {
+                    promptType = PromptTypes.HIGHSPEEDPERCENTAGE
+                } else if (veryHighSpeed != null) {
+                    promptType = PromptTypes.VERYHIGHSPEEDPERCENTAGE
+                }
+            }
+            DrivingMode.URBAN -> {
+                if (averageUrbanSpeed != null && promptType != PromptTypes.STOPPINGPERCENTAGE) {
+                    promptType = PromptTypes.AVERAGEURBANSPEED
+                } else if (stoppingTime != null) {
+                    promptType = PromptTypes.STOPPINGPERCENTAGE
+                }
+            }
+
+            else -> {
+                promptType = PromptTypes.DRIVINGSTYLE
+            }
+        }
+
     }
 
     /**
