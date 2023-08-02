@@ -100,7 +100,7 @@ class PromptHandler (
 
         when (desiredDrivingMode) {
             DrivingMode.MOTORWAY -> {
-                if (highSpeed != null && promptType != PromptTypes.VERYHIGHSPEEDPERCENTAGE) {
+                if (highSpeed != null && highSpeed != 0.0 && promptType != PromptTypes.VERYHIGHSPEEDPERCENTAGE) {
                     promptType = PromptTypes.HIGHSPEEDPERCENTAGE
                 } else if (veryHighSpeed != null) {
                     promptType = PromptTypes.VERYHIGHSPEEDPERCENTAGE
@@ -143,12 +143,14 @@ class PromptHandler (
                 setStoppingPercentagePrompt(constraints[2]!!)
             }
             PromptTypes.HIGHSPEEDPERCENTAGE -> {
-                fragment.textViewRDEPrompt.text = "Aim for a high speed percentage of 10% to 15%, if it is safe to do so"
-                fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+                setDrivingStyleText()
+                setDrivingStylePrompt(drivingStyleText)
+                setHighSpeedPrompt(constraints[0]!!)
             }
             PromptTypes.VERYHIGHSPEEDPERCENTAGE -> {
-                fragment.textViewRDEPrompt.text = "Aim for a very high speed percentage of 3% or less, if it is safe to do so"
-                fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+                setDrivingStyleText()
+                setDrivingStylePrompt(drivingStyleText)
+                setVeryHighSpeedPrompt(constraints[1]!!)
             }
         }
 
@@ -160,8 +162,35 @@ class PromptHandler (
     }
 
     /**
+     * Set the prompt text for the constraint of driving at 100km/h or more for at least 5 minutes.
+     * @param highSpeedDuration The duration of driving at 100km/h or more.
+     */
+    private fun setHighSpeedPrompt(highSpeedDuration: Double){
+        fragment.textViewAnalysis.text = "You need to drive at 100km/h or more for at least $highSpeedDuration minutes."
+        fragment.textViewAnalysis.setTextColor(Color.RED)
+    }
+
+    /**
+     * Set very high speed percentage prompt text.
+     * @param veryHighSpeedPercentage The very high speed percentage.
+     */
+    private fun setVeryHighSpeedPrompt(veryHighSpeedPercentage: Double){
+        when (veryHighSpeedPercentage) {
+            0.025 -> {
+                fragment.textViewAnalysis.text = "You have driven at 145km/h or more for 2.5% of the motorway driving distance."
+                fragment.textViewAnalysis.setTextColor(Color.RED)
+            }
+            0.015 -> {
+                fragment.textViewAnalysis.text = "You have driven at 145km/h or more for 1.5% of the motorway driving distance."
+                fragment.textViewAnalysis.setTextColor(Color.RED)
+            }
+        }
+    }
+
+    /**
      * Set the prompt text for the average urban speed.
      * @param averageUrbanSpeed The average urban speed.
+     * @param changeSpeed The change in speed needed to improve the driving style.
      */
     private fun setAverageUrbanSpeedPrompt(averageUrbanSpeed: Double, changeSpeed: Double){
         when {
