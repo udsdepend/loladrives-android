@@ -75,6 +75,13 @@ class TrajectoryAnalyser(
     }
 
     /**
+     * @return the average speed of the urban driving mode
+     */
+    fun getAverageUrbanSpeed(): Double {
+        return averageUrbanSpeed
+    }
+
+    /**
      * Set the desired driving mode according to the proportions of urban, rural and motorway driving,
      * the current driving mode and the previously desired driving mode.
      */

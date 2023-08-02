@@ -136,8 +136,8 @@ class PromptHandler (
                 setDrivingStyleAnalysis(trajectoryAnalyser.computeDuration())
             }
             PromptTypes.AVERAGEURBANSPEED -> {
-                fragment.textViewRDEPrompt.text = "Aim for an average speed between 15km/h to 40km/h, if it is safe to do so"
-                fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+                val averageUrbanSpeed = trajectoryAnalyser.getAverageUrbanSpeed()
+                setAverageUrbanSpeedPrompt(averageUrbanSpeed, constraints[3]!!)
             }
             PromptTypes.STOPPINGPERCENTAGE -> {
                 setStoppingPercentagePrompt(constraints[2]!!)
@@ -157,6 +157,33 @@ class PromptHandler (
             speak()
         }
         currentText = fragment.textViewRDEPrompt.text.toString()
+    }
+
+    /**
+     * Set the prompt text for the average urban speed.
+     * @param averageUrbanSpeed The average urban speed.
+     */
+    private fun setAverageUrbanSpeedPrompt(averageUrbanSpeed: Double, changeSpeed: Double){
+        when {
+            averageUrbanSpeed > 35 && averageUrbanSpeed < 40 -> {
+            fragment.textViewRDEPrompt.text = "Your average urban speed (${averageUrbanSpeed}km/h) is close to being invalid."
+            fragment.textViewAnalysis.text = "You are ${changeSpeed}km/h away from exceeding the upper bound."
+            fragment.textViewRDEPrompt.setTextColor(Color.RED)
+            }
+            averageUrbanSpeed > 15 && averageUrbanSpeed < 20 -> {
+            fragment.textViewRDEPrompt.text = "Your average urban speed (${averageUrbanSpeed}km/h) is close to being invalid."
+            fragment.textViewAnalysis.text = "You are ${changeSpeed}km/h more than the lower bound."
+            }
+            changeSpeed < 0 -> {
+            fragment.textViewRDEPrompt.text = "Your average urban speed (${averageUrbanSpeed}km/h) is too high."
+            fragment.textViewAnalysis.text = "You are ${changeSpeed}km/h more than the upper bound."
+            fragment.textViewRDEPrompt.setTextColor(Color.RED)
+            }
+            changeSpeed > 0 -> {
+            fragment.textViewRDEPrompt.text = "Your average urban speed (${averageUrbanSpeed}km/h) is too low."
+            fragment.textViewAnalysis.text = "You are ${changeSpeed}km/h less than the lower bound."
+            }
+        }
     }
 
     /**
