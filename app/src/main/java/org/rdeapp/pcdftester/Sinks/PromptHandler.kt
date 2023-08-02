@@ -140,8 +140,7 @@ class PromptHandler (
                 fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
             }
             PromptTypes.STOPPINGPERCENTAGE -> {
-                fragment.textViewRDEPrompt.text = "Aim for a stopping percentage of 10% to 15%, if it is safe to do so"
-                fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+                setStoppingPercentagePrompt(constraints[2]!!)
             }
             PromptTypes.HIGHSPEEDPERCENTAGE -> {
                 fragment.textViewRDEPrompt.text = "Aim for a high speed percentage of 10% to 15%, if it is safe to do so"
@@ -158,6 +157,28 @@ class PromptHandler (
             speak()
         }
         currentText = fragment.textViewRDEPrompt.text.toString()
+    }
+
+    /**
+     * Set prompt text for the stopping percentage.
+     * @param stoppingPercentage The difference in stopping percentage from the upper or lower bounds
+     */
+    private fun setStoppingPercentagePrompt(stoppingPercentage: Double) {
+        if (stoppingPercentage > 0) {
+            fragment.textViewRDEPrompt.text = "You are stopping too little. Try to stop more."
+            fragment.textViewAnalysis.text =
+                "You need to stop for at least ${(-stoppingPercentage) * 100}% more of the urban time."
+            fragment.textViewRDEPrompt.setTextColor(Color.RED)
+        } else if (stoppingPercentage < 0) {
+            fragment.textViewRDEPrompt.text =
+                "You are close to exceeding the stopping percentage. Try to stop less."
+            fragment.textViewAnalysis.text =
+                "You are stopping ${stoppingPercentage * 100}% less than the upper bound."
+            fragment.textViewRDEPrompt.setTextColor(Color.RED)
+        } else {
+            fragment.textViewRDEPrompt.text = "Your stopping percentage is good."
+            fragment.textViewRDEPrompt.setTextColor(Color.GREEN)
+        }
     }
 
     /**

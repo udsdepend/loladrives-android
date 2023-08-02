@@ -187,16 +187,16 @@ class TrajectoryAnalyser(
                 isInvalid = true
                 return null
             }
-            currentStoppingTime.toDouble() ==  0.03 * 90 -> {
+            currentStoppingTime.toDouble() >=  0.03 * 90 && currentStoppingTime.toDouble() <  0.06 * 90 -> {
                 // Stopping percentage is close to being valid but can be increased to pass
                 return  currentStoppingTime/90 - 0.06
             }
-            currentStoppingTime.toDouble() == 0.25 * 120 -> {
+            currentStoppingTime.toDouble() >= 0.25 * 120 && currentStoppingTime.toDouble() < 0.3 * 120 -> {
                 // Stopping percentage is close to being invalid but can be decreased to pass
                 return currentStoppingTime/120 - 0.3
             }
             currentStoppingTime > 0.3 * 90 && currentStoppingTime < 0.3 * 120 -> {
-                // Stopping percentage is invalid but can be decreased to pass
+                // Stopping percentage could be invalid but can be decreased to pass
                 return currentStoppingTime/120 - 0.3
             }
             0.06 * totalTime <= currentStoppingTime && currentStoppingTime <= 0.3 * totalTime ->{
