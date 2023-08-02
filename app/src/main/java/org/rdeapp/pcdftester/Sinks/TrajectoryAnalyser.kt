@@ -55,7 +55,7 @@ class TrajectoryAnalyser(
     }
 
     /**
-     * Check if any of the driving modes are complete.
+     * @return whether the test is invalid or has exceeded the time limit.
      */
     fun checkInvalid() : Boolean {
         return isInvalid || totalTime > 120
@@ -115,7 +115,7 @@ class TrajectoryAnalyser(
      * @return the chosen driving mode
      */
     private fun chooseNextDrivingMode(firstDrivingMode: DrivingMode, secondDrivingMode: DrivingMode): DrivingMode {
-        return if (currentDrivingMode() == firstDrivingMode || currentDrivingMode() == firstDrivingMode) {
+        return if (desiredDrivingMode == firstDrivingMode || currentDrivingMode() == firstDrivingMode) {
             firstDrivingMode
         } else {
             secondDrivingMode
@@ -228,7 +228,7 @@ class TrajectoryAnalyser(
 
         when {
             averageUrbanSpeed < 15 && (15 > requiredSpeed || 40 < requiredSpeed) && remainingTime < 20 -> {
-                // Need to faster drive make the average urban speed higher to pass but can't
+                // Need to drive faster to make the average urban speed higher to pass but can't
                 isInvalid = true
                 return null
             }
@@ -284,7 +284,7 @@ class TrajectoryAnalyser(
     /**
      * Determine the current driving mode according to the current speed.
      */
-    private fun currentDrivingMode(): DrivingMode {
+    fun currentDrivingMode(): DrivingMode {
         return when {
             currentSpeed < 60 -> DrivingMode.URBAN
             currentSpeed < 90 -> DrivingMode.RURAL
