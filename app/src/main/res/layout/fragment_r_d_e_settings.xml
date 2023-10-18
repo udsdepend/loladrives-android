@@ -11,7 +11,7 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="RDE Test Configuration"
+        android:text="@string/rde_setup"
         android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@id/guideline"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.2" />
+        app:layout_constraintGuide_percent="0.17" />
 
 
     <androidx.constraintlayout.widget.Guideline
@@ -30,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.35" />
+        app:layout_constraintGuide_percent="0.74" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineLeft"
@@ -47,41 +47,51 @@
         app:layout_constraintGuide_percent="0.92214113" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineRemember"
+        android:id="@+id/guidelineCarInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.77" />
+        app:layout_constraintGuide_percent="0.26" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineSeekBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.6" />
+        app:layout_constraintGuide_percent="0.85" />
 
     <ImageView
         android:id="@+id/startImageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="149dp"
+        android:layout_height="76dp"
         android:src="@drawable/start_button"
         app:layout_constraintBottom_toTopOf="@id/guideline6"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid"
+        app:layout_constraintRight_toRightOf="@id/guidelineRight" />
+
+
+    <ImageView
+        android:id="@+id/startFreeDriveButton"
+        android:layout_width="149dp"
+        android:layout_height="76dp"
+        android:src="@drawable/free_drive"
+        app:layout_constraintBottom_toTopOf="@id/guideline6"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineLeft"
+        app:layout_constraintRight_toRightOf="@id/guidelineVerticalMid" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.9" />
+        app:layout_constraintGuide_percent="0.96" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.52" />
+        app:layout_constraintGuide_percent="0.82" />
 
     <com.warkiz.widget.IndicatorSeekBar
         android:id="@+id/distanceSeekBar"
@@ -93,11 +103,11 @@
         app:isb_seek_smoothly="true"
         app:isb_show_indicator="none"
         app:isb_thumb_color="@color/darkBlue"
-        app:isb_thumb_size="30dp"
+        app:isb_thumb_size="20dp"
         app:isb_tick_marks_size="25dp"
         app:isb_track_background_size="2dp"
-        app:isb_track_progress_color="@color/colorPrimary"
-        app:isb_track_progress_size="5dp"
+        app:isb_track_progress_color="@color/darkGrey"
+        app:isb_track_progress_size="3dp"
         app:layout_constraintBottom_toBottomOf="@id/guidelineSeekBar"
         app:layout_constraintLeft_toLeftOf="@id/guidelineLeft"
         app:layout_constraintRight_toRightOf="@id/guidelineRight" />
@@ -107,8 +117,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="83 km"
-        android:textColor="@color/colorPrimary"
-        android:textSize="75sp"
+        android:textSize="40sp"
         app:layout_constraintBottom_toBottomOf="@id/guidelineButtons"
         app:layout_constraintLeft_toLeftOf="@id/guidelineLeft"
         app:layout_constraintRight_toRightOf="@id/guidelineRight" />
@@ -117,24 +126,11 @@
         android:id="@+id/textViewSelect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose a distance for your test ride"
-        android:textSize="15sp"
+        android:text="Distance:"
+        android:layout_marginStart="5dp"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@id/guidelineSelectText"
-        app:layout_constraintLeft_toLeftOf="@id/guidelineLeft"
-        app:layout_constraintRight_toRightOf="@id/guidelineRight" />
-
-    <TextView
-        android:id="@+id/textViewRemember"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:gravity="center"
-        android:lineSpacingExtra="7dp"
-        android:minLines="3"
-        android:text="An RDE ride takes between 90 and 120 minutes, and has to be at least 48km long. For more detailled information about RDE rides, simply click on this text."
-        app:layout_constraintBottom_toBottomOf="@id/guidelineRemember"
-        app:layout_constraintLeft_toLeftOf="@id/guidelineLeft"
-        app:layout_constraintRight_toRightOf="@id/guidelineRight" />
+        app:layout_constraintLeft_toLeftOf="@id/guidelineLeft" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineVerticalMid"
@@ -142,4 +138,195 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5" />
+
+    <TextView
+        android:id="@+id/textViewCarInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Car Info"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineCarInfo"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineLeft" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineSpeedTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.32" />
+
+    <TextView
+        android:id="@+id/textViewSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="Speed:"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineSpeedTemp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineLeft" />
+
+    <TextView
+        android:id="@+id/textViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="Temperature:"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineSpeedTemp"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid" />
+
+    <ImageView
+        android:id="@+id/imageViewSpeed"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/bt_connected"
+        app:layout_constraintBottom_toTopOf="@id/guidelineSpeedTemp"
+        app:layout_constraintLeft_toRightOf="@id/textViewSpeed" />
+
+    <ImageView
+        android:id="@+id/imageViewTemp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/bt_connected"
+        app:layout_constraintBottom_toTopOf="@id/guidelineSpeedTemp"
+        app:layout_constraintLeft_toRightOf="@id/textViewTemp" />
+
+    <ImageView
+        android:id="@+id/imageViewGPS"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/bt_connected"
+        app:layout_constraintBottom_toTopOf="@id/guidelineGPS"
+        app:layout_constraintLeft_toRightOf="@id/textViewGPS"
+        android:visibility="invisible"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineNoxCalc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.38" />
+
+    <TextView
+        android:id="@+id/textViewNoxCalc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="NOₓ Calculation:"
+        android:textSize="18dp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineNoxCalc"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineLeft" />
+
+    <TextView
+        android:id="@+id/textViewNoxCalc2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="None"
+        android:textSize="18dp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineNoxCalc"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineGPS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.44" />
+
+    <TextView
+        android:id="@+id/textViewGPS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="GPS:"
+        android:textSize="18dp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineGPS"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineLeft" />
+
+    <TextView
+        android:id="@+id/textViewGPSinit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="initializing..."
+        android:textColor="@color/lighGrey"
+        android:textSize="18dp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineGPS"
+        app:layout_constraintLeft_toRightOf="@id/textViewGPS" />
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineNOXSensor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <TextView
+        android:id="@+id/textViewNOXSensor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="NOₓ Sensor:"
+        android:textSize="18dp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineNOXSensor"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineLeft" />
+
+    <TextView
+        android:id="@+id/textViewNOXSensorInit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="warming up..."
+        android:textColor="@color/lighGrey"
+        android:textSize="18dp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineNOXSensor"
+        app:layout_constraintLeft_toRightOf="@id/textViewNOXSensor" />
+
+    <TextView
+        android:id="@+id/textViewConfig"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Config"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineConfig"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineLeft" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineConfig"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.6" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineNoxSensorSelect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.66" />
+
+    <TextView
+        android:id="@+id/textViewNoxSensorSelect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NOₓ Sensor:"
+        android:textSize="18dp"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/guidelineNoxSensorSelect"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineLeft"/>
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="@id/guidelineVerticalMid"
+        app:layout_constraintRight_toRightOf="@id/guidelineRight"
+        app:layout_constraintBottom_toBottomOf="@id/guidelineNoxSensorSelect"/>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

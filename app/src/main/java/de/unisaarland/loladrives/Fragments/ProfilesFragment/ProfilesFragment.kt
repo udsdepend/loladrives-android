@@ -33,7 +33,11 @@ class ProfilesFragment : Fragment() {
     // validates and parses profiles
     private val parser = ProfileParser()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profiles, container, false)
     }
@@ -103,8 +107,8 @@ class ProfilesFragment : Fragment() {
                     val dialog = activity.let {
                         AlertDialog.Builder(it).setMessage(
                             "You are trying to change your Monitoring Profile while a " +
-                                "track is ongoing. \nThis will stop your current track and start a new one with the " +
-                                "selected profile."
+                                    "track is ongoing. \nThis will stop your current track and start a new one with the " +
+                                    "selected profile."
                         )
                             .setTitle("Track ongoing")
                             .setNegativeButton("Cancel") { _, _ -> }

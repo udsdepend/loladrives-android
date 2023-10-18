@@ -40,6 +40,7 @@ import de.unisaarland.loladrives.Fragments.historyFragment.HistoryFragment
 import de.unisaarland.loladrives.Fragments.license.InitialPrivacyFragment
 import de.unisaarland.loladrives.Fragments.license.LicenseFragment
 import de.unisaarland.loladrives.Fragments.license.PrivacyFragment
+import de.unisaarland.loladrives.Sinks.EventLogger
 import de.unisaarland.loladrives.Sources.GPSSource
 import de.unisaarland.loladrives.Sources.OBDSource
 import de.unisaarland.loladrives.cache.CacheManager
@@ -52,7 +53,6 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.bluetooth_dialog.view.*
 import kotlinx.android.synthetic.main.webview.view.*
 import kotlinx.coroutines.*
-import org.rdeapp.pcdftester.Sinks.EventLogger
 import pcdfEvent.events.obdEvents.OBDCommand
 import java.io.File
 import java.io.IOException
@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         get() {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
-                    shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
+                        shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
             } else {
                 true
             }
@@ -161,7 +161,8 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction().replace(R.id.frame_layout, LicenseFragment())
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
         } else if (kotlin.math.abs(privacyPolicyVersionAccepted) < privacyPolicyVersion) {
-            supportFragmentManager.beginTransaction().replace(R.id.frame_layout, InitialPrivacyFragment())
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.frame_layout, InitialPrivacyFragment())
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
         } else {
             supportFragmentManager.beginTransaction().replace(R.id.frame_layout, homeFragment)
@@ -248,7 +249,7 @@ class MainActivity : AppCompatActivity() {
                     obdProducer?.initELM()
 
                     // Check whether a supported CAN protocol is used by the car and set ELM327 adapter up to use it
-                    if(obdProducer?.initProtocol() != true) {
+                    if (obdProducer?.initProtocol() != true) {
                         throw IllegalStateException()
                     }
 
@@ -264,7 +265,11 @@ class MainActivity : AppCompatActivity() {
                     true
                 } catch (e: Exception) {
                     stopTracking()
-                    Toast.makeText(this@MainActivity, getString(R.string.obd_comm_err), Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@MainActivity,
+                        getString(R.string.obd_comm_err),
+                        Toast.LENGTH_LONG
+                    ).show()
                     false
                 }
             }
@@ -367,6 +372,7 @@ class MainActivity : AppCompatActivity() {
                     FragmentTransaction.TRANSIT_FRAGMENT_OPEN
                 ).commit()
             } else {
+                progressBarBluetooth.visibility = View.VISIBLE
                 supportFragmentManager.beginTransaction().replace(
                     R.id.frame_layout,
                     rdeSettingsFragment
@@ -384,7 +390,11 @@ class MainActivity : AppCompatActivity() {
      * Called when a new Permission is granted.
      * We check whether one of the new permissions is location data and try to open the RDE-Settings again
      */
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         if (checkPermissionsBackground() || checkPermissionsForeground()) {
             openRDEFragment()
         }
@@ -394,16 +404,36 @@ class MainActivity : AppCompatActivity() {
     private fun getNextFileName(): String {
         val calendar = Calendar.getInstance()
         return calendar.get(Calendar.YEAR).toString() + "-" +
-            if (calendar.get(Calendar.MONTH) + 1 < 10) { "0" } else { "" } + (calendar.get(Calendar.MONTH) + 1) +
-            "-" +
-            if (calendar.get(Calendar.DAY_OF_MONTH) < 10) { "0" } else { "" } +
-            (calendar.get(Calendar.DAY_OF_MONTH)) +
-            "_" +
-            if (calendar.get(Calendar.HOUR_OF_DAY) < 10) { "0" } else { "" } + calendar.get(Calendar.HOUR_OF_DAY) +
-            "-" +
-            if (calendar.get(Calendar.MINUTE) < 10) { "0" } else { "" } + calendar.get(Calendar.MINUTE) +
-            "-" +
-            if (calendar.get(Calendar.SECOND) < 10) { "0" } else { "" } + calendar.get(Calendar.SECOND)
+                if (calendar.get(Calendar.MONTH) + 1 < 10) {
+                    "0"
+                } else {
+                    ""
+                } + (calendar.get(Calendar.MONTH) + 1) +
+                "-" +
+                if (calendar.get(Calendar.DAY_OF_MONTH) < 10) {
+                    "0"
+                } else {
+                    ""
+                } +
+                (calendar.get(Calendar.DAY_OF_MONTH)) +
+                "_" +
+                if (calendar.get(Calendar.HOUR_OF_DAY) < 10) {
+                    "0"
+                } else {
+                    ""
+                } + calendar.get(Calendar.HOUR_OF_DAY) +
+                "-" +
+                if (calendar.get(Calendar.MINUTE) < 10) {
+                    "0"
+                } else {
+                    ""
+                } + calendar.get(Calendar.MINUTE) +
+                "-" +
+                if (calendar.get(Calendar.SECOND) < 10) {
+                    "0"
+                } else {
+                    ""
+                } + calendar.get(Calendar.SECOND)
     }
 
     /**
@@ -483,16 +513,21 @@ class MainActivity : AppCompatActivity() {
             defaultProfile.appendText(
                 profileParser.generateFromArray(
                     arrayOf(
-                            RDECommand(OBDCommand.SPEED, 0),
-                            RDECommand(OBDCommand.RPM, 0),
-                            RDECommand(OBDCommand.COMMANDED_EGR, 0),
-                            RDECommand(OBDCommand.ENGINE_FUEL_RATE, 0),
-                            RDECommand(OBDCommand.AMBIENT_AIR_TEMPERATURE, 0),
-                            RDECommand(OBDCommand.FUEL_TYPE, 0),
-                            RDECommand(OBDCommand.NOX_SENSOR, 0),
-                            RDECommand(OBDCommand.NOX_SENSOR_CORRECTED, 0),
-                            RDECommand(OBDCommand.NOX_SENSOR_ALTERNATIVE, 0),
-                            RDECommand(OBDCommand.NOX_SENSOR_CORRECTED_ALTERNATIVE, 0)
+                        RDECommand(OBDCommand.SPEED, 0),
+                        RDECommand(OBDCommand.RPM, 0),
+                        RDECommand(OBDCommand.COMMANDED_EGR, 0),
+                        RDECommand(OBDCommand.EGR_ERROR, 0),
+                        RDECommand(OBDCommand.ENGINE_EXHAUST_FLOW_RATE, 0),
+                        RDECommand(OBDCommand.MAF_AIR_FLOW_RATE, 0),
+                        RDECommand(OBDCommand.MAF_AIR_FLOW_RATE_SENSOR, 0),
+                        RDECommand(OBDCommand.ENGINE_FUEL_RATE, 0),
+                        RDECommand(OBDCommand.ENGINE_FUEL_RATE_MULTI, 0),
+                        RDECommand(OBDCommand.AMBIENT_AIR_TEMPERATURE, 0),
+                        RDECommand(OBDCommand.FUEL_TYPE, 0),
+                        RDECommand(OBDCommand.NOX_SENSOR, 0),
+                        RDECommand(OBDCommand.NOX_SENSOR_CORRECTED, 0),
+                        RDECommand(OBDCommand.NOX_SENSOR_ALTERNATIVE, 0),
+                        RDECommand(OBDCommand.NOX_SENSOR_CORRECTED_ALTERNATIVE, 0)
                     )
                 )
             )
@@ -512,12 +547,19 @@ class MainActivity : AppCompatActivity() {
          default profile.
         */
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
-        val savedProfile = File(letDirectory, sharedPref.getString("profile", "default_profile.json")!!)
+        val savedProfile =
+            File(letDirectory, sharedPref.getString("profile", "default_profile.json")!!)
 
         selectedProfile = if (savedProfile.exists()) {
-            Pair(savedProfile.nameWithoutExtension, profileParser.parseProfile(savedProfile.readText()) ?: arrayOf())
+            Pair(
+                savedProfile.nameWithoutExtension,
+                profileParser.parseProfile(savedProfile.readText()) ?: arrayOf()
+            )
         } else {
-            Pair("default_profile", profileParser.parseProfile(defaultProfile.readText()) ?: arrayOf())
+            Pair(
+                "default_profile",
+                profileParser.parseProfile(defaultProfile.readText()) ?: arrayOf()
+            )
         }
     }
 
@@ -536,7 +578,8 @@ class MainActivity : AppCompatActivity() {
         letDirectory.mkdirs()
 
         // The data is only uploaded if a WiFi-Connection is present
-        val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.UNMETERED).build()
+        val constraints =
+            Constraints.Builder().setRequiredNetworkType(NetworkType.UNMETERED).build()
 
         // The data is uploaded once an hour
         val uploadWorkRequest: PeriodicWorkRequest =
@@ -553,7 +596,11 @@ class MainActivity : AppCompatActivity() {
 
         WorkManager
             .getInstance(this)
-            .enqueueUniquePeriodicWork("upload", ExistingPeriodicWorkPolicy.REPLACE, uploadWorkRequest)
+            .enqueueUniquePeriodicWork(
+                "upload",
+                ExistingPeriodicWorkPolicy.REPLACE,
+                uploadWorkRequest
+            )
     }
 
     /**
@@ -597,7 +644,8 @@ class MainActivity : AppCompatActivity() {
             when (intent?.action) {
                 BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                     /* Check if the disconnected bluetooth device is our obd device */
-                    val device: BluetoothDevice = intent.extras!!.get(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice
+                    val device: BluetoothDevice =
+                        intent.extras!!.get(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice
 
                     if (device.address != activity.mBluetoothSocket?.remoteDevice?.address) {
                         /* he disconnect does not affect our tracking */
@@ -666,9 +714,9 @@ class MainActivity : AppCompatActivity() {
                         .setNegativeButton("Try again") { _, _ -> handleBluetoothDisconnection() }
                         .setMessage(
                             "LolaDrives can not find your previously connected OBD-Bluetooth Adapter. " +
-                                "You may try restarting your vehicle or unplugging and replugging the Bluetooth " +
-                                "adapter and try again. \n\nThe ongoing session will " +
-                                "automatically continue once the connection is restored."
+                                    "You may try restarting your vehicle or unplugging and replugging the Bluetooth " +
+                                    "adapter and try again. \n\nThe ongoing session will " +
+                                    "automatically continue once the connection is restored."
                         )
                     if (rdeOnGoing) {
                         /* Currently performing an RDE-Drive */
@@ -677,8 +725,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     } else {
                         builder.setPositiveButton("Stop Monitoring") { _, _ ->
-                            val currentFragment = supportFragmentManager.fragments[1]
-                            if (currentFragment is TrackingFragment) {
+                            if (trackingFragment.isVisible) {
                                 trackingFragment.stopTracking()
                             } else {
                                 runBlocking { stopTracking() }
@@ -703,7 +750,8 @@ class MainActivity : AppCompatActivity() {
             when (intent?.action) {
                 BluetoothDevice.ACTION_FOUND -> {
                     /* Device found, check whether it's the device we lost connection to and reconnect */
-                    val device: BluetoothDevice = intent.extras!!.get(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice
+                    val device: BluetoothDevice =
+                        intent.extras!!.get(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice
 
                     /* If we are already connected, we can ignore the findings */
                     if (activity.bluetoothConnected) {
@@ -777,17 +825,24 @@ class MainActivity : AppCompatActivity() {
      * @property deviceList List of bonded Bluetooth devices
      * @property activity The running MainActivity
      */
-    class BluetoothDialog(private val deviceList: ArrayList<BluetoothDevice>, val activity: MainActivity) :
+    class BluetoothDialog(
+        private val deviceList: ArrayList<BluetoothDevice>,
+        val activity: MainActivity
+    ) :
         DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             /* Inflate the Selection-ListView with the list of bonded devices. */
-            val namesList = deviceList.map {
-                d ->
-                if (activity.mAddress == d.address && activity.bluetoothConnected) { d.name + "  ✓" } else { d.name }
+            val namesList = deviceList.map { d ->
+                if (activity.mAddress == d.address && activity.bluetoothConnected) {
+                    d.name + "  ✓"
+                } else {
+                    d.name
+                }
             }
             val inflater = requireActivity().layoutInflater
             val view = inflater.inflate(R.layout.bluetooth_dialog, null)
-            view.listViewBluetooth.adapter = ArrayAdapter<String>(activity, android.R.layout.simple_list_item_1, namesList)
+            view.listViewBluetooth.adapter =
+                ArrayAdapter<String>(activity, android.R.layout.simple_list_item_1, namesList)
             view.listViewBluetooth.invalidateViews()
             view.listViewBluetooth.setOnItemClickListener { _, _, position, _ ->
                 val device: BluetoothDevice = deviceList[position]
@@ -808,10 +863,9 @@ class MainActivity : AppCompatActivity() {
                     val subBuilder = AlertDialog.Builder(activity)
                     subBuilder.setMessage(
                         "Do you really want to disconnect your OBD Bluetooth Adapter? " +
-                            "\n \nThis might affect your RDE Trip."
+                                "\n \nThis might affect your RDE Trip."
                     )
-                        .setPositiveButton("Disconnect") {
-                            _, _ ->
+                        .setPositiveButton("Disconnect") { _, _ ->
                             activity.disconnectBT()
                             dismiss()
                         }.setNegativeButton("Cancel") { _, _ -> }
@@ -834,21 +888,23 @@ class MainActivity : AppCompatActivity() {
      * Runs in background.
      * @property activity The current [MainActivity]
      */
-    class ConnectToDevice(c: Context, val activity: MainActivity) : AsyncTask<Void, Void, String>() {
+    class ConnectToDevice(c: Context, val activity: MainActivity) :
+        AsyncTask<Void, Void, String>() {
         private var connectSuccess: Boolean = true
         private val context: Context = c
         override fun doInBackground(vararg params: Void?): String? {
             try {
                 if (activity.mBluetoothSocket == null || !activity.bluetoothConnected) {
                     activity.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-                    val device: BluetoothDevice = activity.mBluetoothAdapter.getRemoteDevice(activity.mAddress)
+                    val device: BluetoothDevice =
+                        activity.mBluetoothAdapter.getRemoteDevice(activity.mAddress)
                     activity.mUUID = device.uuids[0].uuid
                     activity.mBluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(
                         activity.mUUID
                     )
                     // stop looking for other devices , safes battery
                     BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
-                    activity.mBluetoothSocket !!.connect()
+                    activity.mBluetoothSocket!!.connect()
                 }
             } catch (e: IOException) {
                 connectSuccess = false
@@ -859,47 +915,56 @@ class MainActivity : AppCompatActivity() {
 
         override fun onPreExecute() {
             if (!activity.tryingToReconnect || activity.tracking) {
-                activity.progressBarBluetooth.visibility = View.VISIBLE
+                GlobalScope.launch(Dispatchers.Main) {
+                    activity.progressBarBluetooth.visibility = View.VISIBLE
+                }
             }
             super.onPreExecute()
         }
+
         override fun onPostExecute(result: String?) {
             super.onPostExecute(result)
-            if (!connectSuccess) {
-                if (!activity.tryingToReconnect || activity.tracking) {
-                    val toast =
-                        Toast.makeText(context, "Could not connect to device", Toast.LENGTH_LONG)
-                    toast.show()
-                }
-                if (!activity.tracking && !activity.tryingToReconnect) {
-                    activity.showBluetoothDialog()
-                }
-            } else {
-                activity.bluetoothConnected = true
-                activity.checkConnection()
-
-                /* Update the OBD-Source if a track is ongoing */
-                if (activity.tracking) {
-                    activity.obdProducer?.changeIOStreams(
-                        activity.mBluetoothSocket!!.inputStream,
-                        activity
-                            .mBluetoothSocket!!
-                            .outputStream
-                    )
-                    activity.obdProducer?.initELM()
+            GlobalScope.launch(Dispatchers.Main) {
+                if (!connectSuccess) {
+                    if (!activity.tryingToReconnect || activity.tracking) {
+                        val toast =
+                            Toast.makeText(
+                                context,
+                                "Could not connect to device",
+                                Toast.LENGTH_LONG
+                            )
+                        toast.show()
+                    }
+                    if (!activity.tracking && !activity.tryingToReconnect) {
+                        activity.showBluetoothDialog()
+                    }
                 } else {
-                    if (activity.targetFragment != null) {
-                        activity.supportFragmentManager.beginTransaction().replace(
-                            R.id.frame_layout,
-                            activity.targetFragment!!
-                        ).setTransition(
-                            FragmentTransaction.TRANSIT_FRAGMENT_OPEN
-                        ).commit()
-                        activity.targetFragment = null
+                    activity.bluetoothConnected = true
+                    activity.checkConnection()
+
+                    /* Update the OBD-Source if a track is ongoing */
+                    if (activity.tracking) {
+                        activity.obdProducer?.changeIOStreams(
+                            activity.mBluetoothSocket!!.inputStream,
+                            activity
+                                .mBluetoothSocket!!
+                                .outputStream
+                        )
+                        activity.obdProducer?.initELM()
+                    } else {
+                        if (activity.targetFragment != null) {
+                            activity.supportFragmentManager.beginTransaction().replace(
+                                R.id.frame_layout,
+                                activity.targetFragment!!
+                            ).setTransition(
+                                FragmentTransaction.TRANSIT_FRAGMENT_OPEN
+                            ).commit()
+                            activity.targetFragment = null
+                        }
                     }
                 }
+                activity.progressBarBluetooth.visibility = View.INVISIBLE
             }
-            activity.progressBarBluetooth.visibility = View.INVISIBLE
         }
     }
 
@@ -955,7 +1020,10 @@ class MainActivity : AppCompatActivity() {
      */
     private fun checkPermissionsBackground(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager
                 .PERMISSION_GRANTED
         } else {
             true
@@ -968,7 +1036,10 @@ class MainActivity : AppCompatActivity() {
     private fun requestPermissionsForeground() {
         ActivityCompat.requestPermissions(
             this,
-            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
             mPermissionID
         )
     }
@@ -1005,7 +1076,7 @@ class MainActivity : AppCompatActivity() {
         private val acceptButtonText: String? = null,
         private val laterButton: Boolean? = null
     ) : DialogFragment
-    () {
+        () {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val inflater = requireActivity().layoutInflater
             val helpView = inflater.inflate(R.layout.webview, null)
@@ -1050,21 +1121,32 @@ class MainActivity : AppCompatActivity() {
         if (supportFragmentManager.fragments.any { it is LicenseFragment || it is InitialPrivacyFragment }) {
             return
         }
-        val nextFragment: Fragment =
-            when (supportFragmentManager.fragments[0]) {
-                is ProfileDetailFragment -> {
-                    profileDetialFragment.onBackPressed()
-                    profilesFragment
-                }
-                is HistoryDetailFragment -> {
-                    historyFragment
-                }
-                else -> {
-                    homeFragment
-                }
+        var fragment: Fragment? = null
+        for (f in supportFragmentManager.fragments) {
+            if (f.isVisible) {
+                fragment = f
             }
+        }
+        val nextFragment: Fragment =
+                when (fragment) {
+                    is ProfileDetailFragment -> {
+                        profileDetialFragment.onBackPressed()
+                        profilesFragment
+                    }
+                    is RDESettingsFragment -> {
+                        println("Back pressed in rde settings, stop gps source")
+                        gpsSource?.stop()
+                        homeFragment
+                    }
+                    is HistoryDetailFragment -> {
+                        historyFragment
+                    }
+                    else -> {
+                        homeFragment
+                    }
+                }
         supportFragmentManager.beginTransaction().replace(R.id.frame_layout, nextFragment)
-            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
     }
 
     companion object {

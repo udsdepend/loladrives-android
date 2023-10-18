@@ -10,11 +10,13 @@ import pcdfEvent.events.obdEvents.OBDCommand
 
 class Constants {
     companion object {
-        const val RECONNECTION_TRIES: Int = 6
+        const val RECONNECTION_TRIES: Int = 5
 
-        const val RDE_RTLOLA_ENGINE = "rde_bridge"
+        const val RDE_RTLOLA_ENGINE = "rtlola_kotlin_bridge"
 
-        private const val VERSION_NUMBER = "1.0.4"
+        const val RELEVANT_OUTPUTS = "d,d_u,d_r,d_m,t_u,t_r,t_m,u_avg_v,r_avg_v,m_avg_v,u_va_pct,r_va_pct,m_va_pct,u_rpa,r_rpa,m_rpa,nox_per_kilometer,is_valid_test_num,not_rde_test_num"
+
+        private const val VERSION_NUMBER = "1.0.7"
 
         const val APP_ID = "LolaDrives v$VERSION_NUMBER"
 
@@ -29,20 +31,20 @@ class Constants {
         }
 
         val NOT_TRACKABLE_EVENTS: List<OBDCommand> = listOf(
-            OBDCommand.SUPPORTED_PIDS_1_00,
-            OBDCommand.SUPPORTED_PIDS_1_32,
-            OBDCommand.SUPPORTED_PIDS_1_64,
-            OBDCommand.SUPPORTED_PIDS_1_96,
-            OBDCommand.SUPPORTED_PIDS_1_128,
-            OBDCommand.SUPPORTED_PIDS_1_160,
-            OBDCommand.SUPPORTED_PIDS_1_192,
-            OBDCommand.SUPPORTED_PIDS_9_00,
-            OBDCommand.VIN
+                OBDCommand.SUPPORTED_PIDS_1_00,
+                OBDCommand.SUPPORTED_PIDS_1_32,
+                OBDCommand.SUPPORTED_PIDS_1_64,
+                OBDCommand.SUPPORTED_PIDS_1_96,
+                OBDCommand.SUPPORTED_PIDS_1_128,
+                OBDCommand.SUPPORTED_PIDS_1_160,
+                OBDCommand.SUPPORTED_PIDS_1_192,
+                OBDCommand.SUPPORTED_PIDS_9_00,
+                OBDCommand.VIN
         )
 
         val SINGLE_TIME_EVENTS: List<OBDCommand> = listOf(
-            OBDCommand.FUEL_TYPE,
-            OBDCommand.MAX_VALUES
+                OBDCommand.FUEL_TYPE,
+                OBDCommand.MAX_VALUES
         )
     }
 }
@@ -51,12 +53,13 @@ enum class OBDCommunication {
     INSUFFICIENT_SENSORS,
     OBD_COMMUNICATION_ERROR,
     UNSUPPORTED_PROTOCOL,
+    NO_FUELTYPE,
     OKAY
 }
 
 data class FileTokenPair(
-    @SerializedName("id") val name: String,
-    @SerializedName("auth_token")val authToken: String
+        @SerializedName("id") val name: String,
+        @SerializedName("auth_token") val authToken: String
 )
 
 fun Fragment.hideKeyboard() {

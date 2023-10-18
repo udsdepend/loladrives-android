@@ -33,10 +33,12 @@ class LicenseFragment : Fragment() {
             sharedPref.edit().putBoolean("license", true).apply()
 
             if (activity.donatingAllowed) {
-                activity.supportFragmentManager.beginTransaction().replace(R.id.frame_layout, activity.homeFragment)
+                activity.supportFragmentManager.beginTransaction()
+                    .replace(R.id.frame_layout, activity.homeFragment)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
             } else {
-                activity.supportFragmentManager.beginTransaction().replace(R.id.frame_layout, InitialPrivacyFragment())
+                activity.supportFragmentManager.beginTransaction()
+                    .replace(R.id.frame_layout, InitialPrivacyFragment())
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
             }
         }

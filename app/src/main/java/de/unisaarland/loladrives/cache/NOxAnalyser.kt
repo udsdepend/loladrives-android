@@ -4,11 +4,12 @@
 package de.unisaarland.loladrives.cache
 
 import de.unisaarland.loladrives.MainActivity
+import de.unisaarland.loladrives.Sinks.RDEValidator
 import de.unisaarland.pcdfanalyser.analysers.Analyser
 import de.unisaarland.pcdfanalyser.eventStream.EventStream
-import org.rdeapp.pcdftester.Sinks.RDEValidator
 
-class NOxAnalyser(eventStream: EventStream, activity: MainActivity) : Analyser<Double?>(eventStream) {
+class NOxAnalyser(eventStream: EventStream, activity: MainActivity) :
+    Analyser<Double?>(eventStream) {
     private val validator = RDEValidator(null, activity)
     var prepared = false
     var analysisResults: DoubleArray? = null

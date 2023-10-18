@@ -4,15 +4,16 @@ apply plugin: 'kotlin-android-extensions'
 
 
 
+
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 30
+    buildToolsVersion "32.0.0"
     defaultConfig {
         applicationId "de.unisaarland.loladrives"
         minSdkVersion 17
-        targetSdkVersion 29
-        versionCode 8
-        versionName "1.0.5"
+        targetSdkVersion 30
+        versionCode 10
+        versionName "1.0.7"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -68,7 +69,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     //implementation 'de.unisaarland.pcdf:pcdfcore:1.0.0'
-    implementation 'com.github.udsdepend.pcdf-core:pcdf-core-jvm:1.0.2'
+    implementation 'com.github.udsdepend.pcdf-core:pcdf-core-jvm:1.0.4'
     implementation 'com.google.android.gms:play-services-location:17.1.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"

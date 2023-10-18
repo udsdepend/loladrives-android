@@ -30,7 +30,8 @@ class ProfileListAdapter(
         rowView.profileName.text = name
 
         rowView.editProfileButton.setOnClickListener {
-            (fragment.requireActivity() as MainActivity).editedProfile = Pair(name, fragment.profiles["$name.json"]!!)
+            (fragment.requireActivity() as MainActivity).editedProfile =
+                Pair(name, fragment.profiles["$name.json"]!!)
             fragment.requireActivity().supportFragmentManager.beginTransaction().replace(
                 R.id.frame_layout,
                 (fragment.requireActivity() as MainActivity).profileDetialFragment

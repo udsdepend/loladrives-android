@@ -12,10 +12,10 @@ import androidx.fragment.app.FragmentTransaction
 import de.unisaarland.loladrives.MainActivity
 import de.unisaarland.loladrives.R
 import de.unisaarland.loladrives.R.layout
+import de.unisaarland.loladrives.Sinks.RDEHomeUpdater
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.rdeapp.pcdftester.Sinks.RDEHomeUpdater
 
 /**
  * The inital Fragment
@@ -27,7 +27,11 @@ class HomeFragment : Fragment() {
         lateinit var mActivity: MainActivity
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         mActivity = (requireActivity() as MainActivity)
 

@@ -35,14 +35,17 @@ class OBDSource(
 ) {
     // Map which helps us to remember the number of lines an answer for a certain OBDCommand consists of (speed up).
     private var numberOfLines: MutableMap<OBDCommand, Int?> = mutableMapOf()
+
     // Supported PIDs of the connected car.
     private var supportedCommands: MutableList<OBDCommand> = mutableListOf()
+
     // Subset of the commandList which is unsupported.
     private var notSupported: MutableList<OBDCommand> = mutableListOf()
     private var running = false
+
     //The used CAN protocol, ISO 15765-4 (SP6) by default, ISO 15765-4 (SP7) used e.g. by Daimler
     private var protocol = Protocol.SP6
-    private val headerLength : Int
+    private val headerLength: Int
         get() {
             return when (protocol) {
                 Protocol.SP6 -> 3
@@ -51,6 +54,7 @@ class OBDSource(
         }
 
     private var ioLock = ReentrantLock()
+
     init {
         for (command in OBDCommand.values()) {
             numberOfLines[command] = null
@@ -195,7 +199,10 @@ class OBDSource(
      * @param command OBDCommand to receive a response for.
      * @return Response as PCDFEvents.
      */
-    private fun receiveOBDMultiLine(lines: MutableList<String>, command: OBDCommand): MutableList<PCDFEvent?> {
+    private fun receiveOBDMultiLine(
+        lines: MutableList<String>,
+        command: OBDCommand
+    ): MutableList<PCDFEvent?> {
         val list: MutableList<PCDFEvent?> = mutableListOf()
         val iterator = lines.iterator()
         while (iterator.hasNext()) {
@@ -233,7 +240,10 @@ class OBDSource(
      * @param command OBDCommand to receive a response for.
      * @return Response as PCDFEvents.
      */
-    private fun receiveMultiFrame(lines: MutableList<String>, command: OBDCommand): MutableList<PCDFEvent?> {
+    private fun receiveMultiFrame(
+        lines: MutableList<String>,
+        command: OBDCommand
+    ): MutableList<PCDFEvent?> {
         val headers = mutableSetOf<String>()
         // Add first header.
         headers.add(lines[0].substring(0, headerLength))
@@ -400,7 +410,7 @@ class OBDSource(
         }
 
         for (
-            cmd in cmds
+        cmd in cmds
         ) {
             sendOBDCommand(cmd)
             delay(50)
@@ -455,6 +465,7 @@ class OBDSource(
             response
         )
     }
+
     /**
      * Sends ELM327 system command to the given OutputStream / OBD-Adapter.
      *
@@ -504,7 +515,11 @@ class OBDSource(
             ioLock.lock()
             // Reset ELM
             // TODO: change this here since it may make the app freeze
-            while (!response.contains("ELM")) {
+            if (VERBOSITY_MODE) {
+                println("Init ELM: reset")
+            }
+            //while (!response.contains("ELM")) {
+            while (response.length == 0) {
                 sendELM("Z")
                 response = receiveELM()
             }
@@ -512,6 +527,9 @@ class OBDSource(
             response = ""
 
             // Disable Echo
+            if (VERBOSITY_MODE) {
+                println("Init ELM: disable echo")
+            }
             while (!response.contains("OK")) {
                 sendELM("E0")
                 response = receiveELM()
@@ -520,6 +538,9 @@ class OBDSource(
             response = ""
 
             // disable linefeed, no carriage return characters after every response
+            if (VERBOSITY_MODE) {
+                println("Init ELM: disable linefeed")
+            }
             while (!response.contains("OK")) {
                 sendELM("L0")
                 response = receiveELM()
@@ -528,6 +549,9 @@ class OBDSource(
             response = ""
 
             // enable headers
+            if (VERBOSITY_MODE) {
+                println("Init ELM: enable headers")
+            }
             while (!response.contains("OK")) {
                 sendELM("H1")
                 response = receiveELM()
@@ -558,7 +582,7 @@ class OBDSource(
         }
     }
 
-    private fun checkProtocol(protocol: Protocol) : Boolean {
+    private fun checkProtocol(protocol: Protocol): Boolean {
         this.protocol = protocol
         elmInitProtocol(protocol)
 
@@ -569,8 +593,12 @@ class OBDSource(
         for (i in 1..5) {
             sendOBDCommand(SUPPORTED_PIDS_1_00)
             val response = receiveOBD(SUPPORTED_PIDS_1_00)
-            validResponse = response.fold(false, { acc, e -> acc or (e != null && e !is ErrorEvent) }) or validResponse
-            if (validResponse) { break }
+            validResponse = response.fold(
+                false,
+                { acc, e -> acc or (e != null && e !is ErrorEvent) }) or validResponse
+            if (validResponse) {
+                break
+            }
         }
 
         return validResponse
@@ -589,7 +617,7 @@ class OBDSource(
         }
     }
 
-    enum class Protocol(val command:String) {
+    enum class Protocol(val command: String) {
         SP6("SP6"), SP7("SP7")
     }
 }

@@ -15,7 +15,7 @@ class ProfileParser {
     private val api = MedeiaJacksonApi()
     private val objectMapper = jacksonObjectMapper()
     private val s = StringWriter()
-    private val validator = loadSchema()
+    private var validator: SchemaValidator? = null
 
     /**
      * validates JSON string against profile specification and parses into List of RDECommands
@@ -23,7 +23,16 @@ class ProfileParser {
      */
     fun parseProfile(input: String): Array<RDECommand>? {
         val unvalidatedParser = objectMapper.factory.createParser(input)
-        val validatedParser = api.decorateJsonParser(validator, unvalidatedParser)
+        validator = try {
+            loadSchema()
+        } catch (e: Exception) {
+            null
+        }
+        val validatedParser = if (validator != null) {
+            api.decorateJsonParser(validator!!, unvalidatedParser)
+        } else {
+            unvalidatedParser
+        }
 
         return try {
             val commands = objectMapper.readValue(validatedParser, Array<RDECommand>::class.java)
@@ -35,16 +44,28 @@ class ProfileParser {
     }
 
     fun generateFromArray(profile: Array<RDECommand>): String {
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        return try {
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            val unvalidatedGenerator = objectMapper.factory.createGenerator(s)
+            validator = try {
+                loadSchema()
+            } catch (e: Exception) {
+                null
+            }
+            val validatedGenerator = if (validator != null) {
+                api.decorateJsonGenerator(validator!!, unvalidatedGenerator)
+            } else {
+                unvalidatedGenerator
+            }
 
-        val unvalidatedGenerator = objectMapper.factory.createGenerator(s)
-        val validatedGenerator = api.decorateJsonGenerator(validator, unvalidatedGenerator)
+            objectMapper.writeValue(validatedGenerator, profile)
 
-        objectMapper.writeValue(validatedGenerator, profile)
-
-        val tmp = s.toString()
-        s.buffer.setLength(0)
-        return tmp
+            val tmp = s.toString()
+            s.buffer.setLength(0)
+            tmp
+        } catch (e: Exception) {
+            "Error while parsing array to profile"
+        }
     }
 
     // loads json-schema profile specification
@@ -52,22 +73,22 @@ class ProfileParser {
         // TODO: replace through file
         val source = StringSchemaSource(
             "{\n" +
-                "    \"type\": \"array\",\n" +
-                "    \"items\": {\n" +
-                "        \"type\":\"object\",\n" +
-                "        \"properties\":{\n" +
-                "            \"command\":{\n" +
-                "                \"type\":\"string\"\n" +
-                "            },\n" +
-                "            \"update_frequency\":{\n" +
-                "                \"type\":\"integer\",\n" +
-                "                \"minimum\": -1\n" +
-                "            }\n" +
-                "        },\n" +
-                "        \"required\":[\"command\",\"update_frequency\"]\n" +
-                "    },\n" +
-                "    \"uniqueItems\":true\n" +
-                "}",
+                    "    \"type\": \"array\",\n" +
+                    "    \"items\": {\n" +
+                    "        \"type\":\"object\",\n" +
+                    "        \"properties\":{\n" +
+                    "            \"command\":{\n" +
+                    "                \"type\":\"string\"\n" +
+                    "            },\n" +
+                    "            \"update_frequency\":{\n" +
+                    "                \"type\":\"integer\",\n" +
+                    "                \"minimum\": -1\n" +
+                    "            }\n" +
+                    "        },\n" +
+                    "        \"required\":[\"command\",\"update_frequency\"]\n" +
+                    "    },\n" +
+                    "    \"uniqueItems\":true\n" +
+                    "}",
             JsonSchemaVersion.DRAFT07
         )
         return api.loadSchema(source)

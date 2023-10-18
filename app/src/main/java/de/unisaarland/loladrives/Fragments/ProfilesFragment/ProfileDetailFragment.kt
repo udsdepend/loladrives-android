@@ -26,7 +26,11 @@ class ProfileDetailFragment : Fragment() {
     private lateinit var letDirectory: File
     private lateinit var activity: MainActivity
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile_detail, container, false)
     }
@@ -90,7 +94,8 @@ class ProfileDetailFragment : Fragment() {
         commands.forEach { commandList.add(RDECommand(it.key, it.value)) }
 
         // delete old profile
-        val oldProfile = File(letDirectory, (requireActivity() as MainActivity).editedProfile.first + ".json")
+        val oldProfile =
+            File(letDirectory, (requireActivity() as MainActivity).editedProfile.first + ".json")
 
         if (oldProfile.exists()) {
             oldProfile.delete()

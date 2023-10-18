@@ -27,9 +27,12 @@ class CacheManager(private val externalDir: File?, val activity: MainActivity) {
         val driver = AndroidSqliteDriver(CacheDatabase.Schema, activity, cacheFile.absolutePath)
         cacheDatabase = AnalysisCache.sharedDatabase(cacheFile, driver)
 
-        noxCache = NOxAnalysisCache(cacheDatabase, AnalysisCacheDelegate { NOxAnalyser(it, activity) })
+        noxCache =
+            NOxAnalysisCache(cacheDatabase, AnalysisCacheDelegate { NOxAnalyser(it, activity) })
         vinCache = VINAnalysisCache(cacheDatabase, AnalysisCacheDelegate { VINAnalyser(it) })
-        supportedPIDsCache = SupportedPIDsAnalysisCache(cacheDatabase, AnalysisCacheDelegate { SupportedPIDsAnalyser(it) })
+        supportedPIDsCache = SupportedPIDsAnalysisCache(
+            cacheDatabase,
+            AnalysisCacheDelegate { SupportedPIDsAnalyser(it) })
     }
 
     /**
@@ -61,13 +64,16 @@ class CacheManager(private val externalDir: File?, val activity: MainActivity) {
                         if (pcdfFile.name.contains("ppcdf")) {
                             try {
                                 vinCache.analysisResultForFile(pcdfFile, true)
-                            } catch (e: Exception) {}
+                            } catch (e: Exception) {
+                            }
                             try {
                                 supportedPIDsCache.analysisResultForFile(pcdfFile, true)
-                            } catch (e: Exception) {}
+                            } catch (e: Exception) {
+                            }
                             try {
                                 noxCache.analysisResultForFile(pcdfFile, true)
-                            } catch (e: Exception) {}
+                            } catch (e: Exception) {
+                            }
                         }
                     }
                 }

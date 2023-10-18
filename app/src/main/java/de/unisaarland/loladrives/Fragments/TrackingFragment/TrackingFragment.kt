@@ -10,10 +10,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import de.unisaarland.loladrives.MainActivity
 import de.unisaarland.loladrives.R
+import de.unisaarland.loladrives.Sinks.TrackingUIUpdater
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.fragment_tracking.*
 import kotlinx.coroutines.*
-import org.rdeapp.pcdftester.Sinks.TrackingUIUpdater
 import pcdfEvent.events.obdEvents.OBDCommand
 
 /**
@@ -25,7 +25,11 @@ class TrackingFragment : Fragment() {
     lateinit var activity: MainActivity
     private var uiUpdaterJob: Job? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_tracking, container, false)
     }
@@ -91,7 +95,7 @@ class TrackingFragment : Fragment() {
                     val toast = Toast.makeText(
                         context,
                         "LolaDrives had problems communicating with your vehicle, make sure your engine is on" +
-                            " and please try again",
+                                " and please try again",
                         Toast.LENGTH_LONG
                     )
                     toast.show()
@@ -105,7 +109,7 @@ class TrackingFragment : Fragment() {
         if ((requireActivity() as MainActivity).tracking) {
             val toast = Toast.makeText(
                 context,
-                "Already running a RDE Track",
+                "Already running an RDE Track",
                 Toast.LENGTH_LONG
             )
             toast.show()

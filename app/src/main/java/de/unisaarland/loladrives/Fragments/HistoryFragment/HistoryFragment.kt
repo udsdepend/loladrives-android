@@ -34,7 +34,11 @@ class HistoryFragment : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_history, container, false)
     }
@@ -85,7 +89,8 @@ class HistoryFragment : Fragment() {
             fileNames.add("No records available.")
         }
 
-        val adapter = ArrayAdapter<String>(requireActivity(), android.R.layout.simple_list_item_1, fileNames)
+        val adapter =
+            ArrayAdapter<String>(requireActivity(), android.R.layout.simple_list_item_1, fileNames)
 
         tripListView.adapter = adapter
         initOnClick()
@@ -100,15 +105,16 @@ class HistoryFragment : Fragment() {
         }
 
         // LongClick Listeners to delete the trips
-        tripListView.onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
-            if (files.isNotEmpty()) {
-                val deleteDialog = DeleteDialog(files[position], this)
-                deleteDialog.show(requireActivity().supportFragmentManager, "")
-                true
-            } else {
-                true
+        tripListView.onItemLongClickListener =
+            AdapterView.OnItemLongClickListener { _, _, position, _ ->
+                if (files.isNotEmpty()) {
+                    val deleteDialog = DeleteDialog(files[position], this)
+                    deleteDialog.show(requireActivity().supportFragmentManager, "")
+                    true
+                } else {
+                    true
+                }
             }
-        }
     }
 
     class PrivacyDialog : DialogFragment() {
@@ -148,12 +154,15 @@ class HistoryFragment : Fragment() {
         private fun deleteFile(file: File) {
             file.delete()
             val directory = File(fragment.letDirectory, file.nameWithoutExtension)
-            if (directory.exists() && directory.isDirectory && directory.listFiles()?.isEmpty() == true) {
+            if (directory.exists() && directory.isDirectory && directory.listFiles()
+                    ?.isEmpty() == true
+            ) {
                 directory.delete()
             }
 
             fragment.refreshList()
-            val sharedPref = fragment.activity.getSharedPreferences("uploaded", Context.MODE_PRIVATE)
+            val sharedPref =
+                fragment.activity.getSharedPreferences("uploaded", Context.MODE_PRIVATE)
             val alreadyUploaded = mutableSetOf<String>()
             alreadyUploaded.addAll(sharedPref.getStringSet("uploaded_trips", mutableSetOf())!!)
             alreadyUploaded.remove(file.name)
