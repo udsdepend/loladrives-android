@@ -6,14 +6,14 @@ apply plugin: 'kotlin-android-extensions'
 
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 33
     buildToolsVersion "32.0.0"
     defaultConfig {
         applicationId "de.unisaarland.loladrives"
         minSdkVersion 17
-        targetSdkVersion 30
-        versionCode 10
-        versionName "1.0.7"
+        targetSdkVersion 33
+        versionCode 11
+        versionName "1.0.8"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -84,7 +84,7 @@ dependencies {
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.18'
-    implementation "androidx.work:work-runtime-ktx:2.4.0"
+    implementation "androidx.work:work-runtime-ktx:2.8.0"
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation "com.squareup.sqldelight:android-driver:1.5.0"
 }

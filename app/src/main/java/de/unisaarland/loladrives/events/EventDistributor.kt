@@ -32,7 +32,7 @@ class EventDistributor {
         for (event in inputChannel) {
             lock.lock()
             for (channel in outputChannels) {
-                channel.offer(event)
+                channel.trySend(event)
             }
             lock.unlock()
         }

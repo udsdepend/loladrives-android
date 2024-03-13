@@ -241,7 +241,7 @@ class RDEValidator(
             // The result may be empty, since we are referring to periodic streams (1 Hz). So we receive updated results
             // every full second.
             if (lolaResult.isNotEmpty()) {
-                outputChannel.offer(lolaResult)
+                outputChannel.trySend(lolaResult).isSuccess
             }
             return lolaResult
         }

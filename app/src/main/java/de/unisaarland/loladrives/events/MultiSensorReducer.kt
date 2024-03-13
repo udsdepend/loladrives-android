@@ -27,7 +27,7 @@ class MultiSensorReducer(
 
     suspend fun start() {
         for (event in inputChannel) {
-            outputChannel.offer(reduce(event))
+            outputChannel.trySend(reduce(event))
         }
     }
 
