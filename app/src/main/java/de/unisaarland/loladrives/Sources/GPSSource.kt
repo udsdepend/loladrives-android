@@ -14,6 +14,7 @@ import pcdfEvent.events.GPSEvent
 
 class GPSSource(val outputChannel: SendChannel<PCDFEvent>, val activity: Activity) {
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
+    val mUUID = "6183f7d2-9dc1-11ea-bb37-0242ac130002"
 
     fun start() {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)

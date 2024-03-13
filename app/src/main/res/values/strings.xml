@@ -62,6 +62,4 @@
     <string name="bluetoothNote">Note: Only paired devices show up here. Go to Android\'s Bluetooth settings to pair a new device.</string>
     <string name="obd_comm_err">LolaDrives had problems communicating with your vehicle, make sure your engine is on and please try again</string>
     <string name="my_cars">My Cars</string>
-    <string name="rde_setup">RDE Setup</string>
-    <string name="noNox">No NOₓ Sensor found!</string>
 </resources>

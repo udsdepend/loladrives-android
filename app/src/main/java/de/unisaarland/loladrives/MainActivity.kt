@@ -372,7 +372,6 @@ class MainActivity : AppCompatActivity() {
                     FragmentTransaction.TRANSIT_FRAGMENT_OPEN
                 ).commit()
             } else {
-                progressBarBluetooth.visibility = View.VISIBLE
                 supportFragmentManager.beginTransaction().replace(
                     R.id.frame_layout,
                     rdeSettingsFragment
@@ -1121,32 +1120,21 @@ class MainActivity : AppCompatActivity() {
         if (supportFragmentManager.fragments.any { it is LicenseFragment || it is InitialPrivacyFragment }) {
             return
         }
-        var fragment: Fragment? = null
-        for (f in supportFragmentManager.fragments) {
-            if (f.isVisible) {
-                fragment = f
-            }
-        }
         val nextFragment: Fragment =
-                when (fragment) {
-                    is ProfileDetailFragment -> {
-                        profileDetialFragment.onBackPressed()
-                        profilesFragment
-                    }
-                    is RDESettingsFragment -> {
-                        println("Back pressed in rde settings, stop gps source")
-                        gpsSource?.stop()
-                        homeFragment
-                    }
-                    is HistoryDetailFragment -> {
-                        historyFragment
-                    }
-                    else -> {
-                        homeFragment
-                    }
+            when (supportFragmentManager.fragments[0]) {
+                is ProfileDetailFragment -> {
+                    profileDetialFragment.onBackPressed()
+                    profilesFragment
                 }
+                is HistoryDetailFragment -> {
+                    historyFragment
+                }
+                else -> {
+                    homeFragment
+                }
+            }
         supportFragmentManager.beginTransaction().replace(R.id.frame_layout, nextFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
     }
 
     companion object {

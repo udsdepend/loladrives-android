@@ -55,9 +55,9 @@ class RDEValidator(
     } else {
         mutableListOf()
     }
-    private var fuelType = ""
-    private var fuelRateSupported = false
-    private var faeSupported = false
+    private var fuelType = "Diesel"
+    private var fuelRateSupported = true
+    private var faeSupported = true
 
     private val specBody: String
     private val specHeader: String
@@ -299,75 +299,62 @@ class RDEValidator(
      * @param fuelType The car's fuel type, from [getFuelType].
      * @return If an RDE test is possible with the connected car.
      */
-    private fun checkSupportedPids(supportedPids: List<Int>, fuelType: String): Pair<Boolean, List<OBDCommand>> {
-        // Commandlist contains the supported command relevant for RDE, necessary to show in Setup
-        val commandList = mutableListOf<OBDCommand>()
-        var validPids = true
+    private fun checkSupportedPids(supportedPids: List<Int>, fuelType: String): Boolean {
+        // If the car is not a diesel or gasoline, the RDE test is not possible since there are no corresponding
+        // specifications.
         if (fuelType != "Diesel" && fuelType != "Gasoline") {
             println("Incompatible for RDE: Fuel type unknown or invalid ('${fuelType}')")
-            validPids = false
+            return false
         }
 
         // Velocity information to determine acceleration, distance travelled and to calculate the driving dynamics.
         if (supportedPids.contains(0x0D)) {
             rdeProfile.add(SPEED)
-            commandList.add(SPEED)
         } else {
             println("Incompatible for RDE: Speed data not provided by the car.")
-            validPids = false
+            return false
         }
 
         // Ambient air temperature for checking compliance with the environmental constraints.
         if (supportedPids.contains(0x46)) {
             rdeProfile.add(AMBIENT_AIR_TEMPERATURE)
-            commandList.add(AMBIENT_AIR_TEMPERATURE)
         } else {
             println("Incompatible for RDE: Ambient air temperature not provided by the car.")
-            validPids = false
+            return false
         }
 
         // NOx sensor(s) to check for violation of the EU regulations.
-        var noxFound = false
-        if (supportedPids.contains(0x83)) {
-            rdeProfile.add(NOX_SENSOR)
-            commandList.add(NOX_SENSOR)
-            noxFound = true
-        }
-
-        if (supportedPids.contains(0xA1)) {
-            if (!noxFound) rdeProfile.add(NOX_SENSOR_CORRECTED)
-            commandList.add(NOX_SENSOR_CORRECTED)
-            noxFound = true
-        }
-
-        if (supportedPids.contains(0xA7)) {
-            if (!noxFound) rdeProfile.add(NOX_SENSOR_ALTERNATIVE)
-            commandList.add(NOX_SENSOR_ALTERNATIVE)
-            noxFound = true
-        }
-
-        if (supportedPids.contains(0xA8)) {
-            if (!noxFound) rdeProfile.add(NOX_SENSOR_CORRECTED_ALTERNATIVE)
-            commandList.add(NOX_SENSOR_CORRECTED_ALTERNATIVE)
-            noxFound = true
-        }
-
-        if (!noxFound) {
-            validPids = false
+        when {
+            supportedPids.contains(0x83) -> {
+                rdeProfile.add(NOX_SENSOR)
+            }
+            supportedPids.contains(0xA1) -> {
+                rdeProfile.add(NOX_SENSOR_CORRECTED)
+            }
+            supportedPids.contains(0xA7) -> {
+                rdeProfile.add(NOX_SENSOR_ALTERNATIVE)
+            }
+            supportedPids.contains(0xA8) -> {
+                rdeProfile.add(NOX_SENSOR_CORRECTED_ALTERNATIVE)
+            }
+            else -> {
+                println("Incompatible for RDE: NOx sensor not provided by the car.")
+                return false
+            }
         }
 
         // Fuelrate sensors for calculation of the exhaust mass flow. Can be replaced through MAF.
+        // TODO: ask Maxi for the EMF PID
         fuelRateSupported = when {
             supportedPids.contains(0x5E) -> {
                 rdeProfile.add(ENGINE_FUEL_RATE)
-                commandList.add(ENGINE_FUEL_RATE)
                 true
             }
             supportedPids.contains(0x9D) -> {
                 rdeProfile.add(ENGINE_FUEL_RATE_MULTI)
-                commandList.add(ENGINE_FUEL_RATE_MULTI)
                 true
-            } else -> {
+            }
+            else -> {
                 println("RDE: Fuel rate not provided by the car.")
                 false
             }
@@ -377,21 +364,19 @@ class RDEValidator(
         when {
             supportedPids.contains(0x10) -> {
                 rdeProfile.add(MAF_AIR_FLOW_RATE)
-                commandList.add(MAF_AIR_FLOW_RATE)
             }
             supportedPids.contains(0x66) -> {
                 rdeProfile.add(MAF_AIR_FLOW_RATE_SENSOR)
-                commandList.add(MAF_AIR_FLOW_RATE_SENSOR)
-            } else -> {
-            println("Incompatible for RDE: Mass air flow not provided by the car.")
-            validPids = false
-        }
+            }
+            else -> {
+                println("Incompatible for RDE: Mass air flow not provided by the car.")
+                return false
+            }
         }
 
         // Fuel air equivalence ratio for a more precise calculation of the fuel rate with MAF.
         faeSupported = if (supportedPids.contains(0x44) && !fuelRateSupported) {
             rdeProfile.add(FUEL_AIR_EQUIVALENCE_RATIO)
-            commandList.add(FUEL_AIR_EQUIVALENCE_RATIO)
             true
         } else {
             println("RDE: Fuel air equivalence ratio not provided by the car.")
@@ -399,8 +384,8 @@ class RDEValidator(
         }
 
         println("Car compatible for RDE tests.")
-        println("Command list: "+ commandList.joinToString())
-        return Pair(validPids,commandList)
+
+        return true
     }
 
     /**
@@ -410,10 +395,10 @@ class RDEValidator(
      * @return If a RDE Test is possible.
      */
     @ExperimentalCoroutinesApi
-    suspend fun performSupportedPidsCheck(): Pair<OBDCommunication, List<OBDCommand>> {
+    suspend fun performSupportedPidsCheck(): OBDCommunication {
         source.initELM()
         if (!source.initProtocol()) {
-            return Pair(UNSUPPORTED_PROTOCOL, listOf())
+            return UNSUPPORTED_PROTOCOL
         }
 
         val supportedPids = getSupportedPids()
@@ -421,11 +406,14 @@ class RDEValidator(
         fuelType = if (supportedPids.contains(0x51)) {
             getFuelType()
         } else {
-            return Pair(NO_FUELTYPE, listOf())
+            return INSUFFICIENT_SENSORS
         }
 
-        val check = checkSupportedPids(supportedPids, fuelType)
-        return if (check.first) { Pair(OKAY,check.second) } else { Pair(INSUFFICIENT_SENSORS,check.second) }
+        return if (checkSupportedPids(supportedPids, fuelType)) {
+            OKAY
+        } else {
+            INSUFFICIENT_SENSORS
+        }
     }
 
     /**
@@ -478,7 +466,7 @@ class RDEValidator(
         }
 
         // Check Supported PIDs
-        val supported = checkSupportedPids(suppPids, fuelType).first
+        val supported = checkSupportedPids(suppPids, fuelType)
         if (!supported) {
             throw IllegalStateException()
         }
